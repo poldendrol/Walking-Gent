@@ -257,7 +257,15 @@ def main():
 
     if "gems" in only:
         # Protected buildings in Ghent: the city's everyday heritage beyond the famous sights
-        rows = fetch_csv("gemeente=44021") + fetch_csv("tekst=rasphuis")
+        types = ["stadswoningen", "burgerhuizen", "herenhuizen", "godshuizen", "gevangenissen", "gildehuizen", "refugiehuizen",
+                 "pakhuizen", "katoenfabrieken", "vlasspinnerijen", "brouwerijen", "winkels", "onderwijsgebouwen", "hospitalen",
+                 "kloosters", "begijnhoven", "kapellen (gebouwen en structuren)", "stadspoorten", "poorten (bijgebouwen)",
+                 "hotels", "cafés", "theaters", "bioscopen", "postkantoren", "stations", "badhuizen", "washuizen",
+                 "feestzalen", "volkshuizen", "bankgebouwen", "ateliers", "art-decowoningen", "lusthoven", "torens", "bruggen"]
+        rows = []
+        for t in types:
+            rows += fetch_csv("typologie=" + urllib.parse.quote(t))
+        rows += fetch_csv("tekst=rasphuis") + fetch_csv("tekst=Rasphuisstraat")
         skip_types = re.compile(r"\bbeluiken\b|kastkapellen|gevelniskapellen|Mariabeelden", re.I)
         keep_rows = [r for r in rows if (r.get("is_beschermd") == "True" or re.search(r"rasphuis", r["naam"], re.I))
                      and r.get("bewaringstoestand", "").strip() == "bewaard"
