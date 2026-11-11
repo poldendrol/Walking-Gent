@@ -512,7 +512,12 @@ function openBeluik(id) {
   if (b.designer) facts.push(["Designer", b.designer]);
   if (b.style) facts.push(["Style", b.style]);
   const extra = (b.typology || "").split(",").map(t => t.trim()).filter(t => t && t !== "beluiken");
-  if (extra.length) facts.push(["Also on site", extra.join(", ")]);
+  const NL = { gemakhuisjes: "shared toilets", kastkapellen: "wall chapels", waterpompen: "water pumps", kasseiwegen: "cobbled lanes",
+    arbeiderswoningen: "workers' houses", stadswoningen: "town houses", werkplaatsen: "workshops", opslagplaatsen: "warehouses",
+    "poorten (bijgebouwen)": "gateway", washuizen: "wash houses", blekerijen: "bleachery", palen: "bollards", winkels: "shops",
+    achterhuizen: "back houses", burgerhuizen: "bourgeois houses", stallen: "stables", hoeven: "farmhouse", weverijen: "weaving mill",
+    katoenfabrieken: "cotton mill", Mariagrotten: "Lourdes grotto", hekken: "gates", godshuizen: "almshouses" };
+  if (extra.length) facts.push(["Also on site", extra.map(t => NL[t] || t).join(", ")]);
 
   $("sheetBody").innerHTML = `
     <div class="tags">${tags.join("")}</div>
