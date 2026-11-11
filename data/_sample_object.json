@@ -1,0 +1,1242 @@
+{
+ "id": 18152,
+ "naam": "Steegbeluik Koer van Loo",
+ "status": {
+  "actief": true,
+  "id": 741549,
+  "status": {
+   "id": 75,
+   "naam": "Actief",
+   "uri": "https://id.erfgoed.net/vocab/ontology#Actief"
+  },
+  "opmerkingen": null,
+  "datum": "2021-05-26T16:12:19.269286+02:00"
+ },
+ "erfgoedwaarde": true,
+ "primaire_foto": "https://id.erfgoed.net/afbeeldingen/176997",
+ "korte_beschrijving": "Oorspronkelijk zogenaamd \"Koer van Loo\", gebouwd in twee fasen in opdracht van houtkoopman Bernard van Loo in het derde en vierde kwart van de 19de eeuw. Na aankoop door de stad in 1978 gesaneerd en gerenoveerd, waarbij het middenblok verdween en er zo een breed bijna T-vormig beluik ontstond. Typisch voor het laatste kwart van de 19de eeuw zijn de geveldecoraties zoals druiplijsten, ontlastingsboogjes, sierankers op de penanten en baksteenfriezen onder de lekdrempels en de gootlijst.",
+ "omvang": {
+  "id": 1,
+  "naam": "Element"
+ },
+ "externe_linken": [],
+ "waarden": [
+  {
+   "id": 75350,
+   "algemeen": true,
+   "uiteenzetting": "",
+   "waardetypes": []
+  }
+ ],
+ "bijlagen": [],
+ "locatie_samenvatting": "Abrikoosstraat 43-75 (Gent)",
+ "current_state": 75,
+ "fysieke_status": {
+  "id": 1,
+  "naam": "bewaard"
+ },
+ "kenmerkgroepen": [
+  {
+   "id": 24343,
+   "naam": "Kenmerkgroep 1",
+   "alle_kenmerkgroepen": false,
+   "thesaurus": [
+    {
+     "id": 62206,
+     "uri": "https://id.erfgoed.net/thesauri/erfgoedtypes/57",
+     "label": "beluiken",
+     "kenmerk": {
+      "id": 3,
+      "naam": "typologie"
+     }
+    },
+    {
+     "id": 62207,
+     "uri": "https://id.erfgoed.net/thesauri/dateringen/1065",
+     "label": "derde kwart 19de eeuw",
+     "kenmerk": {
+      "id": 8,
+      "naam": "datering"
+     }
+    },
+    {
+     "id": 62208,
+     "uri": "https://id.erfgoed.net/thesauri/dateringen/1066",
+     "label": "vierde kwart 19de eeuw",
+     "kenmerk": {
+      "id": 8,
+      "naam": "datering"
+     }
+    }
+   ],
+   "relaties": [
+    {
+     "locatie_samenvatting": "Afsnee, Drongen, Gent, Gentbrugge, Ledeberg, Mariakerke, Oostakker, Sint-Amandsberg, Sint-Denijs-Westrem, Wondelgem, Zwijnaarde (Gent)",
+     "gebeurtenistypes": [
+      {
+       "gebeurtenistype": "geografische inventarisatie",
+       "uri": "https://id.erfgoed.net/thesauri/gebeurtenistypes/63"
+      }
+     ],
+     "datum": {
+      "periode": true,
+      "startdatum": {
+       "omschrijving": "1975-06-01",
+       "granulariteit": {
+        "id": 1,
+        "naam": "Dag"
+       }
+      },
+      "einddatum": {
+       "omschrijving": "1983-12-31",
+       "granulariteit": {
+        "id": 1,
+        "naam": "Dag"
+       }
+      }
+     },
+     "self": "https://inventaris.onroerenderfgoed.be/gebeurtenissen/797",
+     "verwant_status": {
+      "naam": "Actief",
+      "id": 75
+     },
+     "omschrijving": "Inventarisatie bouwkundig erfgoed Gent",
+     "verwant": {
+      "id": 3,
+      "naam": "gebeurtenissen"
+     },
+     "uri": "https://id.erfgoed.net/gebeurtenissen/797"
+    }
+   ],
+   "afmetingen": []
+  }
+ ],
+ "alternatieve_namen": [],
+ "disciplines": [
+  {
+   "id": 2,
+   "naam": "Bouwkundig"
+  }
+ ],
+ "relaties": [
+  {
+   "bescherming": false,
+   "vaststelling": true,
+   "korte_beschrijving": "Oorspronkelijk zogenaamd \"Koer van Loo\", gebouwd in twee fasen in opdracht van houtkoopman Bernard van Loo in het derde en vierde kwart van de 19de eeuw. Na aankoop door de stad in 1978 gesaneerd en gerenoveerd, waarbij het middenblok verdween en er zo een breed bijna T-vormig beluik ontstond. Typisch voor het laatste kwart van de 19de eeuw zijn de geveldecoraties zoals druiplijsten, ontlastingsboogjes, sierankers op de penanten en baksteenfriezen onder de lekdrempels en de gootlijst.",
+   "locatie_samenvatting": "Abrikoosstraat 43-75 (Gent)",
+   "aanduidingsobjecttype": "vastgesteld bouwkundig erfgoed",
+   "aanduidingstype": {
+    "uri": "https://id.erfgoed.net/thesauri/aanduidingstypes/9",
+    "naam": "vastgesteld bouwkundig erfgoed"
+   },
+   "geldigheid_start": "20-06-2023",
+   "self": "https://inventaris.onroerenderfgoed.be/aanduidingsobjecten/132134",
+   "verwant_status": {
+    "naam": "Actief",
+    "id": 75
+   },
+   "omschrijving": "Steegbeluik Koer van Loo",
+   "verwant": {
+    "id": 5,
+    "naam": "aanduidingsobjecten"
+   },
+   "uri": "https://id.erfgoed.net/aanduidingsobjecten/132134",
+   "relatietype": {
+    "id": 14,
+    "naam": "Is aangeduid als"
+   }
+  },
+  {
+   "bescherming": false,
+   "vaststelling": true,
+   "korte_beschrijving": "Oorspronkelijk zogenaamd \"Koer van Loo\", gebouwd in twee fasen in opdracht van houtkoopman Bernard van Loo. In derde kwart negentiende eeuw klein steegbeluikje van elf huizen (van 1864 en 1875), in 1876 (cf. bouwaanvraag) toevoeging van een groot bijna T-vormig beluik met zesendertig huizen.",
+   "locatie_samenvatting": "Abrikoosstraat 41-75 (Gent)",
+   "aanduidingsobjecttype": "vastgesteld bouwkundig erfgoed",
+   "aanduidingstype": {
+    "uri": "https://id.erfgoed.net/thesauri/aanduidingstypes/9",
+    "naam": "vastgesteld bouwkundig erfgoed"
+   },
+   "geldigheid_start": "24-09-2009",
+   "self": "https://inventaris.onroerenderfgoed.be/aanduidingsobjecten/94358",
+   "geldigheid_einde": "20-06-2023",
+   "verwant_status": {
+    "naam": "Actief",
+    "id": 75
+   },
+   "omschrijving": "Steegbeluik Koer van Loo",
+   "verwant": {
+    "id": 5,
+    "naam": "aanduidingsobjecten"
+   },
+   "uri": "https://id.erfgoed.net/aanduidingsobjecten/94358",
+   "relatietype": {
+    "id": 14,
+    "naam": "Is aangeduid als"
+   }
+  },
+  {
+   "self": "https://inventaris.onroerenderfgoed.be/themas/3149",
+   "locatie_samenvatting": "Abrikoosstraat (Gent)",
+   "verwant_status": {
+    "naam": "Actief",
+    "id": 75
+   },
+   "omschrijving": "Abrikoosstraat",
+   "verwant": {
+    "id": 6,
+    "naam": "themas"
+   },
+   "uri": "https://id.erfgoed.net/themas/3149",
+   "relatietype": {
+    "id": 34,
+    "naam": "Is deel van"
+   }
+  }
+ ],
+ "locatie": {
+  "elementen": [
+   {
+    "id": 69082,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "75",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69083,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "47",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69084,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "45",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69067,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "43",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69069,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "73",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69070,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "71",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69071,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "69",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69072,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "67",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69073,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "59",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69074,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "57",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69075,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "65",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69076,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "63",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69077,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "61",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69078,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "55",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69079,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "53",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69080,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "51",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   },
+   {
+    "id": 69081,
+    "type": "https://id.erfgoed.net/vocab/ontology#LocatieElementAdres",
+    "adres": {
+     "id": null,
+     "uri": null,
+     "huisnummer": "49",
+     "busnummer": null
+    },
+    "provincie": {
+     "niscode": "40000",
+     "naam": "Oost-Vlaanderen"
+    },
+    "gemeente": {
+     "niscode": "44021",
+     "naam": "Gent"
+    },
+    "deelgemeente": {
+     "niscode": "44021A",
+     "naam": "Gent"
+    },
+    "straat": {
+     "id": "69509",
+     "naam": "Abrikoosstraat",
+     "uri": "https://data.vlaanderen.be/id/straatnaam/69509"
+    },
+    "postcode": {
+     "nummer": null,
+     "uri": null
+    },
+    "land": {
+     "code": "BE",
+     "naam": "België"
+    }
+   }
+  ],
+  "gemeenten": [
+   "Gent"
+  ],
+  "provincies": [
+   "Oost-Vlaanderen"
+  ],
+  "gemeenten_niscodes": [
+   "44021"
+  ],
+  "provincies_niscodes": [
+   "40000"
+  ],
+  "omschrijving": "Abrikoosstraat 43-75 (Gent)",
+  "provincie": "Oost-Vlaanderen",
+  "gemeente": "Gent",
+  "deelgemeente": "Gent",
+  "straat": "Abrikoosstraat",
+  "contour": {
+   "type": "MultiPolygon",
+   "coordinates": [
+    [
+     [
+      [
+       103249.311403,
+       194887.140169
+      ],
+      [
+       103245.867179,
+       194885.450953
+      ],
+      [
+       103242.278315,
+       194892.947913
+      ],
+      [
+       103242.076907,
+       194893.368137
+      ],
+      [
+       103242.073259,
+       194893.375881
+      ],
+      [
+       103239.740203,
+       194898.250057
+      ],
+      [
+       103238.708203,
+       194900.405961
+      ],
+      [
+       103235.024491,
+       194908.101321
+      ],
+      [
+       103234.602795,
+       194908.982217
+      ],
+      [
+       103234.092011,
+       194910.049225
+      ],
+      [
+       103231.256043,
+       194915.973193
+      ],
+      [
+       103227.353195,
+       194913.968713
+      ],
+      [
+       103221.975403,
+       194911.206857
+      ],
+      [
+       103220.197227,
+       194910.293577
+      ],
+      [
+       103220.129195,
+       194910.258633
+      ],
+      [
+       103217.246827,
+       194908.778313
+      ],
+      [
+       103214.497835,
+       194912.307785
+      ],
+      [
+       103208.829803,
+       194919.584585
+      ],
+      [
+       103206.049835,
+       194923.153737
+      ],
+      [
+       103212.309803,
+       194926.317449
+      ],
+      [
+       103213.463915,
+       194926.900745
+      ],
+      [
+       103216.458923,
+       194928.414409
+      ],
+      [
+       103220.539243,
+       194930.476553
+      ],
+      [
+       103220.615915,
+       194930.515209
+      ],
+      [
+       103224.031339,
+       194932.241353
+      ],
+      [
+       103227.097835,
+       194933.791177
+      ],
+      [
+       103227.529835,
+       194934.009545
+      ],
+      [
+       103230.538987,
+       194935.530441
+      ],
+      [
+       103230.838251,
+       194935.681609
+      ],
+      [
+       103230.948523,
+       194935.737353
+      ],
+      [
+       103234.179691,
+       194937.370313
+      ],
+      [
+       103234.484523,
+       194936.824649
+      ],
+      [
+       103234.882091,
+       194936.976585
+      ],
+      [
+       103240.645163,
+       194939.681481
+      ],
+      [
+       103242.126763,
+       194940.376905
+      ],
+      [
+       103243.963819,
+       194941.139145
+      ],
+      [
+       103244.661675,
+       194941.428681
+      ],
+      [
+       103247.345451,
+       194942.542153
+      ],
+      [
+       103247.844523,
+       194942.749193
+      ],
+      [
+       103250.667691,
+       194943.920329
+      ],
+      [
+       103250.860459,
+       194943.516937
+      ],
+      [
+       103251.527403,
+       194942.121225
+      ],
+      [
+       103252.382379,
+       194940.331977
+      ],
+      [
+       103252.543403,
+       194939.995081
+      ],
+      [
+       103253.241707,
+       194938.533705
+      ],
+      [
+       103254.073003,
+       194936.794185
+      ],
+      [
+       103254.935019,
+       194934.990409
+      ],
+      [
+       103255.788139,
+       194933.205193
+      ],
+      [
+       103255.801323,
+       194933.177609
+      ],
+      [
+       103256.028203,
+       194932.702793
+      ],
+      [
+       103256.038699,
+       194932.680777
+      ],
+      [
+       103256.648491,
+       194931.404681
+      ],
+      [
+       103256.662635,
+       194931.375113
+      ],
+      [
+       103256.764843,
+       194931.161225
+      ],
+      [
+       103257.511147,
+       194929.599497
+      ],
+      [
+       103257.521899,
+       194929.576969
+      ],
+      [
+       103258.371883,
+       194927.798281
+      ],
+      [
+       103258.384043,
+       194927.772809
+      ],
+      [
+       103259.237931,
+       194925.985993
+      ],
+      [
+       103259.246379,
+       194925.968329
+      ],
+      [
+       103259.616299,
+       194925.194185
+      ],
+      [
+       103259.620203,
+       194925.185993
+      ],
+      [
+       103260.108331,
+       194924.164489
+      ],
+      [
+       103260.128427,
+       194924.122505
+      ],
+      [
+       103260.982955,
+       194922.334409
+      ],
+      [
+       103261.644331,
+       194920.979785
+      ],
+      [
+       103263.186027,
+       194917.784649
+      ],
+      [
+       103264.108203,
+       194915.873225
+      ],
+      [
+       103265.047403,
+       194913.926793
+      ],
+      [
+       103267.190187,
+       194909.485769
+      ],
+      [
+       103272.523179,
+       194898.256457
+      ],
+      [
+       103268.898347,
+       194896.570569
+      ],
+      [
+       103265.142123,
+       194894.762121
+      ],
+      [
+       103260.413611,
+       194892.485513
+      ],
+      [
+       103258.677867,
+       194891.649801
+      ],
+      [
+       103249.311403,
+       194887.140169
+      ]
+     ]
+    ]
+   ],
+   "crs": {
+    "type": "name",
+    "properties": {
+     "name": "urn:ogc:def:crs:EPSG::31370"
+    }
+   }
+  },
+  "nauwkeurigheid": {
+   "id": 1,
+   "naam": "Tot op 15m"
+  },
+  "oppervlakte": 1832,
+  "alignering": null
+ },
+ "teksten": [
+  {
+   "id": 18152,
+   "teksttype": {
+    "id": 1,
+    "naam": "Basistekst"
+   },
+   "titel": "Steegbeluik Koer van Loo",
+   "tekst": "<p>Oorspronkelijk zogenaamd \"Koer van Loo\", gebouwd in twee fasen in opdracht van houtkoopman Bernard van Loo. In het derde kwart van de 19de eeuw klein steegbeluikje van elf huizen (van 1864 en 1875), in 1876 (zie bouwaanvraag) toevoeging van een groot bijna T-vormig beluik met zesendertig huizen, met als resultaat twee met elkaar verbonden steegbeluiken en een middenblok met twee toegangen en een brede doorgang achteraan links. Aangekocht door de stad Gent in 1978 en in het kader van een renovatieproject van de stad gesaneerd en aangepast aan de moderne wooneisen. Hierbij verdween het middenblok zodat er een breed bijna T-vormig beluik ontstond. Tevens verruimde men de woongelegenheden door twee bestaande huisjes van twee travee&euml;n om te bouwen tot een woonhuis van vier travee&euml;n, voorzien van modern comfort.</p>\n<p>Lijstgevels geritmeerd door getoogde vensters, blind boven de deuren. Typisch voor het laatste kwart van de 19de eeuw zijn de geveldecoraties zoals druiplijsten, ontlastingsboogjes, sierankers op de penanten en baksteenfriezen onder de lekdrempels en de gootlijst.</p>\n<div class=\"biblio\">\n<ul>\n<li>Kadasterarchief Oost-Vlaanderen, mutatieschetsen Gent, afdeling X (Gent), 1864/26, 1875/19.</li>\n<li>Stadsarchief Gent, reeks VII, beluiken, G.8(4)a(4).</li>\n</ul>\n</div>",
+   "eigenaars": [
+    {
+     "uri": "https://id.erfgoed.net/auteurs/501",
+     "tekst_id": 18152,
+     "id": 501,
+     "type": {
+      "id": 2,
+      "naam": "Organisatie"
+     },
+     "omschrijving": "Agentschap Onroerend Erfgoed (AOE)"
+    }
+   ],
+   "auteurs": [
+    {
+     "uri": "https://id.erfgoed.net/auteurs/30",
+     "tekst_id": 18152,
+     "id": 30,
+     "type": {
+      "id": 1,
+      "naam": "Persoon"
+     },
+     "omschrijving": "Lanclus, Kathleen"
+    }
+   ],
+   "datum": {
+    "omschrijving": "1983",
+    "granulariteit": {
+     "id": 3,
+     "naam": "Jaar"
+    }
+   },
+   "bronnen": [
+    "BOGAERT C., LANCLUS K. & VERBEECK M. 1982: <em>Inventaris van het cultuurbezit in België, Architectuur, Stad Gent, 19de- en 20ste-eeuwe stadsuitbreiding</em>, Bouwen door de eeuwen heen in Vlaanderen 4nc, Brussel - Gent."
+   ],
+   "tekst_html": "<p>Oorspronkelijk zogenaamd \"Koer van Loo\", gebouwd in twee fasen in opdracht van houtkoopman Bernard van Loo. In het derde kwart van de 19de eeuw klein steegbeluikje van elf huizen (van 1864 en 1875), in 1876 (zie bouwaanvraag) toevoeging van een groot bijna T-vormig beluik met zesendertig huizen, met als resultaat twee met elkaar verbonden steegbeluiken en een middenblok met twee toegangen en een brede doorgang achteraan links. Aangekocht door de stad Gent in 1978 en in het kader van een renovatieproject van de stad gesaneerd en aangepast aan de moderne wooneisen. Hierbij verdween het middenblok zodat er een breed bijna T-vormig beluik ontstond. Tevens verruimde men de woongelegenheden door twee bestaande huisjes van twee travee&euml;n om te bouwen tot een woonhuis van vier travee&euml;n, voorzien van modern comfort.</p>\n<p>Lijstgevels geritmeerd door getoogde vensters, blind boven de deuren. Typisch voor het laatste kwart van de 19de eeuw zijn de geveldecoraties zoals druiplijsten, ontlastingsboogjes, sierankers op de penanten en baksteenfriezen onder de lekdrempels en de gootlijst.</p>\n<div class=\"biblio\">\n<ul>\n<li>Kadasterarchief Oost-Vlaanderen, mutatieschetsen Gent, afdeling X (Gent), 1864/26, 1875/19.</li>\n<li>Stadsarchief Gent, reeks VII, beluiken, G.8(4)a(4).</li>\n</ul>\n</div>",
+   "primair": true,
+   "relatie_id": 20713
+  }
+ ],
+ "uri": "https://id.erfgoed.net/erfgoedobjecten/18152",
+ "self": "https://inventaris.onroerenderfgoed.be/erfgoedobjecten/18152",
+ "systemfields": {
+  "activated_at": "2009-05-10T02:37:43+02:00",
+  "created_at": "2008-04-29T14:38:00+02:00",
+  "updated_at": "2021-05-26T16:12:19.688635+02:00"
+ },
+ "statussen": [
+  {
+   "actief": true,
+   "id": 741549,
+   "status": {
+    "id": 75,
+    "naam": "Actief",
+    "uri": "https://id.erfgoed.net/vocab/ontology#Actief"
+   },
+   "opmerkingen": null,
+   "datum": "2021-05-26T16:12:19.269286+02:00"
+  },
+  {
+   "actief": true,
+   "id": 695695,
+   "status": {
+    "id": 75,
+    "naam": "Actief",
+    "uri": "https://id.erfgoed.net/vocab/ontology#Actief"
+   },
+   "opmerkingen": null,
+   "datum": "2020-11-05T14:26:43.078482+01:00"
+  },
+  {
+   "actief": true,
+   "id": 116976,
+   "status": {
+    "id": 75,
+    "naam": "Actief",
+    "uri": "https://id.erfgoed.net/vocab/ontology#Actief"
+   },
+   "opmerkingen": "Activeren record. Deze informatie werd aangemaakt tijdens het migratiescript",
+   "datum": "2009-05-10T02:37:43+02:00"
+  },
+  {
+   "actief": false,
+   "id": 116975,
+   "status": {
+    "id": 10,
+    "naam": "Klad",
+    "uri": "https://id.erfgoed.net/vocab/ontology#Klad"
+   },
+   "opmerkingen": "Aanmaken record. Deze informatie werd aangemaakt tijdens het migratiescript",
+   "datum": "2008-04-29T14:38:00+02:00"
+  }
+ ],
+ "dataverantwoordelijke": {
+  "uri": "https://id.erfgoed.net/actoren/501",
+  "omschrijving": "Agentschap Onroerend Erfgoed"
+ }
+}
