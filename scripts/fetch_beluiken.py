@@ -253,7 +253,40 @@ def nightshops():
 
 def main():
     os.makedirs("data", exist_ok=True)
-    only = sys.argv[1:] or ["beluiken", "maria", "nightshops", "geek", "gems"]
+    only = sys.argv[1:] or ["ring", "beluiken", "maria", "nightshops", "geek", "gems"]
+
+    if "ring" in only:
+        # The R40 ring road around the centre, as a closed polygon for the app's border
+        try:
+            q = "[out:json][timeout:120];rel[\"type\"=\"route\"][\"ref\"=\"R40\"](50.98,3.62,51.11,3.82);way(r);out geom;"
+            data = urllib.parse.urlencode({"data": q}).encode()
+            req = urllib.request.Request("https://overpass-api.de/api/interpreter", data=data, headers={"User-Agent": UA})
+            els = None
+            for attempt in range(4):
+                try:
+                    with urllib.request.urlopen(req, timeout=180) as r:
+                        els = json.loads(r.read().decode())["elements"]
+                    break
+                except Exception as e:
+                    print("ring attempt failed", e, file=sys.stderr); time.sleep(20 * (attempt + 1))
+            pts = [(g["lat"], g["lon"]) for e in els or [] for g in e.get("geometry", [])]
+            print(f"ring: {len(els or [])} ways, {len(pts)} points", file=sys.stderr)
+            if len(pts) > 50:
+                import math
+                cy = sum(p[0] for p in pts) / len(pts); cx = sum(p[1] for p in pts) / len(pts)
+                # outer edge: for each of 360 angle buckets keep the farthest point from the centre
+                buckets = {}
+                for la, lo in pts:
+                    a = int((math.degrees(math.atan2(la - cy, (lo - cx) * math.cos(math.radians(cy)))) + 360) % 360)
+                    d = (la - cy) ** 2 + ((lo - cx) * math.cos(math.radians(cy))) ** 2
+                    if a not in buckets or d > buckets[a][0]:
+                        buckets[a] = (d, la, lo)
+                ring = [[round(v[1], 6), round(v[2], 6)] for k, v in sorted(buckets.items())]
+                with open("data/ring.json", "w") as f:
+                    json.dump({"source": "OpenStreetMap contributors (ODbL), route R40", "ring": ring}, f)
+                print(f"wrote data/ring.json: {len(ring)} points", file=sys.stderr)
+        except Exception as e:
+            print("ring failed", e, file=sys.stderr)
 
     if "gems" in only:
         # Protected buildings in Ghent: the city's everyday heritage beyond the famous sights
