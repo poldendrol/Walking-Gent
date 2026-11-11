@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3a4d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Ghent Walk</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: full-screen map, floating controls, bottom sheet for stories */
+  :root {
+    --ink: #1c2730;
+    --muted: #5d6b75;
+    --paper: #ffffff;
+    --wash: #f2f5f6;
+    --accent: #b5462b;      /* Ghent brick red */
+    --accent-2: #1f3a4d;    /* Lys water blue */
+    --line: #dde3e6;
+    --display: "Fraunces", Georgia, serif;
+    --body: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font-family: var(--body); color: var(--ink); background: var(--paper); overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+
+  .topbar {
+    position: absolute; z-index: 1050; left: 0; right: 0; top: 0;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
+    display: flex; gap: 8px; align-items: center; pointer-events: none;
+  }
+  .brand {
+    pointer-events: auto; background: var(--paper); border-radius: 12px; padding: 8px 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.18); font-family: var(--display); font-size: 18px; font-weight: 600;
+    color: var(--accent-2);
+  }
+  .btn { white-space: nowrap; }
+  @media (max-width: 380px) { .brand small { display: none; } }
+  .brand small { display:block; font-family: var(--body); font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .02em; }
+  .spacer { flex: 1; }
+  .btn {
+    pointer-events: auto; border: 0; cursor: pointer; background: var(--paper); color: var(--ink);
+    border-radius: 12px; height: 44px; padding: 0 14px; font: 600 14px var(--body);
+    box-shadow: 0 2px 10px rgba(0,0,0,.18); display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn.primary { background: var(--accent); color: #fff; }
+
+  .status {
+    position: absolute; z-index: 1050; left: 50%; transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top, 0px) + 66px); background: var(--accent-2); color: #fff;
+    padding: 8px 14px; border-radius: 20px; font-size: 13px; max-width: calc(100% - 32px); text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,.2);
+  }
+
+  /* Numbered landmark pins */
+  .pin {
+    width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+    background: var(--accent); border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35);
+    display: grid; place-items: center;
+  }
+  .pin span { transform: rotate(45deg); color: #fff; font: 700 12px var(--body); }
+  .pin.visited { background: #6b7d88; }
+  .pin.active { background: var(--accent-2); }
+  .me-dot { width: 18px; height: 18px; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(26,115,232,.25); }
+
+  /* Bottom sheet */
+  .sheet {
+    position: absolute; z-index: 1100; left: 0; right: 0; bottom: 0; max-height: 62%;
+    background: var(--paper); border-radius: 18px 18px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,.2);
+    display: flex; flex-direction: column; transform: translateY(105%); transition: transform .25s ease;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .sheet.open { transform: translateY(0); }
+  @media (min-width: 760px) {
+    .sheet { left: auto; right: 16px; bottom: 16px; top: 80px; width: 400px; max-height: none; border-radius: 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
+  .sheet-head { padding: 10px 16px 6px; display: flex; align-items: flex-start; gap: 10px; border-bottom: 1px solid var(--line); }
+  .grab { position: absolute; top: 6px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--line); }
+  .sheet-head h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 10px 0 2px; text-wrap: balance; }
+  .meta { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; display: flex; gap: 10px; flex-wrap: wrap; }
+  .close { margin-left: auto; margin-top: 8px; background: var(--wash); border: 0; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; cursor: pointer; color: var(--ink); flex: none; }
+  .sheet-body { overflow-y: auto; padding: 12px 16px 16px; -webkit-overflow-scrolling: touch; }
+  .sheet-body p { line-height: 1.6; margin: 0 0 12px; max-width: 65ch; }
+  .fact { background: var(--wash); border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.5; margin-bottom: 14px; }
+  .fact b { color: var(--accent); }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .actions a, .actions button { text-decoration: none; }
+  .actions .btn { box-shadow: none; border: 1px solid var(--line); height: 40px; }
+
+  /* List view */
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li button {
+    width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line);
+    padding: 12px 4px; display: flex; gap: 12px; align-items: center; cursor: pointer; color: var(--ink); font: inherit;
+  }
+  .num { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+  .num.visited { background: #6b7d88; }
+  .li-text { min-width: 0; flex: 1; }
+  .li-text strong { display: block; font-weight: 600; }
+  .li-text span { font-size: 12px; color: var(--muted); }
+  .dist { font-size: 13px; color: var(--accent-2); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .leaflet-control-attribution { font-size: 10px; }
+  .leaflet-bottom.leaflet-right { margin-bottom: env(safe-area-inset-bottom, 0px); }
+</style>
+</head>
+<body>
+<div id="map" role="application" aria-label="Map of Ghent"></div>
+
+<div class="topbar">
+  <div class="brand">Ghent Walk<small>Tap a pin for its story</small></div>
+  <div class="spacer"></div>
+  <button class="btn" id="listBtn" aria-label="Show all places">Places</button>
+  <button class="btn primary" id="locateBtn" aria-label="Show where I am">◎ Locate me</button>
+</div>
+<div class="status" id="status" hidden></div>
+
+<section class="sheet" id="sheet" aria-live="polite">
+  <div class="grab"></div>
+  <div class="sheet-head">
+    <div style="min-width:0">
+      <h2 id="sheetTitle"></h2>
+      <div class="meta" id="sheetMeta"></div>
+    </div>
+    <button class="close" id="closeBtn" aria-label="Close">×</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const PLACES = [
+  { id: "gravensteen", name: "Gravensteen", nl: "Castle of the Counts", built: "1180", lat: 51.0573, lng: 3.7206,
+    text: [
+      "Philip of Alsace, Count of Flanders, built this stone castle in 1180 on the site of an older wooden fortress. It was meant to protect the count, and just as much to impress and intimidate the proud, rebellious citizens of Ghent.",
+      "When the counts moved out in the 14th century, the castle became a courthouse, a mint and a prison, complete with a torture chamber. In the 19th century it was even used as a cotton mill and workers' housing, and the city almost demolished it.",
+      "Instead it was bought by the city and restored around 1900, with a fair amount of romantic imagination added to the battlements."],
+    fact: "In 1949 students occupied the castle in a protest against a beer price increase. The event is still remembered every year." },
+  { id: "belfort", name: "Belfry of Ghent", nl: "Belfort", built: "1313–1380", lat: 51.0537, lng: 3.7248,
+    text: [
+      "At 91 metres, the Belfry was the symbol of the city's independence from the count and the church. Its bells called citizens together and warned them of fire or attack from the watchmen at the top.",
+      "Behind iron doors, the tower kept the secret chest holding Ghent's charters: the privileges the city had won from its rulers.",
+      "It is part of the UNESCO World Heritage listing of the belfries of Belgium and France."],
+    fact: "A gilded copper <b>dragon</b> has watched over the city from the spire since the 14th century. The one at the top today is a copy; an older one is shown inside." },
+  { id: "lakenhalle", name: "Cloth Hall", nl: "Lakenhalle", built: "from 1425", lat: 51.0535, lng: 3.7243,
+    text: [
+      "Built against the Belfry, this hall is where wool cloth, the product that made medieval Ghent one of the biggest cities of northern Europe, was inspected and traded.",
+      "By the time construction started in 1425 the cloth trade was already in decline, and the building was left unfinished for centuries. It was only completed in the early 20th century."],
+    fact: "The small building at the back, the <b>Mammelokker</b>, was the jail. Its sculpture shows the Roman legend of a daughter feeding her imprisoned father." },
+  { id: "baafs", name: "St Bavo's Cathedral", nl: "Sint-Baafskathedraal", built: "12th–16th c.", lat: 51.0530, lng: 3.7268,
+    text: [
+      "It started as a parish church dedicated to St John and grew over four centuries from Romanesque to late Gothic. It became the cathedral of the new Diocese of Ghent in 1559 and was renamed after St Bavo.",
+      "The future emperor Charles V, born in Ghent in 1500, was baptised here.",
+      "Inside hangs the Ghent Altarpiece, the 'Adoration of the Mystic Lamb' by the brothers Hubert and Jan van Eyck, finished in 1432. It is one of the most important paintings in Western art."],
+    fact: "The altarpiece is one of the most stolen artworks in history. One panel, the <b>Just Judges</b>, was stolen in 1934 and has never been found; what you see is a copy." },
+  { id: "niklaas", name: "St Nicholas' Church", nl: "Sint-Niklaaskerk", built: "13th c.", lat: 51.0545, lng: 3.7225,
+    text: [
+      "This was the church of the merchants and guilds who traded at the nearby market. It is a prime example of Scheldt Gothic, built from blue-grey stone shipped from Tournai along the river.",
+      "Instead of a west tower, it has a central tower above the crossing that doubled as a watchtower until the Belfry was built."],
+    fact: "Stand on St Michael's Bridge and you'll see St Nicholas, the Belfry and St Bavo lined up: Ghent's famous <b>three towers</b>." },
+  { id: "graslei", name: "Graslei", nl: "Graslei", built: "12th–17th c.", lat: 51.0549, lng: 3.7211,
+    text: [
+      "This quay was the heart of Ghent's medieval harbour. Ships brought grain here along the Lys, and the guild houses along the water show how rich the trade made the city.",
+      "Look for the Koornstapelhuis, a sober Romanesque grain warehouse from around 1200, right next to the ornate Guild House of the Free Boatmen from 1531."],
+    fact: "The Free Boatmen had the right to unload ships in Ghent. The 'unfree' boatmen, who lacked that right, built their guild house across the water on the Korenlei." },
+  { id: "korenlei", name: "Korenlei", nl: "Korenlei", built: "16th–18th c.", lat: 51.0548, lng: 3.7197,
+    text: [
+      "The opposite bank of the old harbour. Its baroque and rococo façades are a little younger and grander than those on the Graslei.",
+      "The Guild House of the Unfree Boatmen (1739) stands out with its decorated gable topped by a ship."],
+    fact: "In the evening the city lights the façades of both quays, part of Ghent's award-winning <b>lighting plan</b>." },
+  { id: "michiel", name: "St Michael's Bridge", nl: "Sint-Michielsbrug", built: "1905–1909", lat: 51.0541, lng: 3.7193,
+    text: [
+      "This stone bridge was built in the run-up to the 1913 World Fair in Ghent, when the city spruced up its historic centre for visitors.",
+      "It gives the best view in town: the Graslei and Korenlei on either side and the three towers in a row."],
+    fact: "The tall church behind you is <b>St Michael's</b>, whose tower was never finished. Its flat top is the result." },
+  { id: "stadhuis", name: "City Hall", nl: "Stadhuis", built: "1519–1600s", lat: 51.0543, lng: 3.7253,
+    text: [
+      "A building in two minds. The side facing the Hoogpoort is lavish late Gothic, designed in the early 16th century. Money and fashion changed during construction, so the side on the Botermarkt is sober Renaissance.",
+      "In 1576 the Pacification of Ghent was signed here: an agreement among the provinces of the Low Countries to unite against Spanish troops."],
+    fact: "You can compare the two styles by walking around the corner of the building. They really are glued together." },
+  { id: "vleeshuis", name: "Great Butchers' Hall", nl: "Groot Vleeshuis", built: "1406–1419", lat: 51.0566, lng: 3.7213,
+    text: [
+      "The covered meat market of medieval Ghent. Selling meat was only allowed here, so the guild of butchers could control prices and quality.",
+      "Its long timber roof is still original, and Ganda hams hang from the beams. Today it houses a shop and tasting room for East Flemish regional products."],
+    fact: "The butchers' guild was hereditary: only sons of butchers could become butchers." },
+  { id: "dullegriet", name: "Dulle Griet", nl: "Dulle Griet (Mad Meg)", built: "15th c.", lat: 51.0566, lng: 3.7242,
+    text: [
+      "A giant wrought-iron siege cannon from the 15th century, weighing over 12 tonnes. It is one of the largest medieval bombards in the world.",
+      "It was made to fire stone balls of around 300 kg. Whether it ever did so in battle is uncertain."],
+    fact: "Painted bright red and named after a figure from Flemish folklore, a fierce woman who leads an army to plunder hell." },
+  { id: "vrijdagmarkt", name: "Friday Market", nl: "Vrijdagmarkt", built: "since 1199", lat: 51.0570, lng: 3.7258,
+    text: [
+      "For centuries this was Ghent's political stage: rulers were welcomed here, guilds clashed, and executions took place.",
+      "The statue in the middle is Jacob van Artevelde, a 14th-century leader who kept Ghent's cloth industry alive during the Hundred Years' War by negotiating with England for wool."],
+    fact: "There is still a market here every <b>Friday</b> morning, as there has been for more than 800 years." },
+  { id: "patershol", name: "Patershol", nl: "Patershol", built: "medieval", lat: 51.0584, lng: 3.7224,
+    text: [
+      "A maze of narrow streets just behind the castle where tanners and craftsmen worked, close to the counts' court.",
+      "By the 20th century it had become one of the poorest neighbourhoods in Ghent. It was restored from the 1980s and is now known for its restaurants."],
+    fact: "The name probably refers to the Carmelite fathers ('paters') whose monastery stood here." },
+  { id: "geeraard", name: "Gerald the Devil's Castle", nl: "Geeraard de Duivelsteen", built: "13th c.", lat: 51.0503, lng: 3.7242,
+    text: [
+      "A rare Romanesque stone fortified house, built for a knight called Gerald. Stone houses like this were a status symbol in a city mostly built of wood.",
+      "It later served as an arsenal, a monastery, a school, an asylum and a prison, and now holds the state archives."],
+    fact: "Gerald's dark complexion (or his reputation) earned him the nickname <b>'the Devil'</b>, which grew into many local legends." },
+  { id: "baafsabdij", name: "St Bavo's Abbey", nl: "Sint-Baafsabdij", built: "7th c. (ruins)", lat: 51.0532, lng: 3.7368,
+    text: [
+      "Ghent began around two abbeys founded in the 7th century by St Amand. This is one of them.",
+      "After Ghent revolted against Charles V in 1539, the emperor punished his own birthplace: he had much of the abbey demolished to build a fortress to keep the city in check. The romantic ruins of the cloister survive."],
+    fact: "As part of that punishment, city leaders had to walk barefoot with a noose around their neck. Ghent residents are still nicknamed the <b>'Stroppendragers'</b>, the noose-bearers." },
+  { id: "prinsenhof", name: "Prinsenhof & Dark Gate", nl: "Prinsenhof / Donkere Poort", built: "14th c.", lat: 51.0588, lng: 3.7182,
+    text: [
+      "The Prinsenhof was a huge palace of the Dukes of Burgundy. Here, in 1500, Charles V was born. He would rule an empire on which, it was said, the sun never set.",
+      "Almost nothing remains of the palace. The Dark Gate, one of its entrances, still stands in the quiet neighbourhood that kept its name."],
+    fact: "A small bronze statue of the young Charles V stands on the Prinsenhof square nearby." },
+  { id: "rabot", name: "Rabot", nl: "Rabot", built: "1489–1491", lat: 51.0603, lng: 3.7115,
+    text: [
+      "A fortified lock gate on the Lieve canal, part of the old city walls. It controlled the water level and guarded the entrance to the city by water.",
+      "With its three round-roofed towers it's one of the few remaining pieces of Ghent's medieval defences."],
+    fact: "The Lieve was dug in the 13th century to give Ghent its own route to the sea." },
+  { id: "begijnhof", name: "Small Beguinage", nl: "Klein Begijnhof", built: "founded 1234", lat: 51.0430, lng: 3.7290,
+    text: [
+      "Beguines were religious women who lived together without taking permanent vows. They could leave, own property and support themselves by work.",
+      "This peaceful enclosed courtyard with its white houses and baroque church is a small walled town of its own. It is part of the UNESCO-listed Flemish beguinages."],
+    fact: "It was founded by Countess <b>Joanna of Constantinople</b>, who ruled Flanders in the 13th century." }
+];
+
+// ---- state ----
+const STORE_KEY = "ghentwalk.visited";
+let visited = new Set();
+try { visited = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || "[]")); } catch (e) {}
+function saveVisited() { try { localStorage.setItem(STORE_KEY, JSON.stringify([...visited])); } catch (e) {} }
+
+let me = null, meMarker = null, meCircle = null, watchId = null, follow = false, activeId = null;
+
+// ---- map ----
+const map = L.map("map", { zoomControl: false }).setView([51.0545, 3.7235], 15);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+L.control.zoom({ position: "bottomright" }).addTo(map);
+
+const markers = {};
+function pinIcon(p, i) {
+  const cls = ["pin", visited.has(p.id) ? "visited" : "", activeId === p.id ? "active" : ""].join(" ");
+  return L.divIcon({ className: "", html: `<div class="${cls}"><span>${i + 1}</span></div>`, iconSize: [30, 30], iconAnchor: [15, 36] });
+}
+function refreshPins() { PLACES.forEach((p, i) => markers[p.id].setIcon(pinIcon(p, i))); }
+PLACES.forEach((p, i) => {
+  markers[p.id] = L.marker([p.lat, p.lng], { icon: pinIcon(p, i), title: p.name, keyboard: true })
+    .addTo(map).on("click", () => openPlace(p.id));
+});
+
+// ---- helpers ----
+function distM(a, b) {
+  const R = 6371000, toR = x => x * Math.PI / 180;
+  const dLat = toR(b.lat - a.lat), dLng = toR(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toR(a.lat)) * Math.cos(toR(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function fmtDist(m) { return m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`; }
+function walkMin(m) { return Math.max(1, Math.round(m / 80)); } // ~4.8 km/h
+const $ = id => document.getElementById(id);
+let statusTimer;
+function status(msg, ms = 4000) {
+  const s = $("status"); s.textContent = msg; s.hidden = false;
+  clearTimeout(statusTimer); if (ms) statusTimer = setTimeout(() => (s.hidden = true), ms);
+}
+
+// ---- sheet ----
+function openSheet() { $("sheet").classList.add("open"); }
+function closeSheet() { $("sheet").classList.remove("open"); activeId = null; refreshPins(); }
+$("closeBtn").onclick = closeSheet;
+
+function openPlace(id) {
+  const p = PLACES.find(x => x.id === id); const i = PLACES.indexOf(p);
+  activeId = id; refreshPins();
+  $("sheetTitle").textContent = `${i + 1}. ${p.name}`;
+  const meta = [p.nl !== p.name ? p.nl : null, p.built];
+  if (me) { const d = distM(me, p); meta.push(`${fmtDist(d)} · ${walkMin(d)} min walk`); }
+  $("sheetMeta").innerHTML = meta.filter(Boolean).map(m => `<span>${m}</span>`).join("");
+  const isVisited = visited.has(id);
+  $("sheetBody").innerHTML =
+    p.text.map(t => `<p>${t}</p>`).join("") +
+    `<div class="fact">${p.fact}</div>
+     <div class="actions">
+       <button class="btn" id="visitBtn">${isVisited ? "✓ Visited" : "Mark as visited"}</button>
+       <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${p.lat},${p.lng}">Directions</a>
+     </div>`;
+  $("sheetBody").scrollTop = 0;
+  $("visitBtn").onclick = () => {
+    visited.has(id) ? visited.delete(id) : visited.add(id);
+    saveVisited(); openPlace(id);
+  };
+  map.panTo([p.lat, p.lng], { animate: true });
+  openSheet();
+}
+
+function openList() {
+  activeId = null; refreshPins();
+  $("sheetTitle").textContent = "Places to discover";
+  $("sheetMeta").innerHTML = `<span>${visited.size} of ${PLACES.length} visited</span>${me ? "<span>Nearest first</span>" : ""}`;
+  const items = PLACES.map((p, i) => ({ p, i, d: me ? distM(me, p) : null }));
+  if (me) items.sort((a, b) => a.d - b.d);
+  $("sheetBody").innerHTML = `<ul class="list">${items.map(({ p, i, d }) => `
+    <li><button data-id="${p.id}">
+      <span class="num ${visited.has(p.id) ? "visited" : ""}">${i + 1}</span>
+      <span class="li-text"><strong>${p.name}</strong><span>${p.built}</span></span>
+      ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}
+    </button></li>`).join("")}</ul>`;
+  $("sheetBody").querySelectorAll("button[data-id]").forEach(b => b.onclick = () => openPlace(b.dataset.id));
+  $("sheetBody").scrollTop = 0;
+  openSheet();
+}
+$("listBtn").onclick = openList;
+
+// ---- location ----
+const meIcon = L.divIcon({ className: "", html: '<div class="me-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
+function onPos(pos) {
+  const first = !me;
+  me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+  const ll = [me.lat, me.lng];
+  if (!meMarker) {
+    meMarker = L.marker(ll, { icon: meIcon, zIndexOffset: 1000, title: "You are here" }).addTo(map);
+    meCircle = L.circle(ll, { radius: pos.coords.accuracy, color: "#1a73e8", weight: 1, fillOpacity: .08 }).addTo(map);
+  } else { meMarker.setLatLng(ll); meCircle.setLatLng(ll).setRadius(pos.coords.accuracy); }
+  if (first || follow) {
+    const nearest = PLACES.reduce((a, p) => (distM(me, p) < distM(me, a) ? p : a));
+    if (first) {
+      const dCentre = distM(me, { lat: 51.0545, lng: 3.7235 });
+      if (dCentre > 15000) status("You seem to be outside Ghent. The map stays on the city centre.", 6000);
+      else { map.setView(ll, 17); status(`Nearest: ${nearest.name}, ${fmtDist(distM(me, nearest))} away`); }
+    } else map.panTo(ll);
+  }
+}
+function onErr(err) {
+  const msg = err.code === 1
+    ? "Location is blocked. Allow location for this page in your browser settings and try again."
+    : "Couldn't find your location. Check that GPS is on and try again.";
+  status(msg, 7000);
+}
+$("locateBtn").onclick = () => {
+  if (!("geolocation" in navigator)) { status("This browser can't share your location."); return; }
+  follow = true;
+  if (me) map.setView([me.lat, me.lng], Math.max(map.getZoom(), 17));
+  else status("Finding you…", 0);
+  if (watchId == null) watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+};
+map.on("dragstart", () => (follow = false));
+</script>
+</body>
+</html>
