@@ -21,11 +21,14 @@
     --line: #dde3e6;
     --green: #2f7d5b;       /* beluik courtyards */
     --gold: #b88a1b;
+    --mary: #3d6fb6;        /* Marian blue */
+    --night: #4b3f72;       /* night shops */
+    --night-open: #7b4fd6;
     --display: "Fraunces", Georgia, serif;
     --body: "Inter", system-ui, -apple-system, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; color-scheme: dark; }
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -115,9 +118,10 @@
     position: absolute; z-index: 1050; left: 0; right: 0;
     top: calc(env(safe-area-inset-top, 0px) + 74px);
     padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
-    display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none;
+    display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; pointer-events: auto; padding-block: 4px;
   }
-  .chip {
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none;
     pointer-events: auto; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
     border-radius: 999px; height: 34px; padding: 0 12px; font: 600 13px var(--body); cursor: pointer;
     box-shadow: 0 1px 6px rgba(0,0,0,.14);
@@ -131,7 +135,16 @@
   .bpin.doc::after { content: ""; position: absolute; right: -5px; top: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 1.5px solid #fff; }
   .bpin.home { background: var(--accent); width: 22px; height: 22px; }
   .bpin.custom { background: var(--gold); }
-  .bpin.active { outline: 3px solid var(--accent-2); outline-offset: 1px; }
+  .mpin { width: 18px; height: 18px; border-radius: 50%; background: var(--mary); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); position: relative; }
+  .mpin::before { content: "M"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font: 700 9px var(--body); }
+  .mpin.gone { background: #fff; border: 2px dashed #6b7d88; } .mpin.gone::before { color: #6b7d88; }
+  .mpin.doc::after { content: ""; position: absolute; right: -5px; top: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 1.5px solid #fff; }
+  .mpin.home { outline: 3px solid var(--accent); } .mpin.custom { background: var(--gold); }
+  .npin { width: 16px; height: 16px; border-radius: 50%; background: var(--night); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .npin.open { background: var(--night-open); } .npin.closed { opacity: .55; }
+  .nnum { flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--night); }
+  .nnum.open { background: var(--night-open); } .nnum.closed { opacity: .55; }
+  .npin.active, .mpin.active, .bpin.active { outline: 3px solid var(--accent-2); outline-offset: 1px; }
 
   .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--wash); color: var(--muted); }
   .tag.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
@@ -164,6 +177,8 @@
   .bnum.gone { background: transparent; border: 2px dashed #6b7d88; }
   .bnum.custom { background: var(--gold); }
   .bnum.home { background: var(--accent); }
+  .mnum { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--mary); }
+  .mnum.gone { background: transparent; border: 2px dashed #6b7d88; } .mnum.custom { background: var(--gold); } .mnum.home { outline: 3px solid var(--accent); }
   .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
   .row-actions .btn { box-shadow: none; border: 1px solid var(--line); height: 40px; text-decoration: none; }
 
@@ -175,7 +190,7 @@
 <div id="map" role="application" aria-label="Map of Ghent"></div>
 
 <div class="topbar">
-  <div class="brand">Ghent Walk<small>Sights &amp; beluiken</small></div>
+  <div class="brand">Ghent Walk<small>Walk &amp; document</small></div>
   <div class="spacer"></div>
   <button class="btn" id="listBtn" aria-label="Show all places">Places</button>
   <button class="btn primary" id="locateBtn" aria-label="Show where I am">◎ Locate me</button>
@@ -183,7 +198,9 @@
 <div class="chips" role="toolbar" aria-label="What to show">
   <button class="chip" id="chipSights" aria-pressed="true">Sights</button>
   <button class="chip" id="chipBeluiken" aria-pressed="true">Beluiken</button>
-  <button class="chip" id="chipGone" aria-pressed="false">Demolished too</button>
+  <button class="chip" id="chipMaria" aria-pressed="true">Mary statues</button>
+  <button class="chip" id="chipNight" aria-pressed="false">Night shops</button>
+  <button class="chip" id="chipGone" aria-pressed="false">Gone too</button>
 </div>
 <div class="status" id="status" hidden></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
@@ -386,17 +403,35 @@ function openList() {
   $("sheetBody").scrollTop = 0;
   openSheet();
 }
-$("listBtn").onclick = () => (showBeluiken && !showSights ? openBList() : showBeluiken ? openChooser() : openList());
-
+$("listBtn").onclick = () => openChooser();
 
 // =====================================================================
-// Beluiken: 19th-century workers' courtyards, from the Flemish heritage inventory
+// Heritage layers from the Flemish heritage inventory: beluiken and Mary statues
 // =====================================================================
-let BELUIKEN = [];               // from data/beluiken.json
-let showSights = true, showBeluiken = true, showGone = false;
-const bMarkers = {};
-const beluikLayer = L.layerGroup().addTo(map);
+let showSights = true, showGone = false;
 const docs = new Map();          // id -> documentation record (IndexedDB)
+
+const CATS = {
+  beluik: {
+    file: "data/beluiken.json", label: "Beluiken", noun: "beluik", show: true,
+    pin: "bpin", dot: "bnum", data: [], markers: {}, layer: L.layerGroup().addTo(map),
+    blurb: "workers' courtyards",
+    intro: "Beluiken are courtyards of small workers' houses that factory owners and speculators built behind street façades during Ghent's textile boom in the 19th century. Many were cleared as slums in the 20th century; the ones left are a unique part of the city.",
+    states: ["", "Intact", "Renovated", "Partly demolished", "Demolished", "Rebuilt / new houses"],
+    features: [["pump", "Water pump"], ["toilets", "Shared toilets"], ["chapel", "Wall chapel / Mary statue"], ["gate", "Entrance gate / poortje"], ["cobbles", "Cobbles"], ["washhouse", "Wash house"]],
+    count: true, notesLabel: "Notes (architecture, changes, dates on façades…)",
+  },
+  maria: {
+    file: "data/maria.json", label: "Mary statues", noun: "Mary statue", show: true,
+    pin: "mpin", dot: "mnum", data: [], markers: {}, layer: L.layerGroup().addTo(map),
+    blurb: "statues and niches in the streets",
+    intro: "Statues of Mary watch over many Ghent street corners, façades and beluik courtyards. Neighbours often placed them in a niche or a small wooden wall chapel (kastkapel) and kept them decorated with flowers and candles, especially in May, the month of Mary.",
+    states: ["", "Statue in place", "Copy / replacement", "Damaged", "Empty niche", "Gone"],
+    features: [["niche", "In a façade niche"], ["corner", "On a corner house"], ["kastkapel", "Wooden wall chapel"], ["inbeluik", "Inside a beluik"], ["flowers", "Flowers or candles"], ["lantern", "Lantern"], ["inscription", "Inscription / prayer"]],
+    count: false, notesLabel: "Notes (material, colours, inscription, who looks after it…)",
+  },
+};
+const catOf = rec => (rec && rec.cat) || "beluik";
 
 // ---- IndexedDB ----
 const DB = (() => {
@@ -437,37 +472,44 @@ async function saveDoc(rec, quiet) {
 function flashSaved() { const el = document.getElementById("savedNote"); if (el) el.textContent = "Saved on this phone · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
 
 // ---- data ----
-function allBeluiken() {
-  const custom = [...docs.values()].filter(d => d.custom).map(d => ({
-    id: d.id, name: d.name || "My beluik", address: d.address || "", lat: d.lat, lng: d.lng,
-    preserved: true, custom: true, period: d.period || "", description: "", url: null,
+function allOf(cat) {
+  const custom = [...docs.values()].filter(d => d.custom && catOf(d) === cat).map(d => ({
+    id: d.id, cat, name: d.name || "My " + CATS[cat].noun, address: d.address || "", lat: d.lat, lng: d.lng,
+    preserved: true, custom: true, period: "", description: "", url: null,
   }));
-  return BELUIKEN.concat(custom);
+  return CATS[cat].data.concat(custom);
 }
-function bClass(b) {
+function findItem(id) {
+  for (const cat in CATS) { const it = allOf(cat).find(x => x.id === id); if (it) return it; }
+}
+function pinClass(b) {
   const d = docs.get(b.id);
-  return ["bpin", b.preserved ? "" : "gone", b.custom ? "custom" : "", d && d.home ? "home" : "",
+  return [CATS[b.cat].pin, b.preserved ? "" : "gone", b.custom ? "custom" : "", d && d.home ? "home" : "",
           hasDoc(d) ? "doc" : "", activeId === b.id ? "active" : ""].join(" ");
 }
 function bIcon(b) {
   const big = docs.get(b.id)?.home;
-  return L.divIcon({ className: "", html: `<div class="${bClass(b)}"></div>`, iconSize: big ? [22, 22] : [18, 18], iconAnchor: big ? [11, 11] : [9, 9] });
+  return L.divIcon({ className: "", html: `<div class="${pinClass(b)}"></div>`, iconSize: big ? [22, 22] : [18, 18], iconAnchor: big ? [11, 11] : [9, 9] });
 }
 function refreshBPins() {
-  beluikLayer.clearLayers();
-  if (!showBeluiken) return;
-  allBeluiken().forEach(b => {
-    if (b.lat == null) return;
-    if (!b.preserved && !showGone && !hasDoc(docs.get(b.id))) return;
-    const m = bMarkers[b.id] || (bMarkers[b.id] = L.marker([b.lat, b.lng], { title: b.name, keyboard: true }).on("click", () => openBeluik(b.id)));
-    m.setLatLng([b.lat, b.lng]).setIcon(bIcon(b)).addTo(beluikLayer);
-  });
+  for (const cat in CATS) {
+    const C = CATS[cat];
+    C.layer.clearLayers();
+    if (!C.show) continue;
+    allOf(cat).forEach(b => {
+      if (b.lat == null) return;
+      if (!b.preserved && !showGone && !hasDoc(docs.get(b.id))) return;
+      const m = C.markers[b.id] || (C.markers[b.id] = L.marker([b.lat, b.lng], { title: b.name, keyboard: true }).on("click", () => openBeluik(b.id)));
+      m.setLatLng([b.lat, b.lng]).setIcon(bIcon(b)).addTo(C.layer);
+    });
+  }
 }
 function prettyPeriod(p) {
   return (p || "").replace(/eerste kwart/g, "1st quarter").replace(/tweede kwart/g, "2nd quarter")
     .replace(/derde kwart/g, "3rd quarter").replace(/vierde kwart/g, "4th quarter")
     .replace(/eerste helft/g, "1st half").replace(/tweede helft/g, "2nd half")
-    .replace(/(\d+)de eeuw/g, "$1th c.").replace(/voor WO I/g, "before WWI").replace(/interbellum/g, "interwar").replace(/WO I\b/g, "WWI");
+    .replace(/(\d+)de eeuw/g, "$1th c.").replace(/voor WO I/g, "before WWI").replace(/interbellum/g, "interwar")
+    .replace(/na WO II/g, "after WWII").replace(/WO II\b/g, "WWII").replace(/WO I\b/g, "WWI");
 }
 function kindOf(name) {
   const n = name.toLowerCase();
@@ -477,52 +519,57 @@ function kindOf(name) {
   return "";
 }
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const NL = { gemakhuisjes: "shared toilets", kastkapellen: "wall chapels", waterpompen: "water pumps", kasseiwegen: "cobbled lanes",
+  arbeiderswoningen: "workers' houses", stadswoningen: "town houses", werkplaatsen: "workshops", opslagplaatsen: "warehouses",
+  "poorten (bijgebouwen)": "gateway", washuizen: "wash houses", blekerijen: "bleachery", palen: "bollards", winkels: "shops",
+  achterhuizen: "back houses", burgerhuizen: "bourgeois houses", stallen: "stables", hoeven: "farmhouse", weverijen: "weaving mill",
+  katoenfabrieken: "cotton mill", Mariagrotten: "Lourdes grotto", hekken: "gates", godshuizen: "almshouses", beluiken: "beluik",
+  niskapellen: "niche chapel", "kapellen (klein erfgoed)": "small chapel", "kapellen (gebouwen en structuren)": "chapel",
+  hoekhuizen: "corner house", herenhuizen: "mansion", kerken: "church", kloosters: "convent", beelden: "statues" };
 
-async function loadBeluiken() {
+async function loadLayers() {
   try { (await DB.all()).forEach(d => docs.set(d.id, d)); } catch (e) {}
-  try {
-    const r = await fetch("data/beluiken.json", { cache: "no-cache" });
-    if (r.ok) BELUIKEN = (await r.json()).items || [];
-  } catch (e) { status("Couldn't load the beluiken list. Check your connection.", 6000); }
+  await Promise.all(Object.entries(CATS).map(async ([cat, C]) => {
+    try {
+      const r = await fetch(C.file, { cache: "no-cache" });
+      if (r.ok) C.data = ((await r.json()).items || []).map(x => ({ ...x, cat }));
+    } catch (e) {}
+  }));
+  if (!CATS.beluik.data.length) status("Couldn't load the heritage lists. Check your connection.", 6000);
   refreshBPins();
 }
 
-// ---- beluik card ----
-const FEATURES = [["pump", "Water pump"], ["toilets", "Shared toilets"], ["chapel", "Wall chapel"], ["gate", "Entrance gate / poortje"], ["cobbles", "Cobbles"], ["washhouse", "Wash house"]];
-const STATES = ["", "Intact", "Renovated", "Partly demolished", "Demolished", "Rebuilt / new houses"];
-
+// ---- card ----
 function openBeluik(id) {
-  const b = allBeluiken().find(x => x.id === id); if (!b) return;
+  const b = findItem(id); if (!b) return;
+  const C = CATS[b.cat];
   const d = getDoc(id);
   activeId = id; refreshPins(); refreshBPins();
   $("sheetTitle").textContent = b.name;
   const meta = [b.address];
   if (me && b.lat != null) { const dist = distM(me, b); meta.push(`${fmtDist(dist)} · ${walkMin(dist)} min walk`); }
   $("sheetMeta").innerHTML = meta.filter(Boolean).map(m => `<span>${esc(m)}</span>`).join("");
-  const tags = [];
+  const tags = [`<span class="tag">${C.noun}</span>`];
   if (b.custom) tags.push('<span class="tag">Added by you</span>');
-  else tags.push(b.preserved ? '<span class="tag ok">Still standing</span>' : '<span class="tag gone">Demolished</span>');
+  else tags.push(b.preserved ? '<span class="tag ok">Still there</span>' : '<span class="tag gone">Gone</span>');
   if (b.protected) tags.push('<span class="tag prot">Protected monument</span>');
   else if (b.established) tags.push('<span class="tag">Listed heritage</span>');
   if (d.home) tags.push('<span class="tag prot">My home</span>');
   const facts = [];
-  const kind = kindOf(b.name); if (kind) facts.push(["Type", kind]);
+  const kind = b.cat === "beluik" ? kindOf(b.name) : ""; if (kind) facts.push(["Type", kind]);
   if (b.period) facts.push(["Built", prettyPeriod(b.period)]);
   if (b.deelgemeente && b.deelgemeente !== "Gent") facts.push(["District", b.deelgemeente]);
-  if (b.designer) facts.push(["Designer", b.designer]);
+  if (b.designer) facts.push([b.cat === "maria" ? "Makers" : "Designer", b.designer]);
   if (b.style) facts.push(["Style", b.style]);
   const extra = (b.typology || "").split(",").map(t => t.trim()).filter(t => t && t !== "beluiken");
-  const NL = { gemakhuisjes: "shared toilets", kastkapellen: "wall chapels", waterpompen: "water pumps", kasseiwegen: "cobbled lanes",
-    arbeiderswoningen: "workers' houses", stadswoningen: "town houses", werkplaatsen: "workshops", opslagplaatsen: "warehouses",
-    "poorten (bijgebouwen)": "gateway", washuizen: "wash houses", blekerijen: "bleachery", palen: "bollards", winkels: "shops",
-    achterhuizen: "back houses", burgerhuizen: "bourgeois houses", stallen: "stables", hoeven: "farmhouse", weverijen: "weaving mill",
-    katoenfabrieken: "cotton mill", Mariagrotten: "Lourdes grotto", hekken: "gates", godshuizen: "almshouses" };
-  if (extra.length) facts.push(["Also on site", extra.map(t => NL[t] || t).join(", ")]);
+  if (extra.length) facts.push([b.cat === "maria" ? "Object" : "Also on site", extra.map(t => NL[t] || t).join(", ")]);
+  const short = b.cat === "maria" && b.mary && !(b.description || "").includes(b.mary.slice(0, 40)) ? b.mary : "";
 
   $("sheetBody").innerHTML = `
     <div class="tags">${tags.join("")}</div>
-    ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : ""}
     ${b.photo ? `<img class="hero" src="${b.photo}" alt="${esc(b.name)}" loading="lazy" onerror="this.remove()">` : ""}
+    ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : ""}
+    ${short ? `<div class="fact"><b>About the statue:</b> ${esc(short)}</div>` : ""}
     ${b.description ? `<div class="desc">${esc(b.description)}</div>` : ""}
     ${b.text && b.text.length > (b.description || "").length + 40 ? `<details class="more"><summary>Read the full history (Dutch)</summary><div class="desc">${esc(b.text)}</div></details>` : ""}
     <div class="row-actions">
@@ -537,20 +584,20 @@ function openBeluik(id) {
       <input type="file" id="photoInput" accept="image/*" multiple hidden>
     </div>
     <div class="field"><label for="f-state">Current state</label>
-      <select id="f-state">${STATES.map(s => `<option ${s === d.state ? "selected" : ""} value="${s}">${s || "Not recorded"}</option>`).join("")}</select></div>
-    <div class="field"><label for="f-houses">Number of houses</label>
-      <input type="number" inputmode="numeric" min="0" id="f-houses" value="${esc(d.houses)}"></div>
-    <div class="field"><span class="lbl">What's still there</span>
-      <div class="checks">${FEATURES.map(([k, l]) => `<label><input type="checkbox" data-f="${k}" ${(d.features || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div></div>
-    <div class="field"><label for="f-notes">Notes (architecture, changes, dates on façades…)</label>
+      <select id="f-state">${C.states.map(s => `<option ${s === d.state ? "selected" : ""} value="${s}">${s || "Not recorded"}</option>`).join("")}</select></div>
+    ${C.count ? `<div class="field"><label for="f-houses">Number of houses</label>
+      <input type="number" inputmode="numeric" min="0" id="f-houses" value="${esc(d.houses)}"></div>` : ""}
+    <div class="field"><span class="lbl">What's there</span>
+      <div class="checks">${C.features.map(([k, l]) => `<label><input type="checkbox" data-f="${k}" ${(d.features || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div></div>
+    <div class="field"><label for="f-notes">${C.notesLabel}</label>
       <textarea id="f-notes">${esc(d.notes)}</textarea></div>
     <div class="field"><label for="f-stories">Stories from residents</label>
       <textarea id="f-stories">${esc(d.stories)}</textarea></div>
     ${b.custom ? `<div class="field"><label for="f-name">Name</label><input type="text" id="f-name" value="${esc(b.name)}"></div>
       <div class="field"><label for="f-address">Address</label><input type="text" id="f-address" value="${esc(b.address)}"></div>` : ""}
-    <label class="checks" style="margin-bottom:10px"><label><input type="checkbox" id="f-home" ${d.home ? "checked" : ""}> I live here</label></label>
+    <div class="checks" style="margin-bottom:10px"><label><input type="checkbox" id="f-home" ${d.home ? "checked" : ""}> ${b.cat === "maria" ? "This is near my home" : "I live here"}</label></div>
     <div class="saved" id="savedNote">${d.updated ? "Last saved " + new Date(d.updated).toLocaleString() : "Everything you enter is saved on this phone automatically."}</div>
-    ${b.custom ? `<div class="row-actions"><button class="btn" id="delCustom">Remove this beluik</button></div>` : ""}
+    ${b.custom ? `<div class="row-actions"><button class="btn" id="delCustom">Remove this ${C.noun}</button></div>` : ""}
   `;
   $("sheetBody").scrollTop = 0;
 
@@ -558,7 +605,7 @@ function openBeluik(id) {
   if (b.custom) Object.assign(rec, docs.get(id));
   const later = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => saveDoc(rec), 500); };
   $("f-state").onchange = e => { rec.state = e.target.value; saveDoc(rec); };
-  $("f-houses").oninput = e => { rec.houses = e.target.value; later(); };
+  if (C.count) $("f-houses").oninput = e => { rec.houses = e.target.value; later(); };
   $("f-notes").oninput = e => { rec.notes = e.target.value; later(); };
   $("f-stories").oninput = e => { rec.stories = e.target.value; later(); };
   $("f-home").onchange = e => { rec.home = e.target.checked; saveDoc(rec); };
@@ -567,7 +614,7 @@ function openBeluik(id) {
     $("f-address").oninput = e => { rec.address = e.target.value; later(); };
     $("delCustom").onclick = async e => {
       if (e.target.dataset.confirm !== "1") { e.target.dataset.confirm = "1"; e.target.textContent = "Tap again to remove it and its photos"; return; }
-      docs.delete(id); await DB.del(id); delete bMarkers[id]; closeSheet();
+      docs.delete(id); await DB.del(id); delete C.markers[id]; closeSheet();
     };
   }
   $("sheetBody").querySelectorAll("input[data-f]").forEach(cb => cb.onchange = () => {
@@ -612,7 +659,7 @@ function shrink(file, max = 1800) {
   });
 }
 
-// ---- beluiken list ----
+// ---- lists ----
 let bQuery = "";
 function openChooser() {
   activeId = null; refreshPins(); refreshBPins();
@@ -620,27 +667,36 @@ function openChooser() {
   $("sheetMeta").innerHTML = "";
   $("sheetBody").innerHTML = `<ul class="list">
     <li><button id="goSights"><span class="num">★</span><span class="li-text"><strong>Sights</strong><span>${PLACES.length} historic buildings in the centre</span></span></button></li>
-    <li><button id="goBel"><span class="bnum"></span><span class="li-text"><strong>Beluiken</strong><span>${allBeluiken().length} workers' courtyards</span></span></button></li>
-  </ul>`;
-  $("goSights").onclick = openList; $("goBel").onclick = openBList;
+    <li><button id="goNight"><span class="nnum open"></span><span class="li-text"><strong>Night shops</strong><span>${NIGHT.data.length} shops open late</span></span></button></li>
+    ${Object.entries(CATS).map(([cat, C]) => `<li><button data-cat="${cat}"><span class="${C.dot}"></span><span class="li-text"><strong>${C.label}</strong><span>${allOf(cat).length} ${C.blurb}</span></span></button></li>`).join("")}
+  </ul>
+  <div class="row-actions">
+    <button class="btn" id="exportBtn">Export my documentation</button>
+    <button class="btn" id="importBtn">Import</button>
+  </div>
+  <p class="saved">Long-press the map to add a beluik or Mary statue that's missing. Your notes and photos stay on this phone until you export them.</p>`;
+  $("goSights").onclick = openList;
+  $("goNight").onclick = openNList;
+  $("sheetBody").querySelectorAll("button[data-cat]").forEach(x => x.onclick = () => openBList(x.dataset.cat));
+  $("exportBtn").onclick = exportDocs;
+  $("importBtn").onclick = () => $("importFile").click();
   openSheet();
 }
-function openBList() {
+function openBList(cat = "beluik") {
   activeId = null; refreshPins(); refreshBPins();
-  const all = allBeluiken();
+  const C = CATS[cat];
+  const all = allOf(cat);
   const nDoc = all.filter(b => hasDoc(docs.get(b.id))).length;
-  $("sheetTitle").textContent = "Beluiken";
-  $("sheetMeta").innerHTML = `<span>${all.filter(b => b.preserved).length} standing</span><span>${all.filter(b => !b.preserved).length} demolished</span><span>${nDoc} documented by you</span>`;
+  $("sheetTitle").textContent = C.label;
+  $("sheetMeta").innerHTML = `<span>${all.filter(b => b.preserved).length} still there</span><span>${all.filter(b => !b.preserved).length} gone</span><span>${nDoc} documented by you</span>`;
   $("sheetBody").innerHTML = `
-    <p style="font-size:14px;color:var(--muted)">Beluiken are courtyards of small workers' houses that factory owners and speculators built behind street façades during Ghent's textile boom in the 19th century. Many were cleared as slums in the 20th century; the ones left are a unique part of the city.</p>
+    <p style="font-size:14px;color:var(--muted)">${C.intro}</p>
     <input class="search" id="bSearch" type="search" placeholder="Search by name or street" value="${esc(bQuery)}">
     <ul class="list" id="bList"></ul>
     <div class="row-actions">
-      <button class="btn" id="addHere">＋ Add a missing beluik</button>
-      <button class="btn" id="exportBtn">Export my documentation</button>
-      <button class="btn" id="importBtn">Import</button>
+      <button class="btn" id="addHere">＋ Add a missing ${C.noun}</button>
     </div>
-    <p class="saved">Source: Inventaris Onroerend Erfgoed (Flemish heritage inventory). Your notes and photos stay on this phone until you export them.</p>`;
+    <p class="saved">Source: Inventaris Onroerend Erfgoed (Flemish heritage inventory). It doesn't list every ${C.noun}; add the ones you know.</p>`;
   const render = () => {
     const q = bQuery.toLowerCase();
     let items = all.filter(b => !q || (b.name + " " + b.address).toLowerCase().includes(q))
@@ -649,30 +705,39 @@ function openBList() {
       (x.d != null && y.d != null ? x.d - y.d : x.b.address.localeCompare(y.b.address)));
     $("bList").innerHTML = items.map(({ b, d }) => {
       const doc = docs.get(b.id);
-      const cls = ["bnum", b.preserved ? "" : "gone", b.custom ? "custom" : "", doc?.home ? "home" : ""].join(" ");
+      const cls = [C.dot, b.preserved ? "" : "gone", b.custom ? "custom" : "", doc?.home ? "home" : ""].join(" ");
       return `<li><button data-id="${esc(b.id)}"><span class="${cls}"></span>
         <span class="li-text"><strong>${esc(b.name)}${hasDoc(doc) ? " ●" : ""}</strong><span>${esc(b.address)}</span></span>
         ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`;
-    }).join("") || `<li style="padding:12px 4px;color:var(--muted)">No beluik matches “${esc(bQuery)}”.</li>`;
+    }).join("") || `<li style="padding:12px 4px;color:var(--muted)">Nothing matches “${esc(bQuery)}”.</li>`;
     $("bList").querySelectorAll("button[data-id]").forEach(x => x.onclick = () => openBeluik(x.dataset.id));
   };
   render();
   $("bSearch").oninput = e => { bQuery = e.target.value; render(); };
-  $("addHere").onclick = () => { closeSheet(); status("Long-press (or right-click) the map where the beluik is", 5000); };
-  $("exportBtn").onclick = exportDocs;
-  $("importBtn").onclick = () => $("importFile").click();
+  $("addHere").onclick = () => { pendingAdd = cat; closeSheet(); status(`Long-press (or right-click) the map where the ${C.noun} is`, 5000); };
   $("sheetBody").scrollTop = 0;
   openSheet();
 }
 
-// Long-press on the map adds your own beluik
-map.on("contextmenu", async e => {
+// Long-press on the map adds your own beluik or Mary statue
+let pendingAdd = null;
+async function addCustom(cat, latlng) {
   const id = "my-" + Date.now();
-  const rec = Object.assign(getDoc(id), { custom: true, name: "New beluik", address: "", lat: +e.latlng.lat.toFixed(6), lng: +e.latlng.lng.toFixed(6) });
-  if (!showBeluiken) toggle("beluiken");
+  const rec = Object.assign(getDoc(id), { custom: true, cat, name: "New " + CATS[cat].noun, address: "", lat: +latlng.lat.toFixed(6), lng: +latlng.lng.toFixed(6) });
+  if (!CATS[cat].show) toggle(cat);
   await saveDoc(rec, true);
   openBeluik(id);
   status("Added. Give it a name and start documenting.", 4000);
+}
+map.on("contextmenu", e => {
+  if (pendingAdd) { const c = pendingAdd; pendingAdd = null; return addCustom(c, e.latlng); }
+  activeId = null; refreshPins(); refreshBPins();
+  $("sheetTitle").textContent = "Add something here";
+  $("sheetMeta").innerHTML = `<span>${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}</span>`;
+  $("sheetBody").innerHTML = `<ul class="list">${Object.entries(CATS).map(([cat, C]) =>
+    `<li><button data-cat="${cat}"><span class="${C.dot}"></span><span class="li-text"><strong>Add a ${C.noun}</strong><span>Pin it here and start documenting</span></span></button></li>`).join("")}</ul>`;
+  $("sheetBody").querySelectorAll("button[data-cat]").forEach(x => x.onclick = () => addCustom(x.dataset.cat, e.latlng));
+  openSheet();
 });
 
 // ---- export / import ----
@@ -681,16 +746,16 @@ async function exportDocs() {
   const out = [];
   for (const d of docs.values()) {
     if (!hasDoc(d) && !d.custom) continue;
-    const b = allBeluiken().find(x => x.id === d.id);
-    out.push({ ...d, beluik: b ? { name: b.name, address: b.address, lat: b.lat, lng: b.lng, url: b.url } : null,
+    const b = findItem(d.id);
+    out.push({ ...d, cat: b ? b.cat : catOf(d), item: b ? { name: b.name, address: b.address, lat: b.lat, lng: b.lng, url: b.url } : null,
       photos: await Promise.all((d.photos || []).map(async p => ({ date: p.date, data: await blobToData(p.blob) }))) });
   }
-  if (!out.length) { status("Nothing documented yet. Open a beluik and add notes or photos first."); return; }
+  if (!out.length) { status("Nothing documented yet. Open a beluik or statue and add notes or photos first."); return; }
   const blob = new Blob([JSON.stringify({ app: "Walking Gent", exported: new Date().toISOString(), records: out }, null, 1)], { type: "application/json" });
-  const name = `beluiken-documentation-${new Date().toISOString().slice(0, 10)}.json`;
+  const name = `ghent-documentation-${new Date().toISOString().slice(0, 10)}.json`;
   const file = new File([blob], name, { type: "application/json" });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: "Beluiken documentation" }); return; } catch (e) { if (e.name === "AbortError") return; }
+    try { await navigator.share({ files: [file], title: "Ghent documentation" }); return; } catch (e) { if (e.name === "AbortError") return; }
   }
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
@@ -701,27 +766,133 @@ $("importFile").onchange = async e => {
     const data = JSON.parse(await f.text()); let n = 0;
     for (const r of data.records || []) {
       const photos = await Promise.all((r.photos || []).map(async p => ({ date: p.date, blob: await (await fetch(p.data)).blob() })));
-      const { beluik, ...rec } = r; rec.photos = photos;
+      const { beluik, item, ...rec } = r; rec.photos = photos;
       docs.set(rec.id, rec); await DB.put(rec); n++;
     }
-    refreshBPins(); openBList(); status(`Imported ${n} beluik record${n === 1 ? "" : "s"}`);
+    refreshBPins(); openChooser(); status(`Imported ${n} record${n === 1 ? "" : "s"}`);
   } catch (err) { status("That file isn't a Walking Gent export."); }
 };
 
 // ---- layer chips ----
 function toggle(which) {
   if (which === "sights") { showSights = !showSights; showSights ? sightsLayer.addTo(map) : map.removeLayer(sightsLayer); }
-  if (which === "beluiken") { showBeluiken = !showBeluiken; refreshBPins(); }
-  if (which === "gone") { showGone = !showGone; refreshBPins(); }
+  if (CATS[which]) CATS[which].show = !CATS[which].show;
+  if (which === "gone") showGone = !showGone;
+  refreshBPins();
   $("chipSights").setAttribute("aria-pressed", showSights);
-  $("chipBeluiken").setAttribute("aria-pressed", showBeluiken);
+  $("chipBeluiken").setAttribute("aria-pressed", CATS.beluik.show);
+  $("chipMaria").setAttribute("aria-pressed", CATS.maria.show);
   $("chipGone").setAttribute("aria-pressed", showGone);
-  $("chipGone").hidden = !showBeluiken;
 }
 $("chipSights").onclick = () => toggle("sights");
-$("chipBeluiken").onclick = () => toggle("beluiken");
+$("chipBeluiken").onclick = () => toggle("beluik");
+$("chipMaria").onclick = () => toggle("maria");
 $("chipGone").onclick = () => toggle("gone");
-loadBeluiken();
+loadLayers();
+
+// =====================================================================
+// Night shops (OpenStreetMap)
+// =====================================================================
+const NIGHT = { show: false, data: [], layer: L.layerGroup(), markers: {} };
+const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+// Small opening_hours reader for the common forms ("Mo-Su 16:00-02:00; Fr,Sa 16:00-04:00", "24/7").
+// Returns true/false, or null when the text is too unusual to read.
+function openNow(oh, now = new Date()) {
+  if (!oh) return null;
+  if (oh.trim() === "24/7") return true;
+  const mins = d => d.getHours() * 60 + d.getMinutes();
+  const dayIdx = d => d.getDay();
+  let result = null;
+  const dayMatch = (spec, day) => spec.split(",").some(part => {
+    const [a, b] = part.trim().split("-");
+    const ia = DAYS.indexOf(a), ib = b ? DAYS.indexOf(b) : ia;
+    if (ia < 0 || ib < 0) throw new Error("day");
+    return ia <= ib ? day >= ia && day <= ib : day >= ia || day <= ib;
+  });
+  try {
+    for (const rule of oh.split(";").map(r => r.trim()).filter(Boolean)) {
+      const m = rule.match(/^([A-Za-z,\- ]+?)?\s*((?:\d{1,2}:\d{2}-\d{1,2}:\d{2}\+?,?\s*)+|off|closed)$/);
+      if (!m) return null;
+      const spec = (m[1] || "Mo-Su").trim(); const times = m[2];
+      if (/PH|SH/.test(spec)) continue;
+      const today = dayIdx(now), yesterday = (today + 6) % 7, t = mins(now);
+      let applies = false, open = false;
+      if (dayMatch(spec, today)) { applies = true; }
+      if (times === "off" || times === "closed") { if (applies) result = false; continue; }
+      for (const rng of times.split(",").map(x => x.trim()).filter(Boolean)) {
+        const [s, e] = rng.replace("+", "").split("-").map(x => { const [h, mm] = x.split(":"); return +h * 60 + +mm; });
+        const overnight = e <= s;
+        if (applies && (overnight ? t >= s : t >= s && t < e)) open = true;
+        if (overnight && dayMatch(spec, yesterday) && t < e) { open = true; applies = true; }
+      }
+      if (applies) result = open;   // later rules override earlier ones, as in the spec
+    }
+    return result === null ? false : result;
+  } catch (e) { return null; }
+}
+function nIcon(s) {
+  const o = openNow(s.opening_hours);
+  return L.divIcon({ className: "", html: `<div class="npin ${o === true ? "open" : o === false ? "closed" : ""} ${activeId === s.id ? "active" : ""}"></div>`, iconSize: [16, 16], iconAnchor: [8, 8] });
+}
+function refreshNPins() {
+  NIGHT.layer.clearLayers();
+  if (!NIGHT.show) return;
+  NIGHT.data.forEach(s => {
+    const m = NIGHT.markers[s.id] || (NIGHT.markers[s.id] = L.marker([s.lat, s.lng], { title: s.name }).on("click", () => openNight(s.id)));
+    m.setIcon(nIcon(s)).addTo(NIGHT.layer);
+  });
+}
+function openStatus(s) {
+  const o = openNow(s.opening_hours);
+  return o === true ? '<span class="tag ok">Open now</span>' : o === false ? '<span class="tag gone">Closed now</span>' : '<span class="tag">Hours unknown</span>';
+}
+function openNight(id) {
+  const s = NIGHT.data.find(x => x.id === id); if (!s) return;
+  activeId = id; refreshPins(); refreshBPins(); refreshNPins();
+  $("sheetTitle").textContent = s.name;
+  const meta = [s.address];
+  if (me) { const d = distM(me, s); meta.push(`${fmtDist(d)} · ${walkMin(d)} min walk`); }
+  $("sheetMeta").innerHTML = meta.filter(Boolean).map(m => `<span>${esc(m)}</span>`).join("");
+  $("sheetBody").innerHTML = `
+    <div class="tags"><span class="tag">Night shop</span>${openStatus(s)}</div>
+    <dl class="facts">
+      <dt>Hours</dt><dd>${esc(s.opening_hours || "Not known")}</dd>
+      ${s.phone ? `<dt>Phone</dt><dd>${esc(s.phone)}</dd>` : ""}
+    </dl>
+    <div class="row-actions">
+      <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${s.lat},${s.lng}">Directions</a>
+      <a class="btn" target="_blank" rel="noopener" href="${s.url}">Fix on OpenStreetMap</a>
+    </div>
+    <p class="saved">From OpenStreetMap. Shops open and close often, so hours can be out of date.</p>`;
+  map.panTo([s.lat, s.lng], { animate: true });
+  openSheet();
+}
+function openNList() {
+  activeId = null; refreshPins(); refreshBPins(); refreshNPins();
+  const items = NIGHT.data.map(s => ({ s, o: openNow(s.opening_hours), d: me ? distM(me, s) : null }));
+  items.sort((a, b) => (b.o === true) - (a.o === true) || (a.d != null && b.d != null ? a.d - b.d : a.s.name.localeCompare(b.s.name)));
+  $("sheetTitle").textContent = "Night shops";
+  $("sheetMeta").innerHTML = `<span>${items.length} shops</span><span>${items.filter(x => x.o === true).length} open now</span>${me ? "<span>Open & nearest first</span>" : ""}`;
+  $("sheetBody").innerHTML = `<ul class="list">${items.map(({ s, o, d }) => `
+    <li><button data-id="${esc(s.id)}"><span class="nnum ${o === true ? "open" : o === false ? "closed" : ""}"></span>
+      <span class="li-text"><strong>${esc(s.name)}</strong><span>${esc(s.address || s.opening_hours || "")}</span></span>
+      ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`).join("")}</ul>
+    <p class="saved">Source: OpenStreetMap contributors. Shops from supermarket chains are left out.</p>`;
+  $("sheetBody").querySelectorAll("button[data-id]").forEach(x => x.onclick = () => openNight(x.dataset.id));
+  $("sheetBody").scrollTop = 0;
+  if (!NIGHT.show) toggleNight();
+  openSheet();
+}
+function toggleNight() {
+  NIGHT.show = !NIGHT.show;
+  NIGHT.show ? NIGHT.layer.addTo(map) : map.removeLayer(NIGHT.layer);
+  refreshNPins();
+  $("chipNight").setAttribute("aria-pressed", NIGHT.show);
+}
+$("chipNight").onclick = toggleNight;
+fetch("data/nightshops.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : { items: [] }))
+  .then(j => { NIGHT.data = j.items || []; refreshNPins(); }).catch(() => {});
+setInterval(refreshNPins, 5 * 60 * 1000);   // open/closed colours follow the clock
 
 // ---- location ----
 const meIcon = L.divIcon({ className: "", html: '<div class="me-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });

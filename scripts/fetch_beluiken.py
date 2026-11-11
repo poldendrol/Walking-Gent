@@ -173,9 +173,64 @@ def mary_snippet(item):
     return " ".join(hits[:3])
 
 
+CHAINS = re.compile(r"carrefour|delhaize|okay|spar\b|proxy|alvo|intermarch|albert heijn|aldi|lidl|colruyt|bio-planet|crf", re.I)
+
+
+def late_closing(oh):
+    """True if opening_hours mentions 24/7 or a closing time at/after 22:00 or past midnight."""
+    if not oh:
+        return None
+    if "24/7" in oh:
+        return True
+    for a, b in re.findall(r"(\d{1,2}):\d{2}\s*-\s*(\d{1,2}):\d{2}", oh):
+        a, b = int(a), int(b)
+        if b >= 22 or b < a or b == 24:
+            return True
+    return False
+
+
+def nightshops():
+    q = """[out:json][timeout:120];
+area["name"="Gent"]["admin_level"="8"]->.g;
+(nwr["shop"="convenience"](area.g); nwr["shop"]["name"~"[Nn]ight|[Nn]acht"](area.g););
+out center tags;"""
+    data = urllib.parse.urlencode({"data": q}).encode()
+    req = urllib.request.Request("https://overpass-api.de/api/interpreter", data=data, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=180) as r:
+        els = json.loads(r.read().decode())["elements"]
+    out = []
+    for e in els:
+        t = e.get("tags", {})
+        name = t.get("name", "").strip()
+        if CHAINS.search(name + " " + t.get("brand", "")):
+            continue
+        lat = e.get("lat") or (e.get("center") or {}).get("lat")
+        lng = e.get("lon") or (e.get("center") or {}).get("lon")
+        if lat is None:
+            continue
+        addr = " ".join(x for x in [t.get("addr:street", ""), t.get("addr:housenumber", "")] if x)
+        oh = t.get("opening_hours", "")
+        out.append({"id": f"osm-{e['type']}-{e['id']}", "name": name or "Night shop", "address": addr,
+                    "opening_hours": oh, "late": late_closing(oh), "phone": t.get("phone") or t.get("contact:phone") or "",
+                    "lat": round(lat, 6), "lng": round(lng, 6),
+                    "url": f"https://www.openstreetmap.org/{e['type']}/{e['id']}"})
+    print(f"nightshops: {len(out)} (late: {sum(1 for i in out if i['late'])}, no hours: {sum(1 for i in out if i['late'] is None)})", file=sys.stderr)
+    return out
+
+
 def main():
     os.makedirs("data", exist_ok=True)
-    only = sys.argv[1:] or ["beluiken", "maria"]
+    only = sys.argv[1:] or ["beluiken", "maria", "nightshops"]
+
+    if "nightshops" in only:
+        try:
+            items = [i for i in nightshops() if i["late"] is not False]
+            with open("data/nightshops.json", "w") as f:
+                json.dump({"source": "OpenStreetMap contributors (ODbL)", "generated": time.strftime("%Y-%m-%d"), "items": items},
+                          f, ensure_ascii=False, indent=1)
+            print(f"wrote data/nightshops.json: {len(items)}", file=sys.stderr)
+        except Exception as e:
+            print("nightshops failed", e, file=sys.stderr)
 
     if "beluiken" in only:
         rows = fetch_csv("typologie=beluiken&type=dibe_relict")
@@ -184,7 +239,9 @@ def main():
     if "maria" in only:
         rows = []
         for q in ("typologie=niskapellen", "typologie=kastkapellen", "typologie=mariagrotten",
-                  "typologie=beelden", "typologie=heiligenbeelden", "tekst=Mariabeeld", "tekst=Onze-Lieve-Vrouwbeeld"):
+                  "typologie=Mariabeelden", "typologie=gevelniskapellen", "typologie=heiligenbeelden",
+                  "tekst=Mariabeeld", "tekst=Onze-Lieve-Vrouwbeeld", "tekst=Onze-Lieve-Vrouwebeeld",
+                  "tekst=Mariakapelletje", "tekst=muurkapelletje", "tekst=Madonna"):
             rows += fetch_csv(q)
         from collections import Counter
         print("typologies:", Counter(t.strip() for r in rows for t in r["typologie"].split(",")).most_common(40), file=sys.stderr)
