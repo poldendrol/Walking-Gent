@@ -15,7 +15,7 @@ OUT = "data/beluiken.json"
 def get(url, accept="application/json"):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": accept})
     with urllib.request.urlopen(req, timeout=60) as r:
-        return r.read().decode("utf-8")
+        return r.read().decode("utf-8-sig")
 
 
 def strip_html(s):
