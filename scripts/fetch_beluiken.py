@@ -253,7 +253,23 @@ def nightshops():
 
 def main():
     os.makedirs("data", exist_ok=True)
-    only = sys.argv[1:] or ["beluiken", "maria", "nightshops", "geek"]
+    only = sys.argv[1:] or ["beluiken", "maria", "nightshops", "geek", "gems"]
+
+    if "gems" in only:
+        # Protected buildings in Ghent: the city's everyday heritage beyond the famous sights
+        rows = fetch_csv("gemeente=44021") + fetch_csv("tekst=rasphuis")
+        skip_types = re.compile(r"\bbeluiken\b|kastkapellen|gevelniskapellen|Mariabeelden", re.I)
+        keep_rows = [r for r in rows if (r.get("is_beschermd") == "True" or re.search(r"rasphuis", r["naam"], re.I))
+                     and r.get("bewaringstoestand", "").strip() == "bewaard"
+                     and r.get("omvang", "Element") == "Element"
+                     and not skip_types.search(r.get("typologie", ""))]
+        print(f"gems: {len(keep_rows)} candidate rows", file=sys.stderr)
+        items = build(keep_rows, label="gem")
+        for it in items:
+            it.pop("text", None)        # keep the file light; the full text is one tap away
+            if len(it["description"]) > 600:
+                it["description"] = it["description"][:600].rsplit(" ", 1)[0] + "…"
+        write("data/gems.json", f"{BASE}/erfgoedobjecten?gemeente=44021", items)
 
     if "geek" in only:
         try:
