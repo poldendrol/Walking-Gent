@@ -88,21 +88,34 @@ def nominatim(address, deelgemeente):
     return None
 
 
-def main():
-    os.makedirs("data", exist_ok=True)
-    csv_text = get(f"{BASE}/erfgoedobjecten.csv?typologie=beluiken&type=dibe_relict", accept="text/csv")
-    rows = [r for r in csv.DictReader(io.StringIO(csv_text)) if r["gemeente"].strip() == "Gent"]
-    print(f"{len(rows)} beluiken in Gent", file=sys.stderr)
-    out, sample_dumped = [], False
+MARY = re.compile(r"\bmaria|onze[- ]lieve[- ]vrouw|o\.\s?-?l\.\s?-?v|madonna|\bmadonne|lourdes|mariagrot", re.I)
+
+
+def fetch_csv(query):
+    try:
+        text = get(f"{BASE}/erfgoedobjecten.csv?{query}", accept="text/csv")
+    except Exception as e:
+        print(f"csv failed {query}: {e}", file=sys.stderr)
+        return []
+    rows = [r for r in csv.DictReader(io.StringIO(text)) if (r.get("gemeente") or "").strip() == "Gent"]
+    print(f"{query}: {len(rows)} rows in Gent", file=sys.stderr)
+    return rows
+
+
+def build(rows, keep=None, label=""):
+    out, seen = [], set()
     for r in rows:
         oid = r["id"]
+        if oid in seen:
+            continue
+        seen.add(oid)
         item = {
             "id": oid,
             "name": r["naam"].strip(),
             "address": re.sub(r"\s*\(Gent\)\s*$", "", r["locatie"].strip()),
             "deelgemeente": r["deelgemeente"].strip(),
             "period": r["datering"].strip(),
-            "designer": re.sub(r"\s*\(Ontwerper\)", "", r["personen"]).strip(),
+            "designer": re.sub(r"\s*\((Ontwerper|Beeldhouwer|Kunstenaar)\)", "", r["personen"]).strip(),
             "style": r["stijl"].strip(),
             "typology": r["typologie"].strip(),
             "preserved": r["bewaringstoestand"].strip() == "bewaard",
@@ -114,12 +127,9 @@ def main():
             "photo": None,
             "lat": None, "lng": None, "geo": None,
         }
+        d = None
         try:
             d = json.loads(get(f"{BASE}/erfgoedobjecten/{oid}"))
-            if not sample_dumped:
-                with open("data/_sample_object.json", "w") as f:
-                    json.dump(d, f, ensure_ascii=False, indent=1)
-                sample_dumped = True
             for key in ("beschrijving", "korte_beschrijving", "description"):
                 if d.get(key):
                     item["description"] = strip_html(d[key])
@@ -137,18 +147,55 @@ def main():
                 item["lat"], item["lng"], item["geo"] = round(ll[0], 6), round(ll[1], 6), "inventaris"
         except Exception as e:
             print("  json failed", oid, e, file=sys.stderr)
+        if keep and not keep(item):
+            continue
         if item["lat"] is None:
             ll = nominatim(r["locatie"], item["deelgemeente"])
             if ll:
                 item["lat"], item["lng"], item["geo"] = round(ll[0], 6), round(ll[1], 6), "nominatim"
-        print(f"  {oid} {item['name']} -> {item['geo']}", file=sys.stderr)
+        print(f"  {label} {oid} {item['name']} -> {item['geo']}", file=sys.stderr)
         out.append(item)
-        time.sleep(0.3)
-    with open(OUT, "w") as f:
-        json.dump({"source": f"{BASE}/erfgoedobjecten?typologie=beluiken",
-                   "generated": time.strftime("%Y-%m-%d"),
-                   "items": out}, f, ensure_ascii=False, indent=1)
-    print(f"wrote {len(out)} items, {sum(1 for i in out if i['lat'])} with location", file=sys.stderr)
+        time.sleep(0.25)
+    return out
+
+
+def write(path, source, items):
+    with open(path, "w") as f:
+        json.dump({"source": source, "generated": time.strftime("%Y-%m-%d"), "items": items}, f, ensure_ascii=False, indent=1)
+    print(f"wrote {path}: {len(items)} items, {sum(1 for i in items if i['lat'])} with location", file=sys.stderr)
+
+
+def mary_snippet(item):
+    """Return the sentence(s) about the Mary statue, for objects where it is one detail of a bigger building."""
+    text = item["text"] or item["description"]
+    sents = re.split(r"(?<=[.!?])\s+", text)
+    hits = [s for s in sents if MARY.search(s)]
+    return " ".join(hits[:3])
+
+
+def main():
+    os.makedirs("data", exist_ok=True)
+    only = sys.argv[1:] or ["beluiken", "maria"]
+
+    if "beluiken" in only:
+        rows = fetch_csv("typologie=beluiken&type=dibe_relict")
+        write(OUT, f"{BASE}/erfgoedobjecten?typologie=beluiken", build(rows, label="beluik"))
+
+    if "maria" in only:
+        rows = []
+        for q in ("typologie=niskapellen", "typologie=kastkapellen", "typologie=mariagrotten",
+                  "typologie=beelden", "typologie=heiligenbeelden", "tekst=Mariabeeld", "tekst=Onze-Lieve-Vrouwbeeld"):
+            rows += fetch_csv(q)
+        from collections import Counter
+        print("typologies:", Counter(t.strip() for r in rows for t in r["typologie"].split(",")).most_common(40), file=sys.stderr)
+
+        def is_mary(item):
+            return bool(MARY.search(item["name"]) or MARY.search(item["text"]) or MARY.search(item["description"]))
+
+        items = build(rows, keep=is_mary, label="maria")
+        for it in items:
+            it["mary"] = mary_snippet(it)
+        write("data/maria.json", f"{BASE}/erfgoedobjecten?tekst=Mariabeeld", items)
 
 
 if __name__ == "__main__":
