@@ -1,0 +1,126 @@
+{
+ "source": "OpenStreetMap contributors (ODbL)",
+ "generated": "2026-11-11",
+ "items": [
+  {
+   "id": "osm-node-1628067356",
+   "name": "The Vault",
+   "kind": "Board & card games",
+   "address": "Hoogpoort 57",
+   "opening_hours": "",
+   "website": "https://the-vault.be/",
+   "phone": "+32 9 278 98 27",
+   "lat": 51.054917,
+   "lng": 3.725001,
+   "url": "https://www.openstreetmap.org/node/1628067356"
+  },
+  {
+   "id": "osm-node-3394949751",
+   "name": "Worlds' End Comics",
+   "kind": "Comics & manga",
+   "address": "Ketelvest 51B",
+   "opening_hours": "Tu-Th 10:30-24:00; Fr-Sa 10:30-24:00; Su 00:00-01:00,11:30-24:00; Dec 25,Jan 1 off",
+   "website": "https://www.worldsendcomics.com/",
+   "phone": "+32 9 222 05 76",
+   "lat": 51.049321,
+   "lng": 3.725801,
+   "url": "https://www.openstreetmap.org/node/3394949751"
+  },
+  {
+   "id": "osm-node-6222378885",
+   "name": "Adhemar",
+   "kind": "Comics & manga",
+   "address": "",
+   "opening_hours": "We-Fr 10:30-18:00; Sa 10:00-18:00",
+   "website": "https://adhemar.be/",
+   "phone": "",
+   "lat": 51.055936,
+   "lng": 3.727153,
+   "url": "https://www.openstreetmap.org/node/6222378885"
+  },
+  {
+   "id": "osm-node-7066011387",
+   "name": "Spelgezel",
+   "kind": "Board & card games",
+   "address": "",
+   "opening_hours": "",
+   "website": "https://www.spelgezel.be/",
+   "phone": "",
+   "lat": 51.046727,
+   "lng": 3.730072,
+   "url": "https://www.openstreetmap.org/node/7066011387"
+  },
+  {
+   "id": "osm-node-11352130036",
+   "name": "Interphila",
+   "kind": "Collectibles",
+   "address": "",
+   "opening_hours": "",
+   "website": "",
+   "phone": "",
+   "lat": 51.053415,
+   "lng": 3.72476,
+   "url": "https://www.openstreetmap.org/node/11352130036"
+  },
+  {
+   "id": "osm-node-11471550367",
+   "name": "Stripwinkel Pierke",
+   "kind": "Comics & manga",
+   "address": "",
+   "opening_hours": "",
+   "website": "",
+   "phone": "",
+   "lat": 51.074481,
+   "lng": 3.713279,
+   "url": "https://www.openstreetmap.org/node/11471550367"
+  },
+  {
+   "id": "osm-node-11592816511",
+   "name": "Warhammer Gent",
+   "kind": "Games & toys",
+   "address": "Sint-Niklaasstraat 19",
+   "opening_hours": "Tu,Fr-Sa 11:00-18:00; We 11:00-20:30; Th 12:00-18:00",
+   "website": "",
+   "phone": "+32 9 223 91 20",
+   "lat": 51.05317,
+   "lng": 3.723238,
+   "url": "https://www.openstreetmap.org/node/11592816511"
+  },
+  {
+   "id": "osm-node-12828585218",
+   "name": "Outpost Gent",
+   "kind": "Board & card games",
+   "address": "Ottergemsesteenweg 13",
+   "opening_hours": "",
+   "website": "https://www.outpost.be/",
+   "phone": "+32 9 245 44 84",
+   "lat": 51.037233,
+   "lng": 3.727022,
+   "url": "https://www.openstreetmap.org/node/12828585218"
+  },
+  {
+   "id": "osm-node-13122965904",
+   "name": "Wankel",
+   "kind": "Board & card games",
+   "address": "",
+   "opening_hours": "Tu-Sa 10:00-18:00",
+   "website": "https://www.wankel.gent",
+   "phone": "+32 484 22 22 12",
+   "lat": 51.056858,
+   "lng": 3.73733,
+   "url": "https://www.openstreetmap.org/node/13122965904"
+  },
+  {
+   "id": "osm-node-14062007008",
+   "name": "Gent Axe Throwing",
+   "kind": "Board & card games",
+   "address": "",
+   "opening_hours": "Tu-Su 10:00-22:00",
+   "website": "",
+   "phone": "",
+   "lat": 51.055246,
+   "lng": 3.726368,
+   "url": "https://www.openstreetmap.org/node/14062007008"
+  }
+ ]
+}
