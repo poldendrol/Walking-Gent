@@ -5,7 +5,7 @@
 3. For each, fetch the object's JSON for its description and location,
    falling back to OpenStreetMap Nominatim to geocode the first address.
 """
-import csv, io, json, re, sys, time, urllib.request, urllib.parse
+import csv, io, json, os, re, sys, time, urllib.request, urllib.parse
 
 BASE = "https://inventaris.onroerenderfgoed.be"
 UA = "walking-gent-builder/1.0 (+https://github.com/poldendrol/Walking-Gent)"
@@ -89,6 +89,7 @@ def nominatim(address, deelgemeente):
 
 
 def main():
+    os.makedirs("data", exist_ok=True)
     csv_text = get(f"{BASE}/erfgoedobjecten.csv?typologie=beluiken&type=dibe_relict", accept="text/csv")
     rows = [r for r in csv.DictReader(io.StringIO(csv_text)) if r["gemeente"].strip() == "Gent"]
     print(f"{len(rows)} beluiken in Gent", file=sys.stderr)

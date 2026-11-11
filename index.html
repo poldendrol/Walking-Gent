@@ -19,11 +19,13 @@
     --accent: #b5462b;      /* Ghent brick red */
     --accent-2: #1f3a4d;    /* Lys water blue */
     --line: #dde3e6;
+    --green: #2f7d5b;       /* beluik courtyards */
+    --gold: #b88a1b;
     --display: "Fraunces", Georgia, serif;
     --body: "Inter", system-ui, -apple-system, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; color-scheme: dark; }
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -108,6 +110,60 @@
   .li-text span { font-size: 12px; color: var(--muted); }
   .dist { font-size: 13px; color: var(--accent-2); font-variant-numeric: tabular-nums; font-weight: 600; }
 
+  /* Layer chips */
+  .chips {
+    position: absolute; z-index: 1050; left: 0; right: 0;
+    top: calc(env(safe-area-inset-top, 0px) + 74px);
+    padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+    display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none;
+  }
+  .chip {
+    pointer-events: auto; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    border-radius: 999px; height: 34px; padding: 0 12px; font: 600 13px var(--body); cursor: pointer;
+    box-shadow: 0 1px 6px rgba(0,0,0,.14);
+  }
+  .chip[aria-pressed="true"] { background: var(--accent-2); border-color: var(--accent-2); color: var(--paper); }
+  .status { top: calc(env(safe-area-inset-top, 0px) + 118px); }
+
+  /* Beluik pins: square = courtyard */
+  .bpin { width: 18px; height: 18px; border-radius: 4px; background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); position: relative; }
+  .bpin.gone { background: #fff; border: 2px dashed #6b7d88; }
+  .bpin.doc::after { content: ""; position: absolute; right: -5px; top: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 1.5px solid #fff; }
+  .bpin.home { background: var(--accent); width: 22px; height: 22px; }
+  .bpin.custom { background: var(--gold); }
+  .bpin.active { outline: 3px solid var(--accent-2); outline-offset: 1px; }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--wash); color: var(--muted); }
+  .tag.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
+  .tag.gone { background: color-mix(in srgb, #6b7d88 18%, transparent); }
+  .tag.prot { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  dl.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0 0 14px; font-size: 14px; }
+  dl.facts dt { color: var(--muted); }
+  dl.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .desc { white-space: pre-line; font-size: 14px; line-height: 1.6; color: var(--ink); margin-bottom: 14px; }
+  h3.sec { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 18px 0 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .field label, .field .lbl { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .field input[type=text], .field input[type=number], .field select, .field textarea {
+    font: 16px var(--body); color: var(--ink); background: var(--wash); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%;
+  }
+  .field textarea { min-height: 90px; resize: vertical; }
+  .checks { display: flex; flex-wrap: wrap; gap: 6px; }
+  .checks label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; background: var(--wash); border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; cursor: pointer; color: var(--ink); font-weight: 500; }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .photo { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--wash); max-width: 100%; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo button { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; }
+  .saved { font-size: 12px; color: var(--muted); }
+  .search { width: 100%; font: 16px var(--body); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--wash); color: var(--ink); margin-bottom: 8px; }
+  .bnum { flex: none; width: 22px; height: 22px; border-radius: 5px; background: var(--green); }
+  .bnum.gone { background: transparent; border: 2px dashed #6b7d88; }
+  .bnum.custom { background: var(--gold); }
+  .bnum.home { background: var(--accent); }
+  .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
+  .row-actions .btn { box-shadow: none; border: 1px solid var(--line); height: 40px; text-decoration: none; }
+
   .leaflet-control-attribution { font-size: 10px; }
   .leaflet-bottom.leaflet-right { margin-bottom: env(safe-area-inset-bottom, 0px); }
 </style>
@@ -116,12 +172,18 @@
 <div id="map" role="application" aria-label="Map of Ghent"></div>
 
 <div class="topbar">
-  <div class="brand">Ghent Walk<small>Tap a pin for its story</small></div>
+  <div class="brand">Ghent Walk<small>Sights &amp; beluiken</small></div>
   <div class="spacer"></div>
   <button class="btn" id="listBtn" aria-label="Show all places">Places</button>
   <button class="btn primary" id="locateBtn" aria-label="Show where I am">◎ Locate me</button>
 </div>
+<div class="chips" role="toolbar" aria-label="What to show">
+  <button class="chip" id="chipSights" aria-pressed="true">Sights</button>
+  <button class="chip" id="chipBeluiken" aria-pressed="true">Beluiken</button>
+  <button class="chip" id="chipGone" aria-pressed="false">Demolished too</button>
+</div>
 <div class="status" id="status" hidden></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
 
 <section class="sheet" id="sheet" aria-live="polite">
   <div class="grab"></div>
@@ -249,6 +311,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 L.control.zoom({ position: "bottomright" }).addTo(map);
 
 const markers = {};
+const sightsLayer = L.layerGroup().addTo(map);
 function pinIcon(p, i) {
   const cls = ["pin", visited.has(p.id) ? "visited" : "", activeId === p.id ? "active" : ""].join(" ");
   return L.divIcon({ className: "", html: `<div class="${cls}"><span>${i + 1}</span></div>`, iconSize: [30, 30], iconAnchor: [15, 36] });
@@ -256,7 +319,7 @@ function pinIcon(p, i) {
 function refreshPins() { PLACES.forEach((p, i) => markers[p.id].setIcon(pinIcon(p, i))); }
 PLACES.forEach((p, i) => {
   markers[p.id] = L.marker([p.lat, p.lng], { icon: pinIcon(p, i), title: p.name, keyboard: true })
-    .addTo(map).on("click", () => openPlace(p.id));
+    .addTo(sightsLayer).on("click", () => openPlace(p.id));
 });
 
 // ---- helpers ----
@@ -277,7 +340,7 @@ function status(msg, ms = 4000) {
 
 // ---- sheet ----
 function openSheet() { $("sheet").classList.add("open"); }
-function closeSheet() { $("sheet").classList.remove("open"); activeId = null; refreshPins(); }
+function closeSheet() { $("sheet").classList.remove("open"); activeId = null; refreshPins(); refreshBPins(); }
 $("closeBtn").onclick = closeSheet;
 
 function openPlace(id) {
@@ -320,7 +383,335 @@ function openList() {
   $("sheetBody").scrollTop = 0;
   openSheet();
 }
-$("listBtn").onclick = openList;
+$("listBtn").onclick = () => (showBeluiken && !showSights ? openBList() : showBeluiken ? openChooser() : openList());
+
+
+// =====================================================================
+// Beluiken: 19th-century workers' courtyards, from the Flemish heritage inventory
+// =====================================================================
+let BELUIKEN = [];               // from data/beluiken.json
+let showSights = true, showBeluiken = true, showGone = false;
+const bMarkers = {};
+const beluikLayer = L.layerGroup().addTo(map);
+const docs = new Map();          // id -> documentation record (IndexedDB)
+
+// ---- IndexedDB ----
+const DB = (() => {
+  let dbp;
+  function open() {
+    if (!dbp) dbp = new Promise((res, rej) => {
+      const r = indexedDB.open("ghentwalk", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("docs", { keyPath: "id" });
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+    return dbp;
+  }
+  async function tx(mode, fn) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction("docs", mode); const st = t.objectStore("docs");
+      const out = fn(st); t.oncomplete = () => res(out && out.result); t.onerror = () => rej(t.error);
+    });
+  }
+  return {
+    all: () => tx("readonly", st => st.getAll()),
+    put: rec => tx("readwrite", st => st.put(rec)),
+    del: id => tx("readwrite", st => st.delete(id)),
+  };
+})();
+
+function getDoc(id) {
+  return docs.get(id) || { id, notes: "", houses: "", state: "", features: [], stories: "", photos: [], home: false };
+}
+function hasDoc(d) { return d && (d.notes || d.stories || d.houses || d.state || (d.features || []).length || (d.photos || []).length || d.home); }
+let saveTimer;
+async function saveDoc(rec, quiet) {
+  rec.updated = new Date().toISOString();
+  docs.set(rec.id, rec);
+  try { await DB.put(rec); if (!quiet) flashSaved(); } catch (e) { status("Couldn't save on this device: " + e.message, 6000); }
+  refreshBPins();
+}
+function flashSaved() { const el = document.getElementById("savedNote"); if (el) el.textContent = "Saved on this phone · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+
+// ---- data ----
+function allBeluiken() {
+  const custom = [...docs.values()].filter(d => d.custom).map(d => ({
+    id: d.id, name: d.name || "My beluik", address: d.address || "", lat: d.lat, lng: d.lng,
+    preserved: true, custom: true, period: d.period || "", description: "", url: null,
+  }));
+  return BELUIKEN.concat(custom);
+}
+function bClass(b) {
+  const d = docs.get(b.id);
+  return ["bpin", b.preserved ? "" : "gone", b.custom ? "custom" : "", d && d.home ? "home" : "",
+          hasDoc(d) ? "doc" : "", activeId === b.id ? "active" : ""].join(" ");
+}
+function bIcon(b) {
+  const big = docs.get(b.id)?.home;
+  return L.divIcon({ className: "", html: `<div class="${bClass(b)}"></div>`, iconSize: big ? [22, 22] : [18, 18], iconAnchor: big ? [11, 11] : [9, 9] });
+}
+function refreshBPins() {
+  beluikLayer.clearLayers();
+  if (!showBeluiken) return;
+  allBeluiken().forEach(b => {
+    if (b.lat == null) return;
+    if (!b.preserved && !showGone && !hasDoc(docs.get(b.id))) return;
+    const m = bMarkers[b.id] || (bMarkers[b.id] = L.marker([b.lat, b.lng], { title: b.name, keyboard: true }).on("click", () => openBeluik(b.id)));
+    m.setLatLng([b.lat, b.lng]).setIcon(bIcon(b)).addTo(beluikLayer);
+  });
+}
+function prettyPeriod(p) {
+  return (p || "").replace(/eerste kwart/g, "1st quarter").replace(/tweede kwart/g, "2nd quarter")
+    .replace(/derde kwart/g, "3rd quarter").replace(/vierde kwart/g, "4th quarter")
+    .replace(/eerste helft/g, "1st half").replace(/tweede helft/g, "2nd half")
+    .replace(/(\d+)de eeuw/g, "$1th c.").replace(/voor WO I/g, "before WWI").replace(/interbellum/g, "interwar").replace(/WO I\b/g, "WWI");
+}
+function kindOf(name) {
+  const n = name.toLowerCase();
+  if (n.includes("pleinbeluik")) return "Square courtyard (pleinbeluik): houses around a small shared square";
+  if (n.includes("steegbeluik") || n.includes("steeg")) return "Alley courtyard (steegbeluik): a row of houses along a narrow shared alley";
+  if (n.includes("stratenbeluik") || n.includes("straatbeluik")) return "Street courtyard (straatbeluik): a private street lined with workers' houses";
+  return "";
+}
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+async function loadBeluiken() {
+  try { (await DB.all()).forEach(d => docs.set(d.id, d)); } catch (e) {}
+  try {
+    const r = await fetch("data/beluiken.json", { cache: "no-cache" });
+    if (r.ok) BELUIKEN = (await r.json()).items || [];
+  } catch (e) { status("Couldn't load the beluiken list. Check your connection.", 6000); }
+  refreshBPins();
+}
+
+// ---- beluik card ----
+const FEATURES = [["pump", "Water pump"], ["toilets", "Shared toilets"], ["chapel", "Wall chapel"], ["gate", "Entrance gate / poortje"], ["cobbles", "Cobbles"], ["washhouse", "Wash house"]];
+const STATES = ["", "Intact", "Renovated", "Partly demolished", "Demolished", "Rebuilt / new houses"];
+
+function openBeluik(id) {
+  const b = allBeluiken().find(x => x.id === id); if (!b) return;
+  const d = getDoc(id);
+  activeId = id; refreshPins(); refreshBPins();
+  $("sheetTitle").textContent = b.name;
+  const meta = [b.address];
+  if (me && b.lat != null) { const dist = distM(me, b); meta.push(`${fmtDist(dist)} · ${walkMin(dist)} min walk`); }
+  $("sheetMeta").innerHTML = meta.filter(Boolean).map(m => `<span>${esc(m)}</span>`).join("");
+  const tags = [];
+  if (b.custom) tags.push('<span class="tag">Added by you</span>');
+  else tags.push(b.preserved ? '<span class="tag ok">Still standing</span>' : '<span class="tag gone">Demolished</span>');
+  if (b.protected) tags.push('<span class="tag prot">Protected monument</span>');
+  else if (b.established) tags.push('<span class="tag">Listed heritage</span>');
+  if (d.home) tags.push('<span class="tag prot">My home</span>');
+  const facts = [];
+  const kind = kindOf(b.name); if (kind) facts.push(["Type", kind]);
+  if (b.period) facts.push(["Built", prettyPeriod(b.period)]);
+  if (b.deelgemeente && b.deelgemeente !== "Gent") facts.push(["District", b.deelgemeente]);
+  if (b.designer) facts.push(["Designer", b.designer]);
+  if (b.style) facts.push(["Style", b.style]);
+  const extra = (b.typology || "").split(",").map(t => t.trim()).filter(t => t && t !== "beluiken");
+  if (extra.length) facts.push(["Also on site", extra.join(", ")]);
+
+  $("sheetBody").innerHTML = `
+    <div class="tags">${tags.join("")}</div>
+    ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : ""}
+    ${b.description ? `<div class="desc">${esc(b.description)}</div>` : ""}
+    <div class="row-actions">
+      ${b.url ? `<a class="btn" target="_blank" rel="noopener" href="${b.url}">Full inventory entry</a>` : ""}
+      ${b.lat != null ? `<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${b.lat},${b.lng}">Directions</a>` : ""}
+    </div>
+
+    <h3 class="sec">My documentation</h3>
+    <div class="field"><span class="lbl">Photos</span>
+      <div class="photos" id="photoGrid"></div>
+      <label class="btn primary" style="width:max-content;box-shadow:none" for="photoInput">＋ Add photos</label>
+      <input type="file" id="photoInput" accept="image/*" multiple hidden>
+    </div>
+    <div class="field"><label for="f-state">Current state</label>
+      <select id="f-state">${STATES.map(s => `<option ${s === d.state ? "selected" : ""} value="${s}">${s || "Not recorded"}</option>`).join("")}</select></div>
+    <div class="field"><label for="f-houses">Number of houses</label>
+      <input type="number" inputmode="numeric" min="0" id="f-houses" value="${esc(d.houses)}"></div>
+    <div class="field"><span class="lbl">What's still there</span>
+      <div class="checks">${FEATURES.map(([k, l]) => `<label><input type="checkbox" data-f="${k}" ${(d.features || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div></div>
+    <div class="field"><label for="f-notes">Notes (architecture, changes, dates on façades…)</label>
+      <textarea id="f-notes">${esc(d.notes)}</textarea></div>
+    <div class="field"><label for="f-stories">Stories from residents</label>
+      <textarea id="f-stories">${esc(d.stories)}</textarea></div>
+    ${b.custom ? `<div class="field"><label for="f-name">Name</label><input type="text" id="f-name" value="${esc(b.name)}"></div>
+      <div class="field"><label for="f-address">Address</label><input type="text" id="f-address" value="${esc(b.address)}"></div>` : ""}
+    <label class="checks" style="margin-bottom:10px"><label><input type="checkbox" id="f-home" ${d.home ? "checked" : ""}> I live here</label></label>
+    <div class="saved" id="savedNote">${d.updated ? "Last saved " + new Date(d.updated).toLocaleString() : "Everything you enter is saved on this phone automatically."}</div>
+    ${b.custom ? `<div class="row-actions"><button class="btn" id="delCustom">Remove this beluik</button></div>` : ""}
+  `;
+  $("sheetBody").scrollTop = 0;
+
+  const rec = getDoc(id);
+  if (b.custom) Object.assign(rec, docs.get(id));
+  const later = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => saveDoc(rec), 500); };
+  $("f-state").onchange = e => { rec.state = e.target.value; saveDoc(rec); };
+  $("f-houses").oninput = e => { rec.houses = e.target.value; later(); };
+  $("f-notes").oninput = e => { rec.notes = e.target.value; later(); };
+  $("f-stories").oninput = e => { rec.stories = e.target.value; later(); };
+  $("f-home").onchange = e => { rec.home = e.target.checked; saveDoc(rec); };
+  if (b.custom) {
+    $("f-name").oninput = e => { rec.name = e.target.value; $("sheetTitle").textContent = rec.name; later(); };
+    $("f-address").oninput = e => { rec.address = e.target.value; later(); };
+    $("delCustom").onclick = async e => {
+      if (e.target.dataset.confirm !== "1") { e.target.dataset.confirm = "1"; e.target.textContent = "Tap again to remove it and its photos"; return; }
+      docs.delete(id); await DB.del(id); delete bMarkers[id]; closeSheet();
+    };
+  }
+  $("sheetBody").querySelectorAll("input[data-f]").forEach(cb => cb.onchange = () => {
+    rec.features = [...$("sheetBody").querySelectorAll("input[data-f]:checked")].map(x => x.dataset.f); saveDoc(rec);
+  });
+  renderPhotos(rec);
+  $("photoInput").onchange = async e => {
+    const files = [...e.target.files]; e.target.value = "";
+    status(`Adding ${files.length} photo${files.length > 1 ? "s" : ""}…`, 0);
+    for (const f of files) { try { rec.photos = (rec.photos || []).concat([{ blob: await shrink(f), date: new Date().toISOString() }]); } catch (err) {} }
+    await saveDoc(rec); renderPhotos(rec); status("Photos saved on this phone", 2500);
+  };
+  if (b.lat != null) map.panTo([b.lat, b.lng], { animate: true });
+  openSheet();
+}
+
+const photoURLs = [];
+function renderPhotos(rec) {
+  photoURLs.splice(0).forEach(u => URL.revokeObjectURL(u));
+  const g = $("photoGrid"); if (!g) return;
+  g.innerHTML = (rec.photos || []).map((p, i) => {
+    const u = URL.createObjectURL(p.blob); photoURLs.push(u);
+    return `<div class="photo"><a href="${u}" target="_blank"><img src="${u}" alt="Photo ${i + 1}"></a><button data-i="${i}" aria-label="Delete photo">×</button></div>`;
+  }).join("");
+  g.querySelectorAll("button[data-i]").forEach(btn => btn.onclick = () => {
+    if (btn.dataset.confirm !== "1") { btn.dataset.confirm = "1"; btn.textContent = "✓"; btn.style.background = "#b5462b"; return; }
+    rec.photos.splice(+btn.dataset.i, 1); saveDoc(rec); renderPhotos(rec);
+  });
+}
+// Downscale photos so hundreds fit on the phone
+function shrink(file, max = 1800) {
+  return new Promise((res, rej) => {
+    const img = new Image(); const u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      c.toBlob(b => (b ? res(b) : rej(new Error("photo"))), "image/jpeg", 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); res(file); };
+    img.src = u;
+  });
+}
+
+// ---- beluiken list ----
+let bQuery = "";
+function openChooser() {
+  activeId = null; refreshPins(); refreshBPins();
+  $("sheetTitle").textContent = "Browse";
+  $("sheetMeta").innerHTML = "";
+  $("sheetBody").innerHTML = `<ul class="list">
+    <li><button id="goSights"><span class="num">★</span><span class="li-text"><strong>Sights</strong><span>${PLACES.length} historic buildings in the centre</span></span></button></li>
+    <li><button id="goBel"><span class="bnum"></span><span class="li-text"><strong>Beluiken</strong><span>${allBeluiken().length} workers' courtyards</span></span></button></li>
+  </ul>`;
+  $("goSights").onclick = openList; $("goBel").onclick = openBList;
+  openSheet();
+}
+function openBList() {
+  activeId = null; refreshPins(); refreshBPins();
+  const all = allBeluiken();
+  const nDoc = all.filter(b => hasDoc(docs.get(b.id))).length;
+  $("sheetTitle").textContent = "Beluiken";
+  $("sheetMeta").innerHTML = `<span>${all.filter(b => b.preserved).length} standing</span><span>${all.filter(b => !b.preserved).length} demolished</span><span>${nDoc} documented by you</span>`;
+  $("sheetBody").innerHTML = `
+    <p style="font-size:14px;color:var(--muted)">Beluiken are courtyards of small workers' houses that factory owners and speculators built behind street façades during Ghent's textile boom in the 19th century. Many were cleared as slums in the 20th century; the ones left are a unique part of the city.</p>
+    <input class="search" id="bSearch" type="search" placeholder="Search by name or street" value="${esc(bQuery)}">
+    <ul class="list" id="bList"></ul>
+    <div class="row-actions">
+      <button class="btn" id="addHere">＋ Add a missing beluik</button>
+      <button class="btn" id="exportBtn">Export my documentation</button>
+      <button class="btn" id="importBtn">Import</button>
+    </div>
+    <p class="saved">Source: Inventaris Onroerend Erfgoed (Flemish heritage inventory). Your notes and photos stay on this phone until you export them.</p>`;
+  const render = () => {
+    const q = bQuery.toLowerCase();
+    let items = all.filter(b => !q || (b.name + " " + b.address).toLowerCase().includes(q))
+      .map(b => ({ b, d: me && b.lat != null ? distM(me, b) : null }));
+    items.sort((x, y) => (docs.get(y.b.id)?.home ? 1 : 0) - (docs.get(x.b.id)?.home ? 1 : 0) ||
+      (x.d != null && y.d != null ? x.d - y.d : x.b.address.localeCompare(y.b.address)));
+    $("bList").innerHTML = items.map(({ b, d }) => {
+      const doc = docs.get(b.id);
+      const cls = ["bnum", b.preserved ? "" : "gone", b.custom ? "custom" : "", doc?.home ? "home" : ""].join(" ");
+      return `<li><button data-id="${esc(b.id)}"><span class="${cls}"></span>
+        <span class="li-text"><strong>${esc(b.name)}${hasDoc(doc) ? " ●" : ""}</strong><span>${esc(b.address)}</span></span>
+        ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`;
+    }).join("") || `<li style="padding:12px 4px;color:var(--muted)">No beluik matches “${esc(bQuery)}”.</li>`;
+    $("bList").querySelectorAll("button[data-id]").forEach(x => x.onclick = () => openBeluik(x.dataset.id));
+  };
+  render();
+  $("bSearch").oninput = e => { bQuery = e.target.value; render(); };
+  $("addHere").onclick = () => { closeSheet(); status("Long-press (or right-click) the map where the beluik is", 5000); };
+  $("exportBtn").onclick = exportDocs;
+  $("importBtn").onclick = () => $("importFile").click();
+  $("sheetBody").scrollTop = 0;
+  openSheet();
+}
+
+// Long-press on the map adds your own beluik
+map.on("contextmenu", async e => {
+  const id = "my-" + Date.now();
+  const rec = Object.assign(getDoc(id), { custom: true, name: "New beluik", address: "", lat: +e.latlng.lat.toFixed(6), lng: +e.latlng.lng.toFixed(6) });
+  if (!showBeluiken) toggle("beluiken");
+  await saveDoc(rec, true);
+  openBeluik(id);
+  status("Added. Give it a name and start documenting.", 4000);
+});
+
+// ---- export / import ----
+const blobToData = b => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); });
+async function exportDocs() {
+  const out = [];
+  for (const d of docs.values()) {
+    if (!hasDoc(d) && !d.custom) continue;
+    const b = allBeluiken().find(x => x.id === d.id);
+    out.push({ ...d, beluik: b ? { name: b.name, address: b.address, lat: b.lat, lng: b.lng, url: b.url } : null,
+      photos: await Promise.all((d.photos || []).map(async p => ({ date: p.date, data: await blobToData(p.blob) }))) });
+  }
+  if (!out.length) { status("Nothing documented yet. Open a beluik and add notes or photos first."); return; }
+  const blob = new Blob([JSON.stringify({ app: "Walking Gent", exported: new Date().toISOString(), records: out }, null, 1)], { type: "application/json" });
+  const name = `beluiken-documentation-${new Date().toISOString().slice(0, 10)}.json`;
+  const file = new File([blob], name, { type: "application/json" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: "Beluiken documentation" }); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+$("importFile").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text()); let n = 0;
+    for (const r of data.records || []) {
+      const photos = await Promise.all((r.photos || []).map(async p => ({ date: p.date, blob: await (await fetch(p.data)).blob() })));
+      const { beluik, ...rec } = r; rec.photos = photos;
+      docs.set(rec.id, rec); await DB.put(rec); n++;
+    }
+    refreshBPins(); openBList(); status(`Imported ${n} beluik record${n === 1 ? "" : "s"}`);
+  } catch (err) { status("That file isn't a Walking Gent export."); }
+};
+
+// ---- layer chips ----
+function toggle(which) {
+  if (which === "sights") { showSights = !showSights; showSights ? sightsLayer.addTo(map) : map.removeLayer(sightsLayer); }
+  if (which === "beluiken") { showBeluiken = !showBeluiken; refreshBPins(); }
+  if (which === "gone") { showGone = !showGone; refreshBPins(); }
+  $("chipSights").setAttribute("aria-pressed", showSights);
+  $("chipBeluiken").setAttribute("aria-pressed", showBeluiken);
+  $("chipGone").setAttribute("aria-pressed", showGone);
+  $("chipGone").hidden = !showBeluiken;
+}
+$("chipSights").onclick = () => toggle("sights");
+$("chipBeluiken").onclick = () => toggle("beluiken");
+$("chipGone").onclick = () => toggle("gone");
+loadBeluiken();
 
 // ---- location ----
 const meIcon = L.divIcon({ className: "", html: '<div class="me-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
