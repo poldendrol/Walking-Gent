@@ -110,6 +110,8 @@ def main():
             "protected": r["is_beschermd"] == "True",
             "url": f"{BASE}/erfgoedobjecten/{oid}",
             "description": "",
+            "text": "",
+            "photo": None,
             "lat": None, "lng": None, "geo": None,
         }
         try:
@@ -122,6 +124,14 @@ def main():
                 if d.get(key):
                     item["description"] = strip_html(d[key])
                     break
+            for t in d.get("teksten") or []:
+                if (t.get("teksttype") or {}).get("naam") == "Basistekst" and t.get("tekst"):
+                    item["text"] = strip_html(t["tekst"])
+                    break
+            foto = d.get("primaire_foto")
+            m = re.search(r"(\d+)$", foto if isinstance(foto, str) else str((foto or {}).get("uri") or (foto or {}).get("id") or ""))
+            if m:
+                item["photo"] = f"https://beeldbank.onroerenderfgoed.be/images/{m.group(1)}/content/medium"
             ll, how = find_geometry(d)
             if ll:
                 item["lat"], item["lng"], item["geo"] = round(ll[0], 6), round(ll[1], 6), "inventaris"
