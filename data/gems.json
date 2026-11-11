@@ -1,0 +1,25 @@
+{
+ "source": "https://inventaris.onroerenderfgoed.be/erfgoedobjecten?gemeente=44021",
+ "generated": "2026-11-11",
+ "items": [
+  {
+   "id": "20244",
+   "name": "Faculteit Landbouwwetenschappen R.U.G.",
+   "address": "Coupure 653",
+   "deelgemeente": "Gent",
+   "period": "interbellum",
+   "designer": "Collin Georges, Malfeson Ignace-Balthasar, Poppe August",
+   "style": "",
+   "typology": "universiteitsgebouwen",
+   "preserved": true,
+   "established": true,
+   "protected": true,
+   "url": "https://inventaris.onroerenderfgoed.be/erfgoedobjecten/20244",
+   "description": "Het huidig gebouw opgetrokken uit gele baksteen is van de hand van bouwmeesters August Poppe en Georges Collin, in 1937-40 opgericht op de plaats van de voormalige Provinciale Gevangenis of het zogenaamd \"Rasphuis\".",
+   "photo": "https://beeldbank.onroerenderfgoed.be/images/236396/content/medium",
+   "lat": 51.053724,
+   "lng": 3.707257,
+   "geo": "inventaris"
+  }
+ ]
+}
