@@ -26,11 +26,12 @@
     --night-open: #7b4fd6;
     --geek: #0f8a8a;        /* geek stores */
     --route: #e08a00;       /* walk route: amber */
+    --gem: #8a5a3c;         /* hidden gems: brick brown */
     --display: "Fraunces", Georgia, serif;
     --body: "Inter", system-ui, -apple-system, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; --route:#ffb238; color-scheme: dark; }
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; --route:#ffb238; --gem:#c8926b; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -199,7 +200,11 @@
   .nnum.open { background: var(--night-open); } .nnum.closed { opacity: .55; }
   .gpin { width: 16px; height: 16px; border-radius: 4px; transform: rotate(45deg); background: var(--geek); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
   .gnum { flex: none; width: 18px; height: 18px; border-radius: 4px; transform: rotate(45deg); background: var(--geek); margin: 2px; }
-  .gpin.active, .npin.active, .mpin.active, .bpin.active { outline: 3px solid var(--accent-2); outline-offset: 1px; }
+  .hpin { width: 12px; height: 12px; border-radius: 50%; background: var(--gem); border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.4); position: relative; }
+  .hpin.doc::after { content: ""; position: absolute; right: -5px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 1.5px solid #fff; }
+  .hpin.custom { background: var(--gold); } .hpin.home { outline: 3px solid var(--accent); }
+  .hnum { flex: none; width: 16px; height: 16px; border-radius: 50%; background: var(--gem); margin: 3px; }
+  .hpin.active, .gpin.active, .npin.active, .mpin.active, .bpin.active { outline: 3px solid var(--accent-2); outline-offset: 1px; }
 
   .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--wash); color: var(--muted); }
   .tag.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
@@ -496,6 +501,15 @@ const CATS = {
     features: [["niche", "In a façade niche"], ["corner", "On a corner house"], ["kastkapel", "Wooden wall chapel"], ["inbeluik", "Inside a beluik"], ["flowers", "Flowers or candles"], ["lantern", "Lantern"], ["inscription", "Inscription / prayer"]],
     count: false, notesLabel: "Notes (material, colours, inscription, who looks after it…)",
   },
+  gem: {
+    file: "data/gems.json", label: "Hidden gems", noun: "building", show: true,
+    pin: "hpin", dot: "hnum", data: [], markers: {}, layer: L.layerGroup().addTo(map),
+    blurb: "protected everyday buildings",
+    intro: "Ghent's protected buildings beyond the famous sights: old town houses, almshouses, former prisons like the Rasphuis, guild halls, factories, schools and shopfronts you walk past every day.",
+    states: ["", "As described", "Restored", "Altered", "Neglected", "Demolished"],
+    features: [["facade", "Original façade"], ["datestone", "Date stone / plaque"], ["lettering", "Old lettering or shop sign"], ["interior", "Saw the inside"], ["courtyard", "Courtyard or garden"]],
+    count: false, notesLabel: "Notes (details you noticed, changes, dates…)",
+  },
 };
 const catOf = rec => (rec && rec.cat) || "beluik";
 
@@ -555,7 +569,7 @@ function pinClass(b) {
 }
 function bIcon(b) {
   const big = docs.get(b.id)?.home;
-  return L.divIcon({ className: "", html: `<div class="${pinClass(b)}"></div>`, iconSize: big ? [22, 22] : [18, 18], iconAnchor: big ? [11, 11] : [9, 9] });
+  return L.divIcon({ className: "", html: `<div class="${pinClass(b)}"></div>`, iconSize: b.cat === "gem" ? [16, 16] : big ? [22, 22] : [18, 18], iconAnchor: b.cat === "gem" ? [8, 8] : big ? [11, 11] : [9, 9] });
 }
 function refreshBPins() {
   for (const cat in CATS) {
@@ -591,14 +605,21 @@ const NL = { gemakhuisjes: "shared toilets", kastkapellen: "wall chapels", water
   achterhuizen: "back houses", burgerhuizen: "bourgeois houses", stallen: "stables", hoeven: "farmhouse", weverijen: "weaving mill",
   katoenfabrieken: "cotton mill", Mariagrotten: "Lourdes grotto", hekken: "gates", godshuizen: "almshouses", beluiken: "beluik",
   niskapellen: "niche chapel", "kapellen (klein erfgoed)": "small chapel", "kapellen (gebouwen en structuren)": "chapel",
-  hoekhuizen: "corner house", herenhuizen: "mansion", kerken: "church", kloosters: "convent", beelden: "statues" };
+  hoekhuizen: "corner house", herenhuizen: "mansion", kerken: "church", kloosters: "convent", beelden: "statues",
+  fabrieksschoorstenen: "factory chimney", ketelhuizen: "boiler house", machinezalen: "engine hall", spinnerijen: "spinning mill",
+  stoomketels: "steam boiler", gildehuizen: "guild house", gevangenissen: "prison", refugiehuizen: "abbey town house",
+  brouwerijen: "brewery", "cafés": "café", bruggen: "bridge", torens: "tower", theaters: "theatre", bioscopen: "cinema",
+  postkantoren: "post office", bankgebouwen: "bank", feestzalen: "festival hall", volkshuizen: "workers' hall", hotels: "hotel",
+  begijnhoven: "beguinage", onderwijsgebouwen: "school", winkels: "shop", pakhuizen: "warehouse", fabrieken: "factory",
+  kloostertuinen: "convent garden", omheiningsmuren: "enclosure wall", tuinen: "garden", universiteitsgebouwen: "university building" };
 
 async function loadLayers() {
   try { (await DB.all()).forEach(d => docs.set(d.id, d)); } catch (e) {}
   await Promise.all(Object.entries(CATS).map(async ([cat, C]) => {
     try {
       const r = await fetch(C.file, { cache: "no-cache" });
-      if (r.ok) C.data = ((await r.json()).items || []).map(x => ({ ...x, cat }));
+      if (r.ok) C.data = ((await r.json()).items || []).map(x => ({ ...x, cat }))
+        .filter(x => cat !== "gem" || !PLACES.some(p => distM(p, x) < 45));
     } catch (e) {}
   }));
   if (!CATS.beluik.data.length) status("Couldn't load the heritage lists. Check your connection.", 6000);
@@ -625,7 +646,7 @@ function openBeluik(id) {
   const kind = b.cat === "beluik" ? kindOf(b.name) : ""; if (kind) facts.push(["Type", kind]);
   if (b.period) facts.push(["Built", prettyPeriod(b.period)]);
   if (b.deelgemeente && b.deelgemeente !== "Gent") facts.push(["District", b.deelgemeente]);
-  if (b.designer) facts.push([b.cat === "maria" ? "Makers" : "Designer", b.designer]);
+  if (b.designer) facts.push([b.cat === "maria" ? "Makers" : "Designer", b.designer.replace(/\s*\((Uitvoerder|Opdrachtgever|Bouwheer)\)/g, "")]);
   if (b.style) facts.push(["Style", b.style]);
   const extra = (b.typology || "").split(",").map(t => t.trim()).filter(t => t && t !== "beluiken");
   if (extra.length) facts.push([b.cat === "maria" ? "Object" : "Also on site", extra.map(t => NL[t] || t).join(", ")]);
@@ -741,7 +762,7 @@ function openChooser() {
     <button class="btn" id="exportBtn">Export my documentation</button>
     <button class="btn" id="importBtn">Import</button>
   </div>
-  <p class="saved">Long-press the map to add a beluik or Mary statue that's missing. Your notes and photos stay on this phone until you export them.</p>`;
+  <p class="saved">Long-press the map to add a beluik, Mary statue or building that's missing. Your notes and photos stay on this phone until you export them.</p>`;
   $("goSights").onclick = openList;
   $("sheetBody").querySelectorAll("button[data-poi]").forEach(x => x.onclick = () => openPoiList(x.dataset.poi));
   $("sheetBody").querySelectorAll("button[data-cat]").forEach(x => x.onclick = () => openBList(x.dataset.cat));
@@ -986,6 +1007,7 @@ const LAYERS = [
   { key: "sights", label: "Sights", sub: () => `${PLACES.length} historic buildings`, dot: "num", on: () => showSights, flip: () => toggle("sights") },
   { key: "beluik", label: "Beluiken", sub: () => `${allOf("beluik").length} workers' courtyards`, dot: "bnum", on: () => CATS.beluik.show, flip: () => toggle("beluik") },
   { key: "maria", label: "Mary statues", sub: () => `${allOf("maria").length} statues and wall chapels`, dot: "mnum", on: () => CATS.maria.show, flip: () => toggle("maria") },
+  { key: "gem", label: "Hidden gems", sub: () => `${allOf("gem").length} protected everyday buildings`, dot: "hnum", on: () => CATS.gem.show, flip: () => toggle("gem") },
   { key: "night", label: "Night shops", sub: () => `${POI.night.data.length} shops · purple = open now`, dot: "nnum open", on: () => POI.night.show, flip: () => togglePoi("night") },
   { key: "geek", label: "Geek stores", sub: () => `${POI.geek.data.length} comic, manga & game shops`, dot: "gnum", on: () => POI.geek.show, flip: () => togglePoi("geek") },
 ];
@@ -1010,8 +1032,8 @@ function openLayers() {
       <span class="switch"><input type="checkbox" data-i="${i}" ${l.on() ? "checked" : ""} aria-label="${l.label}"><span></span></span>
     </label>`;
   $("sheetBody").innerHTML = `
-    <div class="group-h">Heritage</div>${LAYERS.slice(0, 3).map(row).join("")}
-    <div class="group-h">Shops</div>${LAYERS.slice(3).map((l, i) => row(l, i + 3)).join("")}
+    <div class="group-h">Heritage</div>${LAYERS.slice(0, 4).map(row).join("")}
+    <div class="group-h">Shops</div>${LAYERS.slice(4).map((l, i) => row(l, i + 4)).join("")}
     <div class="group-h">Options</div>${row(GONE, 99)}`;
   $("sheetBody").querySelectorAll("input[data-i]").forEach(cb => cb.onchange = () => {
     const l = cb.dataset.i === "99" ? GONE : LAYERS[+cb.dataset.i];
@@ -1054,7 +1076,7 @@ function openSearch() {
       <ul class="list"><li><button id="goWalk"><span class="stopnum static">↝</span><span class="li-text"><strong>Plan a walk</strong><span>${walk.stops.length ? walk.stops.length + " stops picked" : "Pick places, get the shortest route, be guided"}</span></span></button></li></ul>
       <div class="group-h">My documentation</div>
       <div class="row-actions"><button class="btn" id="exportBtn">Export</button><button class="btn" id="importBtn">Import</button></div>
-      <p class="saved">Long-press the map to add a beluik or Mary statue that's missing. Notes and photos stay on this phone until you export them.</p>`;
+      <p class="saved">Long-press the map to add a beluik, Mary statue or building that's missing. Notes and photos stay on this phone until you export them.</p>`;
       R.querySelector('[data-go="sights"]').onclick = openList;
       R.querySelectorAll("button[data-go]:not([data-go=sights])").forEach(x => x.onclick = () => openBList(x.dataset.go));
       R.querySelectorAll("button[data-poi]").forEach(x => x.onclick = () => openPoiList(x.dataset.poi));
