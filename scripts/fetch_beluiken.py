@@ -189,6 +189,40 @@ def late_closing(oh):
     return False
 
 
+def overpass(body):
+    q = "[out:json][timeout:120];\narea[\"name\"=\"Gent\"][\"admin_level\"=\"8\"]->.g;\n(" + body + ");\nout center tags;"
+    data = urllib.parse.urlencode({"data": q}).encode()
+    req = urllib.request.Request("https://overpass-api.de/api/interpreter", data=data, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=180) as r:
+        return json.loads(r.read().decode())["elements"]
+
+
+GEEK_KIND = {"games": "Board & card games", "video_games": "Video games", "comics": "Comics", "anime": "Manga & anime",
+             "collector": "Collectibles", "model": "Models & miniatures", "books": "Comics & manga", "hobby": "Hobby & miniatures",
+             "toys": "Games & toys"}
+
+
+def geekstores():
+    els = overpass('nwr["shop"~"^(games|video_games|comics|anime|collector|model)$"](area.g);'
+                   'nwr["shop"="books"]["books"~"comic|manga",i](area.g);'
+                   'nwr["shop"~"^(books|toys|hobby)$"]["name"~"comic|manga|strip|game|spel|geek|nerd|dragon|dice|anime|warhammer|figur",i](area.g);')
+    out = []
+    for e in els:
+        t = e.get("tags", {})
+        lat = e.get("lat") or (e.get("center") or {}).get("lat")
+        lng = e.get("lon") or (e.get("center") or {}).get("lon")
+        if lat is None:
+            continue
+        addr = " ".join(x for x in [t.get("addr:street", ""), t.get("addr:housenumber", "")] if x)
+        out.append({"id": f"osm-{e['type']}-{e['id']}", "name": t.get("name", "").strip() or GEEK_KIND.get(t.get("shop"), "Geek store"),
+                    "kind": GEEK_KIND.get(t.get("shop"), t.get("shop", "")), "address": addr,
+                    "opening_hours": t.get("opening_hours", ""), "website": t.get("website") or t.get("contact:website") or "",
+                    "phone": t.get("phone") or t.get("contact:phone") or "",
+                    "lat": round(lat, 6), "lng": round(lng, 6), "url": f"https://www.openstreetmap.org/{e['type']}/{e['id']}"})
+    print(f"geekstores: {len(out)}", file=sys.stderr)
+    return out
+
+
 def nightshops():
     q = """[out:json][timeout:120];
 area["name"="Gent"]["admin_level"="8"]->.g;
@@ -220,7 +254,16 @@ out center tags;"""
 
 def main():
     os.makedirs("data", exist_ok=True)
-    only = sys.argv[1:] or ["beluiken", "maria", "nightshops"]
+    only = sys.argv[1:] or ["beluiken", "maria", "nightshops", "geek"]
+
+    if "geek" in only:
+        try:
+            items = geekstores()
+            with open("data/geekstores.json", "w") as f:
+                json.dump({"source": "OpenStreetMap contributors (ODbL)", "generated": time.strftime("%Y-%m-%d"), "items": items},
+                          f, ensure_ascii=False, indent=1)
+        except Exception as e:
+            print("geekstores failed", e, file=sys.stderr)
 
     if "nightshops" in only:
         try:

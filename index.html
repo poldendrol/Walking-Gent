@@ -24,11 +24,12 @@
     --mary: #3d6fb6;        /* Marian blue */
     --night: #4b3f72;       /* night shops */
     --night-open: #7b4fd6;
+    --geek: #0f8a8a;        /* geek stores */
     --display: "Fraunces", Georgia, serif;
     --body: "Inter", system-ui, -apple-system, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; color-scheme: dark; }
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -144,7 +145,9 @@
   .npin.open { background: var(--night-open); } .npin.closed { opacity: .55; }
   .nnum { flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--night); }
   .nnum.open { background: var(--night-open); } .nnum.closed { opacity: .55; }
-  .npin.active, .mpin.active, .bpin.active { outline: 3px solid var(--accent-2); outline-offset: 1px; }
+  .gpin { width: 16px; height: 16px; border-radius: 4px; transform: rotate(45deg); background: var(--geek); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .gnum { flex: none; width: 18px; height: 18px; border-radius: 4px; transform: rotate(45deg); background: var(--geek); margin: 2px; }
+  .gpin.active, .npin.active, .mpin.active, .bpin.active { outline: 3px solid var(--accent-2); outline-offset: 1px; }
 
   .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--wash); color: var(--muted); }
   .tag.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
@@ -200,6 +203,7 @@
   <button class="chip" id="chipBeluiken" aria-pressed="true">Beluiken</button>
   <button class="chip" id="chipMaria" aria-pressed="true">Mary statues</button>
   <button class="chip" id="chipNight" aria-pressed="false">Night shops</button>
+  <button class="chip" id="chipGeek" aria-pressed="false">Geek stores</button>
   <button class="chip" id="chipGone" aria-pressed="false">Gone too</button>
 </div>
 <div class="status" id="status" hidden></div>
@@ -667,7 +671,7 @@ function openChooser() {
   $("sheetMeta").innerHTML = "";
   $("sheetBody").innerHTML = `<ul class="list">
     <li><button id="goSights"><span class="num">★</span><span class="li-text"><strong>Sights</strong><span>${PLACES.length} historic buildings in the centre</span></span></button></li>
-    <li><button id="goNight"><span class="nnum open"></span><span class="li-text"><strong>Night shops</strong><span>${NIGHT.data.length} shops open late</span></span></button></li>
+    ${Object.entries(POI).map(([cat, C]) => `<li><button data-poi="${cat}"><span class="${C.dot} open"></span><span class="li-text"><strong>${C.label}</strong><span>${C.data.length} ${C.blurb}</span></span></button></li>`).join("")}
     ${Object.entries(CATS).map(([cat, C]) => `<li><button data-cat="${cat}"><span class="${C.dot}"></span><span class="li-text"><strong>${C.label}</strong><span>${allOf(cat).length} ${C.blurb}</span></span></button></li>`).join("")}
   </ul>
   <div class="row-actions">
@@ -676,7 +680,7 @@ function openChooser() {
   </div>
   <p class="saved">Long-press the map to add a beluik or Mary statue that's missing. Your notes and photos stay on this phone until you export them.</p>`;
   $("goSights").onclick = openList;
-  $("goNight").onclick = openNList;
+  $("sheetBody").querySelectorAll("button[data-poi]").forEach(x => x.onclick = () => openPoiList(x.dataset.poi));
   $("sheetBody").querySelectorAll("button[data-cat]").forEach(x => x.onclick = () => openBList(x.dataset.cat));
   $("exportBtn").onclick = exportDocs;
   $("importBtn").onclick = () => $("importFile").click();
@@ -791,9 +795,8 @@ $("chipGone").onclick = () => toggle("gone");
 loadLayers();
 
 // =====================================================================
-// Night shops (OpenStreetMap)
+// Shops from OpenStreetMap: night shops and geek stores
 // =====================================================================
-const NIGHT = { show: false, data: [], layer: L.layerGroup(), markers: {} };
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 // Small opening_hours reader for the common forms ("Mo-Su 16:00-02:00; Fr,Sa 16:00-04:00", "24/7").
 // Returns true/false, or null when the text is too unusual to read.
@@ -830,68 +833,86 @@ function openNow(oh, now = new Date()) {
     return result === null ? false : result;
   } catch (e) { return null; }
 }
-function nIcon(s) {
-  const o = openNow(s.opening_hours);
-  return L.divIcon({ className: "", html: `<div class="npin ${o === true ? "open" : o === false ? "closed" : ""} ${activeId === s.id ? "active" : ""}"></div>`, iconSize: [16, 16], iconAnchor: [8, 8] });
+const POI = {
+  night: { file: "data/nightshops.json", label: "Night shops", noun: "Night shop", chip: "chipNight", pin: "npin", dot: "nnum",
+           blurb: "shops open late", hours: true, show: false, data: [], layer: L.layerGroup(), markers: {},
+           note: "Shops from supermarket chains are left out." },
+  geek:  { file: "data/geekstores.json", label: "Geek stores", noun: "Geek store", chip: "chipGeek", pin: "gpin", dot: "gnum",
+           blurb: "comics, manga, board & video games", hours: false, show: false, data: [], layer: L.layerGroup(), markers: {},
+           note: "Comic, manga, board game, video game, model and collectibles shops." },
+};
+function poiIcon(cat, s) {
+  const C = POI[cat]; const o = C.hours ? openNow(s.opening_hours) : null;
+  return L.divIcon({ className: "", html: `<div class="${C.pin} ${o === true ? "open" : o === false ? "closed" : ""} ${activeId === s.id ? "active" : ""}"></div>`, iconSize: [16, 16], iconAnchor: [8, 8] });
 }
 function refreshNPins() {
-  NIGHT.layer.clearLayers();
-  if (!NIGHT.show) return;
-  NIGHT.data.forEach(s => {
-    const m = NIGHT.markers[s.id] || (NIGHT.markers[s.id] = L.marker([s.lat, s.lng], { title: s.name }).on("click", () => openNight(s.id)));
-    m.setIcon(nIcon(s)).addTo(NIGHT.layer);
-  });
+  for (const cat in POI) {
+    const C = POI[cat];
+    C.layer.clearLayers();
+    if (!C.show) continue;
+    C.data.forEach(s => {
+      const m = C.markers[s.id] || (C.markers[s.id] = L.marker([s.lat, s.lng], { title: s.name }).on("click", () => openPoi(cat, s.id)));
+      m.setIcon(poiIcon(cat, s)).addTo(C.layer);
+    });
+  }
 }
 function openStatus(s) {
   const o = openNow(s.opening_hours);
-  return o === true ? '<span class="tag ok">Open now</span>' : o === false ? '<span class="tag gone">Closed now</span>' : '<span class="tag">Hours unknown</span>';
+  return o === true ? '<span class="tag ok">Open now</span>' : o === false ? '<span class="tag gone">Closed now</span>' : (s.opening_hours ? "" : '<span class="tag">Hours unknown</span>');
 }
-function openNight(id) {
-  const s = NIGHT.data.find(x => x.id === id); if (!s) return;
+function openPoi(cat, id) {
+  const C = POI[cat]; const s = C.data.find(x => x.id === id); if (!s) return;
   activeId = id; refreshPins(); refreshBPins(); refreshNPins();
   $("sheetTitle").textContent = s.name;
   const meta = [s.address];
   if (me) { const d = distM(me, s); meta.push(`${fmtDist(d)} · ${walkMin(d)} min walk`); }
   $("sheetMeta").innerHTML = meta.filter(Boolean).map(m => `<span>${esc(m)}</span>`).join("");
+  const web = s.website && /^https?:\/\//.test(s.website) ? s.website : "";
   $("sheetBody").innerHTML = `
-    <div class="tags"><span class="tag">Night shop</span>${openStatus(s)}</div>
+    <div class="tags"><span class="tag">${esc(s.kind || C.noun)}</span>${openStatus(s)}</div>
     <dl class="facts">
       <dt>Hours</dt><dd>${esc(s.opening_hours || "Not known")}</dd>
       ${s.phone ? `<dt>Phone</dt><dd>${esc(s.phone)}</dd>` : ""}
     </dl>
     <div class="row-actions">
       <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${s.lat},${s.lng}">Directions</a>
+      ${web ? `<a class="btn" target="_blank" rel="noopener" href="${esc(web)}">Website</a>` : ""}
       <a class="btn" target="_blank" rel="noopener" href="${s.url}">Fix on OpenStreetMap</a>
     </div>
-    <p class="saved">From OpenStreetMap. Shops open and close often, so hours can be out of date.</p>`;
+    <p class="saved">From OpenStreetMap. Shops open and close often, so details can be out of date.</p>`;
   map.panTo([s.lat, s.lng], { animate: true });
   openSheet();
 }
-function openNList() {
+function openPoiList(cat) {
+  const C = POI[cat];
   activeId = null; refreshPins(); refreshBPins(); refreshNPins();
-  const items = NIGHT.data.map(s => ({ s, o: openNow(s.opening_hours), d: me ? distM(me, s) : null }));
-  items.sort((a, b) => (b.o === true) - (a.o === true) || (a.d != null && b.d != null ? a.d - b.d : a.s.name.localeCompare(b.s.name)));
-  $("sheetTitle").textContent = "Night shops";
-  $("sheetMeta").innerHTML = `<span>${items.length} shops</span><span>${items.filter(x => x.o === true).length} open now</span>${me ? "<span>Open & nearest first</span>" : ""}`;
+  const items = C.data.map(s => ({ s, o: openNow(s.opening_hours), d: me ? distM(me, s) : null }));
+  items.sort((a, b) => (C.hours ? (b.o === true) - (a.o === true) : 0) || (a.d != null && b.d != null ? a.d - b.d : a.s.name.localeCompare(b.s.name)));
+  $("sheetTitle").textContent = C.label;
+  $("sheetMeta").innerHTML = `<span>${items.length} shops</span><span>${items.filter(x => x.o === true).length} open now</span>${me ? "<span>Nearest first</span>" : ""}`;
   $("sheetBody").innerHTML = `<ul class="list">${items.map(({ s, o, d }) => `
-    <li><button data-id="${esc(s.id)}"><span class="nnum ${o === true ? "open" : o === false ? "closed" : ""}"></span>
-      <span class="li-text"><strong>${esc(s.name)}</strong><span>${esc(s.address || s.opening_hours || "")}</span></span>
-      ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`).join("")}</ul>
-    <p class="saved">Source: OpenStreetMap contributors. Shops from supermarket chains are left out.</p>`;
-  $("sheetBody").querySelectorAll("button[data-id]").forEach(x => x.onclick = () => openNight(x.dataset.id));
+    <li><button data-id="${esc(s.id)}"><span class="${C.dot} ${o === true ? "open" : o === false ? "closed" : ""}"></span>
+      <span class="li-text"><strong>${esc(s.name)}</strong><span>${esc([s.kind, s.address].filter(Boolean).join(" · ") || s.opening_hours || "")}</span></span>
+      ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`).join("") || '<li style="padding:12px 4px;color:var(--muted)">None found yet.</li>'}</ul>
+    <p class="saved">Source: OpenStreetMap contributors. ${C.note}</p>`;
+  $("sheetBody").querySelectorAll("button[data-id]").forEach(x => x.onclick = () => openPoi(cat, x.dataset.id));
   $("sheetBody").scrollTop = 0;
-  if (!NIGHT.show) toggleNight();
+  if (!C.show) togglePoi(cat);
   openSheet();
 }
-function toggleNight() {
-  NIGHT.show = !NIGHT.show;
-  NIGHT.show ? NIGHT.layer.addTo(map) : map.removeLayer(NIGHT.layer);
+function togglePoi(cat) {
+  const C = POI[cat];
+  C.show = !C.show;
+  C.show ? C.layer.addTo(map) : map.removeLayer(C.layer);
   refreshNPins();
-  $("chipNight").setAttribute("aria-pressed", NIGHT.show);
+  $(C.chip).setAttribute("aria-pressed", C.show);
 }
-$("chipNight").onclick = toggleNight;
-fetch("data/nightshops.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : { items: [] }))
-  .then(j => { NIGHT.data = j.items || []; refreshNPins(); }).catch(() => {});
+const openNList = () => openPoiList("night");
+for (const cat in POI) {
+  $(POI[cat].chip).onclick = () => togglePoi(cat);
+  fetch(POI[cat].file, { cache: "no-cache" }).then(r => (r.ok ? r.json() : { items: [] }))
+    .then(j => { POI[cat].data = j.items || []; refreshNPins(); }).catch(() => {});
+}
 setInterval(refreshNPins, 5 * 60 * 1000);   // open/closed colours follow the clock
 
 // ---- location ----
