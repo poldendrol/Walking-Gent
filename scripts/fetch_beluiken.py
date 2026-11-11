@@ -193,8 +193,14 @@ def overpass(body):
     q = "[out:json][timeout:120];\narea[\"name\"=\"Gent\"][\"admin_level\"=\"8\"]->.g;\n(" + body + ");\nout center tags;"
     data = urllib.parse.urlencode({"data": q}).encode()
     req = urllib.request.Request("https://overpass-api.de/api/interpreter", data=data, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=180) as r:
-        return json.loads(r.read().decode())["elements"]
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=180) as r:
+                return json.loads(r.read().decode())["elements"]
+        except Exception as e:
+            print(f"overpass attempt {attempt + 1} failed: {e}", file=sys.stderr)
+            time.sleep(20 * (attempt + 1))
+    raise RuntimeError("overpass unavailable")
 
 
 GEEK_KIND = {"games": "Board & card games", "video_games": "Video games", "comics": "Comics", "anime": "Manga & anime",
@@ -211,7 +217,7 @@ def geekstores():
         t = e.get("tags", {})
         lat = e.get("lat") or (e.get("center") or {}).get("lat")
         lng = e.get("lon") or (e.get("center") or {}).get("lon")
-        if lat is None:
+        if lat is None or re.search(r"axe|escape|bowling|lasergame|casino", t.get("name", ""), re.I):
             continue
         addr = " ".join(x for x in [t.get("addr:street", ""), t.get("addr:housenumber", "")] if x)
         out.append({"id": f"osm-{e['type']}-{e['id']}", "name": t.get("name", "").strip() or GEEK_KIND.get(t.get("shop"), "Geek store"),
@@ -224,14 +230,7 @@ def geekstores():
 
 
 def nightshops():
-    q = """[out:json][timeout:120];
-area["name"="Gent"]["admin_level"="8"]->.g;
-(nwr["shop"="convenience"](area.g); nwr["shop"]["name"~"[Nn]ight|[Nn]acht"](area.g););
-out center tags;"""
-    data = urllib.parse.urlencode({"data": q}).encode()
-    req = urllib.request.Request("https://overpass-api.de/api/interpreter", data=data, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=180) as r:
-        els = json.loads(r.read().decode())["elements"]
+    els = overpass('nwr["shop"="convenience"](area.g); nwr["shop"]["name"~"[Nn]ight|[Nn]acht"](area.g);')
     out = []
     for e in els:
         t = e.get("tags", {})
