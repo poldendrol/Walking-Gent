@@ -1915,11 +1915,11 @@
    "established": true,
    "protected": true,
    "url": "https://inventaris.onroerenderfgoed.be/erfgoedobjecten/83641",
-   "description": "Toegang tot de kruiden- en plantentuin van het voormalige Schoolmuseum, gesticht door M. Thiery in 1924.",
-   "photo": "https://beeldbank.onroerenderfgoed.be/images/407702/content/medium",
-   "lat": 51.064439,
-   "lng": 3.725556,
-   "geo": "inventaris"
+   "description": "",
+   "photo": null,
+   "lat": 51.063425,
+   "lng": 3.726426,
+   "geo": "nominatim"
   },
   {
    "id": "20242",
