@@ -400,6 +400,32 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 L.control.zoom({ position: "bottomright" }).addTo(map);
 
+// ---- the R40 ring is the edge of the map ----
+let RING = null;
+function inRing(p) {
+  if (!RING || !p || p.lat == null) return true;
+  let inside = false;
+  for (let i = 0, j = RING.length - 1; i < RING.length; j = i++) {
+    const [yi, xi] = RING[i], [yj, xj] = RING[j];
+    if ((yi > p.lat) !== (yj > p.lat) && p.lng < ((xj - xi) * (p.lat - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+const ringReady = fetch("data/ring.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(j => {
+  if (!j || !j.ring || j.ring.length < 20) return;
+  RING = j.ring;
+  const css = getComputedStyle(document.documentElement);
+  const world = [[-89, -179], [-89, 179], [89, 179], [89, -179]];
+  L.polygon([world, RING], { stroke: false, fillColor: css.getPropertyValue("--paper").trim() || "#fff", fillOpacity: 0.88, interactive: false }).addTo(map);
+  L.polygon(RING, { color: css.getPropertyValue("--accent-2").trim() || "#1f3a4d", weight: 3, opacity: .6, fill: false, interactive: false, dashArray: "2 6" }).addTo(map);
+  const bounds = L.latLngBounds(RING);
+  map.setMaxBounds(bounds.pad(0.12)); map.options.maxBoundsViscosity = 0.9;
+  map.setMinZoom(Math.max(12, map.getBoundsZoom(bounds) - 0)); 
+  // keep only the sights inside the ring
+  for (let k = PLACES.length - 1; k >= 0; k--) if (!inRing(PLACES[k])) { sightsLayer.removeLayer(markers[PLACES[k].id]); PLACES.splice(k, 1); }
+  refreshPins();
+}).catch(() => {});
+
 const markers = {};
 const sightsLayer = L.layerGroup().addTo(map);
 function pinIcon(p, i) {
@@ -614,12 +640,13 @@ const NL = { gemakhuisjes: "shared toilets", kastkapellen: "wall chapels", water
   kloostertuinen: "convent garden", omheiningsmuren: "enclosure wall", tuinen: "garden", universiteitsgebouwen: "university building" };
 
 async function loadLayers() {
+  await ringReady;
   try { (await DB.all()).forEach(d => docs.set(d.id, d)); } catch (e) {}
   await Promise.all(Object.entries(CATS).map(async ([cat, C]) => {
     try {
       const r = await fetch(C.file, { cache: "no-cache" });
       if (r.ok) C.data = ((await r.json()).items || []).map(x => ({ ...x, cat }))
-        .filter(x => cat !== "gem" || !PLACES.some(p => distM(p, x) < 45));
+        .filter(x => inRing(x) && (cat !== "gem" || !PLACES.some(p => distM(p, x) < 45)));
     } catch (e) {}
   }));
   if (!CATS.beluik.data.length) status("Couldn't load the heritage lists. Check your connection.", 6000);
@@ -995,8 +1022,8 @@ function togglePoi(cat) {
 const openNList = () => openPoiList("night");
 for (const cat in POI) {
   $(POI[cat].chip).onclick = () => togglePoi(cat);
-  fetch(POI[cat].file, { cache: "no-cache" }).then(r => (r.ok ? r.json() : { items: [] }))
-    .then(j => { POI[cat].data = j.items || []; refreshNPins(); }).catch(() => {});
+  ringReady.then(() => fetch(POI[cat].file, { cache: "no-cache" })).then(r => (r.ok ? r.json() : { items: [] }))
+    .then(j => { POI[cat].data = (j.items || []).filter(inRing); refreshNPins(); }).catch(() => {});
 }
 setInterval(refreshNPins, 5 * 60 * 1000);   // open/closed colours follow the clock
 
@@ -1335,7 +1362,7 @@ function onPos(pos) {
     const nearest = PLACES.reduce((a, p) => (distM(me, p) < distM(me, a) ? p : a));
     if (first) {
       const dCentre = distM(me, { lat: 51.0545, lng: 3.7235 });
-      if (dCentre > 15000) status("You seem to be outside Ghent. The map stays on the city centre.", 6000);
+      if (dCentre > 15000 || (RING && !inRing(me) && dCentre > 4000)) status("You seem to be outside the ring. The map stays on the city centre.", 6000);
       else { map.setView(ll, 17); status(`Nearest sight: ${nearest.name}, ${fmtDist(distM(me, nearest))}`, 3000); }
     } else map.panTo(ll);
   }
