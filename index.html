@@ -25,13 +25,15 @@
     --night: #4b3f72;       /* night shops */
     --night-open: #7b4fd6;
     --geek: #0f8a8a;        /* geek stores */
+    --route: #e08a00;       /* walk route: amber */
     --display: "Fraunces", Georgia, serif;
     --body: "Inter", system-ui, -apple-system, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; color-scheme: dark; }
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; --route:#ffb238; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html, body { height: 100%; margin: 0; }
   body { font-family: var(--body); color: var(--ink); background: var(--paper); overflow: hidden; }
   #map { position: absolute; inset: 0; }
@@ -153,6 +155,30 @@
   .switch input:checked + span::after { transform: translateX(18px); }
   .switch input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
   .li-text span { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .walkpill {
+    position: absolute; z-index: 1000; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 34px);
+    height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--accent-2); color: #fff; cursor: pointer;
+    font: 600 14px var(--body); display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 3px 14px rgba(0,0,0,.25);
+    max-width: calc(100% - 110px);
+  }
+  .walkpill span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .guide {
+    position: absolute; z-index: 1060; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+    top: calc(env(safe-area-inset-top, 0px) + 10px); background: var(--accent-2); color: #fff; border-radius: 16px; padding: 12px 14px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.3); display: flex; flex-direction: column; gap: 4px;
+  }
+  @media (min-width: 760px) { .guide { right: auto; width: 380px; } }
+  .guide:not([hidden]) ~ .topbar, body:has(.guide:not([hidden])) .topbar { visibility: hidden; }
+  .g-top { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+  .g-link { background: none; border: 0; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; padding: 0; }
+  .g-name { font-family: var(--display); font-weight: 600; font-size: 22px; text-wrap: balance; }
+  .g-dist { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .g-turn { font-size: 15px; font-weight: 600; background: rgba(255,255,255,.14); border-radius: 10px; padding: 8px 10px; margin-top: 4px; }
+  .g-actions { display: flex; gap: 8px; margin-top: 6px; }
+  .g-actions .btn { height: 36px; box-shadow: none; background: rgba(255,255,255,.16); color: #fff; }
+  .stopnum { width: 26px; height: 26px; border-radius: 50%; background: var(--route); color: #fff; border: 2px solid #fff; display: grid; place-items: center; font: 700 12px var(--body); box-shadow: 0 1px 5px rgba(0,0,0,.35); }
+  .stopnum.done { background: #6b7d88; }
+  .stopnum.static { flex: none; border: 0; box-shadow: none; }
   .group-h { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 2px; }
   .sheet-search { position: sticky; top: -12px; background: var(--paper); padding-top: 2px; z-index: 1; }
 
@@ -234,6 +260,14 @@
   <button class="chip" id="chipGone" aria-pressed="false">Gone too</button>
 </div>
 <div class="status" id="status" hidden></div>
+<button class="walkpill" id="walkPill" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="19" r="2.5" fill="currentColor"/><circle cx="19" cy="5" r="2.5" fill="currentColor"/><path d="M7 18c6 0 2-7 7-7s3-5 3-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="3 3" stroke-linecap="round"/></svg><span>Your walk</span></button>
+<div class="guide" id="guide" hidden role="status" aria-live="polite">
+  <div class="g-top"><span id="g-count"></span><button id="g-list" class="g-link">All stops</button></div>
+  <div class="g-name" id="g-name"></div>
+  <div class="g-dist" id="g-dist"></div>
+  <div class="g-turn" id="g-turn" hidden></div>
+  <div class="g-actions"><button class="btn" id="g-skip">Skip stop</button><button class="btn" id="g-stop">End walk</button></div>
+</div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
 <section class="sheet" id="sheet" aria-live="polite">
@@ -408,6 +442,7 @@ function openPlace(id) {
     `<div class="fact">${p.fact}</div>
      <div class="actions">
        <button class="btn" id="visitBtn">${isVisited ? "✓ Visited" : "Mark as visited"}</button>
+       ${walkBtn(p.id)}
        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${p.lat},${p.lng}">Directions</a>
      </div>`;
   $("sheetBody").scrollTop = 0;
@@ -605,6 +640,7 @@ function openBeluik(id) {
     ${b.text && b.text.length > (b.description || "").length + 40 ? `<details class="more"><summary>Read the full history (Dutch)</summary><div class="desc">${esc(b.text)}</div></details>` : ""}
     <div class="row-actions">
       ${b.url ? `<a class="btn" target="_blank" rel="noopener" href="${b.url}">Full inventory entry</a>` : ""}
+      ${b.lat != null ? walkBtn(b.id) : ""}
       ${b.lat != null ? `<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${b.lat},${b.lng}">Directions</a>` : ""}
     </div>
 
@@ -902,6 +938,7 @@ function openPoi(cat, id) {
       ${s.phone ? `<dt>Phone</dt><dd>${esc(s.phone)}</dd>` : ""}
     </dl>
     <div class="row-actions">
+      ${walkBtn(s.id)}
       <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${s.lat},${s.lng}">Directions</a>
       ${web ? `<a class="btn" target="_blank" rel="noopener" href="${esc(web)}">Website</a>` : ""}
       <a class="btn" target="_blank" rel="noopener" href="${s.url}">Fix on OpenStreetMap</a>
@@ -1013,6 +1050,8 @@ function openSearch() {
         ${Object.entries(CATS).map(([cat, C]) => `<li><button data-go="${cat}"><span class="${C.dot}"></span><span class="li-text"><strong>${C.label}</strong><span>${allOf(cat).length} ${C.blurb}</span></span></button></li>`).join("")}
         ${Object.entries(POI).map(([cat, C]) => `<li><button data-poi="${cat}"><span class="${C.dot} open"></span><span class="li-text"><strong>${C.label}</strong><span>${C.data.length} ${C.blurb}</span></span></button></li>`).join("")}
       </ul>
+      <div class="group-h">Walk</div>
+      <ul class="list"><li><button id="goWalk"><span class="stopnum static">↝</span><span class="li-text"><strong>Plan a walk</strong><span>${walk.stops.length ? walk.stops.length + " stops picked" : "Pick places, get the shortest route, be guided"}</span></span></button></li></ul>
       <div class="group-h">My documentation</div>
       <div class="row-actions"><button class="btn" id="exportBtn">Export</button><button class="btn" id="importBtn">Import</button></div>
       <p class="saved">Long-press the map to add a beluik or Mary statue that's missing. Notes and photos stay on this phone until you export them.</p>`;
@@ -1020,6 +1059,7 @@ function openSearch() {
       R.querySelectorAll("button[data-go]:not([data-go=sights])").forEach(x => x.onclick = () => openBList(x.dataset.go));
       R.querySelectorAll("button[data-poi]").forEach(x => x.onclick = () => openPoiList(x.dataset.poi));
       $("exportBtn").onclick = exportDocs; $("importBtn").onclick = () => $("importFile").click();
+      $("goWalk").onclick = openWalk;
       return;
     }
     const words = q.split(/\s+/);
@@ -1039,11 +1079,231 @@ function openSearch() {
 }
 $("listBtn").onclick = openSearch;
 
+// =====================================================================
+// Walks: pick stops, get the shortest walking order, be guided live
+// =====================================================================
+const WALK_KEY = "ghentwalk.walk";
+const ROUTER = "https://routing.openstreetmap.de/routed-foot";   // OSRM with a walking profile (FOSSGIS)
+let walk = { stops: [], fromMe: true, back: false };
+try { walk = Object.assign(walk, JSON.parse(localStorage.getItem(WALK_KEY) || "{}")); } catch (e) {}
+const saveWalk = () => { try { localStorage.setItem(WALK_KEY, JSON.stringify({ stops: walk.stops, fromMe: walk.fromMe, back: walk.back })); } catch (e) {} };
+let route = null;          // { order: [stop], line: [[lat,lng]], legs: [{distance,duration,steps}], distance, duration, street: bool }
+let guide = null;          // { i: index of next stop in route.order, step: step index in current leg }
+const routeLayer = L.layerGroup().addTo(map);
+
+function walkItem(id) {
+  const p = PLACES.find(x => x.id === id);
+  if (p) return { id, name: p.name, lat: p.lat, lng: p.lng, kind: "Sight" };
+  const b = findItem(id);
+  if (b) return { id, name: b.name, lat: b.lat, lng: b.lng, kind: CATS[b.cat].noun };
+  for (const cat in POI) { const s = POI[cat].data.find(x => x.id === id); if (s) return { id, name: s.name, lat: s.lat, lng: s.lng, kind: POI[cat].noun }; }
+}
+const inWalk = id => walk.stops.some(s => s.id === id);
+function walkBtn(id) {
+  return `<button class="btn ${inWalk(id) ? "" : "primary"}" data-walk="${esc(id)}" style="box-shadow:none">${inWalk(id) ? "✓ In your walk" : "＋ Add to walk"}</button>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-walk]"); if (!b) return;
+  const id = b.dataset.walk;
+  if (inWalk(id)) walk.stops = walk.stops.filter(s => s.id !== id);
+  else { const it = walkItem(id); if (it && it.lat != null) walk.stops.push(it); }
+  saveWalk(); clearRoute(); updateWalkPill();
+  b.outerHTML = walkBtn(id);
+  status(inWalk(id) ? `Added · ${walk.stops.length} stop${walk.stops.length === 1 ? "" : "s"} in your walk` : "Removed from your walk", 2200);
+});
+
+function updateWalkPill() {
+  const pill = $("walkPill");
+  pill.hidden = !walk.stops.length || !!guide;
+  pill.querySelector("span").textContent = route ? `Walk · ${fmtDist(route.distance)} · ${Math.round(route.duration / 60)} min` : `Your walk · ${walk.stops.length} stop${walk.stops.length === 1 ? "" : "s"}`;
+}
+function clearRoute() { route = null; routeLayer.clearLayers(); }
+
+// ---- ordering ----
+// Without the routing service: nearest-neighbour start, improved with 2-opt, on straight-line distances.
+function orderLocally(start, stops, back) {
+  const pts = start ? [start, ...stops] : stops.slice();
+  const n = pts.length; if (n < 3 && !back) return stops.slice();
+  const D = pts.map(a => pts.map(b => distM(a, b)));
+  let tour = [0], left = new Set(pts.map((_, i) => i).slice(1));
+  while (left.size) { const last = tour[tour.length - 1]; let best = null; for (const j of left) if (best == null || D[last][j] < D[last][best]) best = j; tour.push(best); left.delete(best); }
+  const len = t => t.reduce((s, v, k) => s + (k ? D[t[k - 1]][v] : 0), 0) + (back ? D[t[t.length - 1]][t[0]] : 0);
+  let improved = true;
+  while (improved) {
+    improved = false;
+    for (let a = 1; a < n - 1; a++) for (let b = a + 1; b < n; b++) {
+      const t = tour.slice(0, a).concat(tour.slice(a, b + 1).reverse(), tour.slice(b + 1));
+      if (len(t) + 0.01 < len(tour)) { tour = t; improved = true; }
+    }
+  }
+  const ordered = tour.map(i => pts[i]);
+  return start ? ordered.slice(1) : ordered;
+}
+
+async function planRoute() {
+  if (!walk.stops.length) return;
+  const start = walk.fromMe && me ? { id: "me", name: "Your location", lat: me.lat, lng: me.lng } : null;
+  if (!start && walk.stops.length < 2) { status("Add one more stop, or turn on Locate me to start from where you are.", 4000); return; }
+  status("Finding the shortest walk…", 0);
+  const pts = start ? [start, ...walk.stops] : walk.stops.slice();
+  try {
+    const coords = pts.map(p => `${p.lng.toFixed(6)},${p.lat.toFixed(6)}`).join(";");
+    const url = `${ROUTER}/trip/v1/foot/${coords}?source=first&roundtrip=${walk.back}${walk.back ? "" : "&destination=any"}&geometries=geojson&overview=full&steps=true`;
+    const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 12000);
+    const r = await fetch(url, { signal: ctl.signal }); clearTimeout(timer);
+    const j = await r.json();
+    if (j.code !== "Ok") throw new Error(j.message || j.code);
+    const t = j.trips[0];
+    const order = j.waypoints.map((w, i) => ({ p: pts[i], k: w.waypoint_index })).sort((a, b) => a.k - b.k).map(x => x.p);
+    route = { order: order.filter(p => p.id !== "me"), start, line: t.geometry.coordinates.map(c => [c[1], c[0]]),
+              legs: [null, ...t.legs], distance: t.distance, duration: t.duration, street: true };
+    if (start) route.legs = t.legs;   // legs[0] runs from you to the first stop
+  } catch (e) {
+    const order = orderLocally(start, walk.stops, walk.back);
+    const chain = (start ? [start] : []).concat(order, walk.back ? [start || order[0]] : []);
+    let dist = 0; for (let k = 1; k < chain.length; k++) dist += distM(chain[k - 1], chain[k]) * 1.3;   // streets are ~30% longer than a straight line
+    route = { order, start, line: chain.map(p => [p.lat, p.lng]), legs: [], distance: dist, duration: dist / 1.3, street: false };
+  }
+  drawRoute(); updateWalkPill();
+  $("status").hidden = true;
+  if (!route.street) status("Couldn't reach the route service, so the order is based on straight lines.", 5000);
+}
+function drawRoute() {
+  routeLayer.clearLayers(); if (!route) return;
+  L.polyline(route.line, { color: getComputedStyle(document.documentElement).getPropertyValue("--route").trim() || "#d2462b", weight: 6, opacity: .85, dashArray: route.street ? null : "8 10" }).addTo(routeLayer);
+  route.order.forEach((p, i) => L.marker([p.lat, p.lng], { interactive: false, zIndexOffset: 900,
+    icon: L.divIcon({ className: "", html: `<div class="stopnum ${guide && i < guide.i ? "done" : ""}">${i + 1}</div>`, iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(routeLayer));
+  map.fitBounds(L.latLngBounds(route.line).pad(0.15), { paddingBottomRight: [0, 260] });
+}
+
+// ---- walk sheet ----
+function openWalk() {
+  activeId = null; refreshPins(); refreshBPins(); refreshNPins();
+  const list = route ? route.order : walk.stops;
+  $("sheetTitle").textContent = "Your walk";
+  $("sheetMeta").innerHTML = route
+    ? `<span>${route.order.length} stops</span><span>${fmtDist(route.distance)}</span><span>about ${Math.round(route.duration / 60)} min walking</span>`
+    : `<span>${walk.stops.length} stop${walk.stops.length === 1 ? "" : "s"}</span><span>Order not planned yet</span>`;
+  $("sheetBody").innerHTML = walk.stops.length ? `
+    <ul class="list">${list.map((s, i) => `<li><button data-open="${esc(s.id)}"><span class="stopnum static">${route ? i + 1 : "•"}</span>
+      <span class="li-text"><strong>${esc(s.name)}</strong><span>${esc(s.kind)}</span></span>
+      <span class="dist" data-rm="${esc(s.id)}" role="button" aria-label="Remove ${esc(s.name)}">✕</span></button></li>`).join("")}</ul>
+    <div class="checks" style="margin:12px 0">
+      <label><input type="checkbox" id="w-me" ${walk.fromMe ? "checked" : ""}> Start from my location</label>
+      <label><input type="checkbox" id="w-back" ${walk.back ? "checked" : ""}> Return to the start</label>
+    </div>
+    <div class="row-actions">
+      <button class="btn primary" id="w-plan" style="box-shadow:none">${route ? "Re-plan" : "Find the shortest route"}</button>
+      ${route ? `<button class="btn primary" id="w-go" style="box-shadow:none;background:var(--accent-2)">▶ Start guiding</button>` : ""}
+      <button class="btn" id="w-clear">Clear walk</button>
+    </div>
+    <p class="saved">${route && !route.street ? "Straight-line estimate; the real path follows the streets. " : ""}Add stops with “＋ Add to walk” on any card, or from Search.</p>`
+    : `<p style="color:var(--muted);line-height:1.6">Your walk is empty. Open any sight, beluik, Mary statue or shop and tap <b>＋ Add to walk</b>. Then come back here to get the shortest route and be guided along it.</p>
+       <div class="row-actions"><button class="btn primary" id="w-search" style="box-shadow:none">Search places to add</button></div>`;
+  const B = $("sheetBody");
+  B.querySelectorAll("[data-open]").forEach(x => x.onclick = e => {
+    if (e.target.dataset.rm) { walk.stops = walk.stops.filter(s => s.id !== e.target.dataset.rm); saveWalk(); clearRoute(); updateWalkPill(); return openWalk(); }
+    const id = x.dataset.open; if (PLACES.some(p => p.id === id)) openPlace(id); else if (findItem(id)) openBeluik(id); else for (const c in POI) if (POI[c].data.some(s => s.id === id)) openPoi(c, id);
+  });
+  if (!walk.stops.length) { $("w-search").onclick = openSearch; return openSheet(); }
+  $("w-me").onchange = e => { walk.fromMe = e.target.checked; saveWalk(); clearRoute(); updateWalkPill(); openWalk(); };
+  $("w-back").onchange = e => { walk.back = e.target.checked; saveWalk(); clearRoute(); updateWalkPill(); openWalk(); };
+  $("w-plan").onclick = async () => {
+    if (walk.fromMe && !me) { $("locateBtn").click(); await new Promise(r => setTimeout(r, 2500)); }
+    await planRoute(); openWalk();
+  };
+  $("w-clear").onclick = e => { if (e.target.dataset.c !== "1") { e.target.dataset.c = "1"; e.target.textContent = "Tap again to clear"; return; } walk.stops = []; saveWalk(); clearRoute(); updateWalkPill(); closeSheet(); };
+  if ($("w-go")) $("w-go").onclick = startGuide;
+  openSheet();
+}
+$("walkPill").onclick = openWalk;
+
+// ---- live guidance ----
+let wakeLock = null;
+async function startGuide() {
+  if (!route || !route.order.length) return;
+  guide = { i: 0, step: 0, arrivedAt: {} };
+  closeSheet(); updateWalkPill(); drawRoute();
+  $("guide").hidden = false;
+  if (!me || watchId == null) $("locateBtn").click();
+  follow = true; $("locateBtn").classList.add("on");
+  try { wakeLock = await navigator.wakeLock?.request("screen"); } catch (e) {}
+  if (me) map.setView([me.lat, me.lng], 17);
+  renderGuide();
+}
+function stopGuide(done) {
+  guide = null; $("guide").hidden = true;
+  try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null;
+  drawRoute(); updateWalkPill();
+  if (done) status("Walk finished. Well walked!", 5000);
+}
+const ARRIVE_M = 30;
+function stepText(st) {
+  if (!st) return "";
+  const m = st.maneuver || {}, mod = (m.modifier || "").replace("slight ", "slightly ").replace("sharp ", "sharp ");
+  const onto = st.name ? ` onto ${st.name}` : "";
+  switch (m.type) {
+    case "depart": return `Head off${st.name ? " along " + st.name : ""}`;
+    case "arrive": return "You're arriving";
+    case "roundabout": case "rotary": return `At the roundabout, take exit ${m.exit || ""}${onto}`;
+    case "continue": case "new name": return `Continue${onto || " straight on"}`;
+    default: return mod === "straight" ? `Go straight${onto}` : mod ? `Turn ${mod}${onto}` : `Continue${onto}`;
+  }
+}
+function renderGuide() {
+  if (!guide || !route) return;
+  const next = route.order[guide.i];
+  const d = me ? distM(me, next) : null;
+  const leg = route.legs[guide.i];
+  let turn = "";
+  if (leg && leg.steps && me) {
+    // advance past steps whose turn point we've reached
+    while (guide.step < leg.steps.length - 1) {
+      const loc = leg.steps[guide.step + 1].maneuver.location;
+      if (distM(me, { lat: loc[1], lng: loc[0] }) < 18) guide.step++; else break;
+    }
+    const up = leg.steps[guide.step + 1] || leg.steps[guide.step];
+    if (up) {
+      const loc = up.maneuver.location; const dd = distM(me, { lat: loc[1], lng: loc[0] });
+      turn = up.maneuver.type === "arrive" ? "" : `In ${fmtDist(dd)}: ${stepText(up)}`;
+    }
+  }
+  $("g-count").textContent = `Stop ${guide.i + 1} of ${route.order.length}`;
+  $("g-name").textContent = next.name;
+  $("g-dist").textContent = d != null ? `${fmtDist(d)} · ${walkMin(d * (route.street ? 1.2 : 1.3))} min` : "Waiting for your location…";
+  $("g-turn").textContent = turn;
+  $("g-turn").hidden = !turn;
+  if (d != null && d < ARRIVE_M && !guide.arrivedAt[guide.i]) arrive();
+}
+function arrive() {
+  const stop = route.order[guide.i];
+  guide.arrivedAt[guide.i] = Date.now();
+  try { navigator.vibrate && navigator.vibrate([120, 60, 120]); } catch (e) {}
+  if (PLACES.some(p => p.id === stop.id)) { visited.add(stop.id); saveVisited(); refreshPins(); }
+  status(`You've reached ${stop.name}`, 3500);
+  // show its story, then move on to the next stop
+  if (PLACES.some(p => p.id === stop.id)) openPlace(stop.id);
+  else if (findItem(stop.id)) openBeluik(stop.id);
+  else for (const c in POI) if (POI[c].data.some(s => s.id === stop.id)) openPoi(c, stop.id);
+  nextStop();
+}
+function nextStop() {
+  if (!guide) return;
+  if (guide.i >= route.order.length - 1) { stopGuide(true); return; }
+  guide.i++; guide.step = 0; drawRoute(); renderGuide();
+}
+$("g-skip").onclick = () => { guide.arrivedAt[guide.i] = Date.now(); nextStop(); };
+$("g-stop").onclick = () => stopGuide(false);
+$("g-list").onclick = openWalk;
+document.addEventListener("visibilitychange", async () => { if (guide && document.visibilityState === "visible") { try { wakeLock = await navigator.wakeLock?.request("screen"); } catch (e) {} } });
+updateWalkPill();
+
 // ---- location ----
 const meIcon = L.divIcon({ className: "", html: '<div class="me-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
 function onPos(pos) {
   const first = !me;
   me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+  if (typeof renderGuide === "function" && guide) setTimeout(renderGuide, 0);
   const ll = [me.lat, me.lng];
   if (!meMarker) {
     meMarker = L.marker(ll, { icon: meIcon, zIndexOffset: 1000, title: "You are here" }).addTo(map);
