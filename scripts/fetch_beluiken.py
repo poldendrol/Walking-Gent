@@ -265,9 +265,14 @@ def main():
         rows = []
         for t in types:
             rows += fetch_csv("typologie=" + urllib.parse.quote(t))
+        # big types are capped in the export, so narrow those to Ghent with a text filter
+        for t in ["stadswoningen", "burgerhuizen", "herenhuizen", "winkels", "onderwijsgebouwen", "art-decowoningen",
+                  "pakhuizen", "fabrieken", "ateliers", "badhuizen", "stations", "hospitalen", "stadspoorten", "vlasspinnerijen"]:
+            for place in ("Gent", "Ledeberg", "Gentbrugge", "Sint-Amandsberg"):
+                rows += fetch_csv("typologie=" + urllib.parse.quote(t) + "&tekst=" + place)
         rows += fetch_csv("tekst=rasphuis") + fetch_csv("tekst=Rasphuisstraat")
         skip_types = re.compile(r"\bbeluiken\b|kastkapellen|gevelniskapellen|Mariabeelden", re.I)
-        keep_rows = [r for r in rows if (r.get("is_beschermd") == "True" or re.search(r"rasphuis", r["naam"], re.I))
+        keep_rows = [r for r in rows if (r.get("is_beschermd") == "True" or re.search(r"rasphuis", r["naam"] + " " + r["locatie"], re.I))
                      and r.get("bewaringstoestand", "").strip() == "bewaard"
                      and r.get("omvang", "Element") == "Element"
                      and not skip_types.search(r.get("typologie", ""))]
