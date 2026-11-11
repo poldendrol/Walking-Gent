@@ -122,13 +122,39 @@
     display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; pointer-events: auto; padding-block: 4px;
   }
   .chips::-webkit-scrollbar { display: none; }
+  .chips[hidden] { display: none !important; }
   .chip { flex: none;
     pointer-events: auto; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
     border-radius: 999px; height: 34px; padding: 0 12px; font: 600 13px var(--body); cursor: pointer;
     box-shadow: 0 1px 6px rgba(0,0,0,.14);
   }
   .chip[aria-pressed="true"] { background: var(--accent-2); border-color: var(--accent-2); color: var(--paper); }
-  .status { top: calc(env(safe-area-inset-top, 0px) + 118px); }
+  .status { top: calc(env(safe-area-inset-top, 0px) + 70px); font-size: 13px; padding: 7px 12px; }
+  .brand { padding: 10px 14px; }
+  .btn svg { flex: none; }
+  .fab {
+    position: absolute; z-index: 1000; border: 0; cursor: pointer;
+    right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
+    width: 56px; height: 56px; border-radius: 50%; background: var(--paper); color: var(--accent);
+    box-shadow: 0 3px 14px rgba(0,0,0,.25); display: grid; place-items: center;
+  }
+  .fab.on { background: var(--accent); color: #fff; }
+  .fab:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+  @media (pointer: coarse) { .leaflet-control-zoom { display: none; } }
+  .leaflet-bottom.leaflet-right .leaflet-control-zoom { margin-bottom: 96px; }
+  /* Layers panel */
+  .layer-row { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .layer-row .li-text { min-width: 0; flex: 1; }
+  .switch { position: relative; width: 46px; height: 28px; flex: none; }
+  .switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--line); transition: background .15s; }
+  .switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .15s; }
+  .switch input:checked + span { background: var(--accent-2); }
+  .switch input:checked + span::after { transform: translateX(18px); }
+  .switch input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .li-text span { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .group-h { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 2px; }
+  .sheet-search { position: sticky; top: -12px; background: var(--paper); padding-top: 2px; z-index: 1; }
 
   /* Beluik pins: square = courtyard */
   .bpin { width: 18px; height: 18px; border-radius: 4px; background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); position: relative; }
@@ -193,12 +219,13 @@
 <div id="map" role="application" aria-label="Map of Ghent"></div>
 
 <div class="topbar">
-  <div class="brand">Ghent Walk<small>Walk &amp; document</small></div>
+  <div class="brand">Ghent Walk</div>
   <div class="spacer"></div>
-  <button class="btn" id="listBtn" aria-label="Show all places">Places</button>
-  <button class="btn primary" id="locateBtn" aria-label="Show where I am">◎ Locate me</button>
+  <button class="btn" id="listBtn" aria-label="Search and browse"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Search</button>
+  <button class="btn" id="layersBtn" aria-label="Choose what the map shows"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8.5 12 14l10-5.5L12 3Z" fill="currentColor"/><path d="m2 13 10 5.5L22 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Layers</button>
 </div>
-<div class="chips" role="toolbar" aria-label="What to show">
+<button class="fab" id="locateBtn" aria-label="Show where I am"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+<div class="chips" role="toolbar" aria-label="What to show" hidden>
   <button class="chip" id="chipSights" aria-pressed="true">Sights</button>
   <button class="chip" id="chipBeluiken" aria-pressed="true">Beluiken</button>
   <button class="chip" id="chipMaria" aria-pressed="true">Mary statues</button>
@@ -364,6 +391,7 @@ function status(msg, ms = 4000) {
 
 // ---- sheet ----
 function openSheet() { $("sheet").classList.add("open"); }
+map.on("click", () => { if ($("sheet").classList.contains("open")) closeSheet(); });
 function closeSheet() { $("sheet").classList.remove("open"); activeId = null; refreshPins(); refreshBPins(); }
 $("closeBtn").onclick = closeSheet;
 
@@ -407,7 +435,6 @@ function openList() {
   $("sheetBody").scrollTop = 0;
   openSheet();
 }
-$("listBtn").onclick = () => openChooser();
 
 // =====================================================================
 // Heritage layers from the Flemish heritage inventory: beluiken and Mary statues
@@ -915,6 +942,103 @@ for (const cat in POI) {
 }
 setInterval(refreshNPins, 5 * 60 * 1000);   // open/closed colours follow the clock
 
+// =====================================================================
+// Streamlined UI: one Layers panel, one Search for everything
+// =====================================================================
+const LAYERS = [
+  { key: "sights", label: "Sights", sub: () => `${PLACES.length} historic buildings`, dot: "num", on: () => showSights, flip: () => toggle("sights") },
+  { key: "beluik", label: "Beluiken", sub: () => `${allOf("beluik").length} workers' courtyards`, dot: "bnum", on: () => CATS.beluik.show, flip: () => toggle("beluik") },
+  { key: "maria", label: "Mary statues", sub: () => `${allOf("maria").length} statues and wall chapels`, dot: "mnum", on: () => CATS.maria.show, flip: () => toggle("maria") },
+  { key: "night", label: "Night shops", sub: () => `${POI.night.data.length} shops · purple = open now`, dot: "nnum open", on: () => POI.night.show, flip: () => togglePoi("night") },
+  { key: "geek", label: "Geek stores", sub: () => `${POI.geek.data.length} comic, manga & game shops`, dot: "gnum", on: () => POI.geek.show, flip: () => togglePoi("geek") },
+];
+const GONE = { key: "gone", label: "Show what's gone", sub: () => "Demolished beluiken and lost statues", on: () => showGone, flip: () => toggle("gone") };
+const PREF_KEY = "ghentwalk.layers";
+function savePrefs() {
+  const p = {}; [...LAYERS, GONE].forEach(l => (p[l.key] = l.on()));
+  try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch (e) {}
+}
+(function loadPrefs() {
+  let p = null; try { p = JSON.parse(localStorage.getItem(PREF_KEY) || "null"); } catch (e) {}
+  if (p) [...LAYERS, GONE].forEach(l => { if (typeof p[l.key] === "boolean" && p[l.key] !== l.on()) l.flip(); });
+})();
+
+function openLayers() {
+  activeId = null; refreshPins(); refreshBPins(); refreshNPins();
+  $("sheetTitle").textContent = "Layers";
+  $("sheetMeta").innerHTML = "<span>Choose what the map shows</span>";
+  const row = (l, i) => `<label class="layer-row">
+      ${l.dot ? `<span class="${l.dot}">${l.key === "sights" ? "★" : ""}</span>` : ""}
+      <span class="li-text"><strong>${l.label}</strong><span class="saved" style="display:block">${l.sub()}</span></span>
+      <span class="switch"><input type="checkbox" data-i="${i}" ${l.on() ? "checked" : ""} aria-label="${l.label}"><span></span></span>
+    </label>`;
+  $("sheetBody").innerHTML = `
+    <div class="group-h">Heritage</div>${LAYERS.slice(0, 3).map(row).join("")}
+    <div class="group-h">Shops</div>${LAYERS.slice(3).map((l, i) => row(l, i + 3)).join("")}
+    <div class="group-h">Options</div>${row(GONE, 99)}`;
+  $("sheetBody").querySelectorAll("input[data-i]").forEach(cb => cb.onchange = () => {
+    const l = cb.dataset.i === "99" ? GONE : LAYERS[+cb.dataset.i];
+    if (l.on() !== cb.checked) l.flip();
+    savePrefs();
+  });
+  $("sheetBody").scrollTop = 0;
+  openSheet();
+}
+$("layersBtn").onclick = openLayers;
+
+// One search across every layer
+let searchQ = "";
+function everything() {
+  const out = PLACES.map((p, i) => ({ id: p.id, name: p.name, sub: "Sight · " + (p.nl !== p.name ? p.nl : p.built), lat: p.lat, lng: p.lng, dot: "num", label: String(i + 1), open: () => openPlace(p.id) }));
+  for (const cat in CATS) allOf(cat).forEach(b => out.push({ id: b.id, name: b.name, sub: CATS[cat].noun[0].toUpperCase() + CATS[cat].noun.slice(1) + " · " + b.address, lat: b.lat, lng: b.lng,
+    dot: `${CATS[cat].dot} ${b.preserved ? "" : "gone"}`, label: "", open: () => openBeluik(b.id) }));
+  for (const cat in POI) POI[cat].data.forEach(s => out.push({ id: s.id, name: s.name, sub: [s.kind || POI[cat].noun, s.address].filter(Boolean).join(" · "),
+    lat: s.lat, lng: s.lng, dot: POI[cat].dot + (POI[cat].hours && openNow(s.opening_hours) === true ? " open" : ""), label: "",
+    open: () => { if (!POI[cat].show) { togglePoi(cat); savePrefs(); } openPoi(cat, s.id); } }));
+  return out;
+}
+function openSearch() {
+  activeId = null; refreshPins(); refreshBPins(); refreshNPins();
+  $("sheetTitle").textContent = "Search";
+  $("sheetMeta").innerHTML = "";
+  $("sheetBody").innerHTML = `
+    <div class="sheet-search"><input class="search" id="qInput" type="search" placeholder="Name or street, e.g. Konijnenpijp" value="${esc(searchQ)}" autocomplete="off"></div>
+    <div id="qResults"></div>`;
+  const render = () => {
+    const q = searchQ.trim().toLowerCase();
+    const R = $("qResults");
+    if (!q) {
+      R.innerHTML = `<div class="group-h">Browse</div><ul class="list">
+        <li><button data-go="sights"><span class="num">★</span><span class="li-text"><strong>Sights</strong><span>${PLACES.length} historic buildings</span></span></button></li>
+        ${Object.entries(CATS).map(([cat, C]) => `<li><button data-go="${cat}"><span class="${C.dot}"></span><span class="li-text"><strong>${C.label}</strong><span>${allOf(cat).length} ${C.blurb}</span></span></button></li>`).join("")}
+        ${Object.entries(POI).map(([cat, C]) => `<li><button data-poi="${cat}"><span class="${C.dot} open"></span><span class="li-text"><strong>${C.label}</strong><span>${C.data.length} ${C.blurb}</span></span></button></li>`).join("")}
+      </ul>
+      <div class="group-h">My documentation</div>
+      <div class="row-actions"><button class="btn" id="exportBtn">Export</button><button class="btn" id="importBtn">Import</button></div>
+      <p class="saved">Long-press the map to add a beluik or Mary statue that's missing. Notes and photos stay on this phone until you export them.</p>`;
+      R.querySelector('[data-go="sights"]').onclick = openList;
+      R.querySelectorAll("button[data-go]:not([data-go=sights])").forEach(x => x.onclick = () => openBList(x.dataset.go));
+      R.querySelectorAll("button[data-poi]").forEach(x => x.onclick = () => openPoiList(x.dataset.poi));
+      $("exportBtn").onclick = exportDocs; $("importBtn").onclick = () => $("importFile").click();
+      return;
+    }
+    const words = q.split(/\s+/);
+    let hits = everything().filter(x => words.every(w => (x.name + " " + (x.sub || "")).toLowerCase().includes(w)));
+    hits = hits.map(x => ({ x, d: me && x.lat != null ? distM(me, x) : null }))
+      .sort((a, b) => (a.d != null && b.d != null ? a.d - b.d : a.x.name.localeCompare(b.x.name))).slice(0, 60);
+    R.innerHTML = hits.length ? `<ul class="list">${hits.map(({ x, d }, i) => `<li><button data-k="${i}"><span class="${x.dot}">${x.label}</span>
+        <span class="li-text"><strong>${esc(x.name)}</strong><span>${esc(x.sub || "")}</span></span>
+        ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`).join("")}</ul>`
+      : `<p class="saved" style="padding:12px 0">Nothing found for “${esc(searchQ)}”.</p>`;
+    R.querySelectorAll("button[data-k]").forEach(b => b.onclick = () => hits[+b.dataset.k].x.open());
+  };
+  render();
+  $("qInput").oninput = e => { searchQ = e.target.value; render(); };
+  $("sheetBody").scrollTop = 0;
+  openSheet();
+}
+$("listBtn").onclick = openSearch;
+
 // ---- location ----
 const meIcon = L.divIcon({ className: "", html: '<div class="me-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
 function onPos(pos) {
@@ -930,7 +1054,7 @@ function onPos(pos) {
     if (first) {
       const dCentre = distM(me, { lat: 51.0545, lng: 3.7235 });
       if (dCentre > 15000) status("You seem to be outside Ghent. The map stays on the city centre.", 6000);
-      else { map.setView(ll, 17); status(`Nearest: ${nearest.name}, ${fmtDist(distM(me, nearest))} away`); }
+      else { map.setView(ll, 17); status(`Nearest sight: ${nearest.name}, ${fmtDist(distM(me, nearest))}`, 3000); }
     } else map.panTo(ll);
   }
 }
@@ -942,12 +1066,12 @@ function onErr(err) {
 }
 $("locateBtn").onclick = () => {
   if (!("geolocation" in navigator)) { status("This browser can't share your location."); return; }
-  follow = true;
+  follow = true; $("locateBtn").classList.add("on");
   if (me) map.setView([me.lat, me.lng], Math.max(map.getZoom(), 17));
   else status("Finding you…", 0);
   if (watchId == null) watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
 };
-map.on("dragstart", () => (follow = false));
+map.on("dragstart", () => { follow = false; $("locateBtn").classList.remove("on"); });
 </script>
 </body>
 </html>
