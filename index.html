@@ -27,11 +27,12 @@
     --geek: #0f8a8a;        /* geek stores */
     --route: #e08a00;       /* walk route: amber */
     --gem: #8a5a3c;         /* hidden gems: brick brown */
+    --meet: #c2417a;        /* walk & meet: rose */
     --display: "Fraunces", Georgia, serif;
     --body: "Inter", system-ui, -apple-system, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; --route:#ffb238; --gem:#c8926b; color-scheme: dark; }
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; --route:#ffb238; --gem:#c8926b; --meet:#ee7aa8; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -244,6 +245,29 @@
 
   .leaflet-control-attribution { font-size: 10px; }
   .leaflet-bottom.leaflet-right { margin-bottom: env(safe-area-inset-bottom, 0px); }
+  /* Walk & meet (prototype) */
+  .fab.meet { bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); color: var(--meet); }
+  .fab.meet.has { background: var(--meet); color: #fff; }
+  .leaflet-bottom.leaflet-right .leaflet-control-zoom { margin-bottom: 164px; }
+  .lovepin { width: 30px; height: 30px; border-radius: 50%; background: var(--meet); border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); display: grid; place-items: center; color: #fff; font-size: 15px; }
+  .lovepin.mine { background: var(--paper); color: var(--meet); border-color: var(--meet); }
+  .proto { background: color-mix(in srgb, var(--meet) 12%, var(--paper)); border: 1px solid color-mix(in srgb, var(--meet) 35%, transparent); color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tabs button { flex: 1; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--wash); color: var(--ink); font: 600 14px var(--body); cursor: pointer; }
+  .tabs button[aria-selected=true] { background: var(--meet); border-color: var(--meet); color: #fff; }
+  .walker { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .ava { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 700 17px var(--body); }
+  .walker .w-body { min-width: 0; flex: 1; }
+  .walker .w-name { font-weight: 600; }
+  .walker .w-sub { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .walker .w-when { font-size: 13px; color: var(--meet); font-weight: 600; margin-top: 2px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .tags span { font-size: 12px; background: var(--wash); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: var(--wash); color: var(--muted); }
+  .badge.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
+  .badge.wait { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold); }
+  .safety { font-size: 13px; color: var(--muted); line-height: 1.55; padding-left: 18px; margin: 6px 0 12px; }
+  .field input[type=datetime-local] { font: 16px var(--body); color: var(--ink); background: var(--wash); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; }
 </style>
 </head>
 <body>
@@ -256,6 +280,7 @@
   <button class="btn" id="layersBtn" aria-label="Choose what the map shows"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8.5 12 14l10-5.5L12 3Z" fill="currentColor"/><path d="m2 13 10 5.5L22 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Layers</button>
 </div>
 <button class="fab" id="locateBtn" aria-label="Show where I am"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+<button class="fab meet" id="meetBtn" aria-label="Walk and meet"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" fill="currentColor"/></svg></button>
 <div class="chips" role="toolbar" aria-label="What to show" hidden>
   <button class="chip" id="chipSights" aria-pressed="true">Sights</button>
   <button class="chip" id="chipBeluiken" aria-pressed="true">Beluiken</button>
@@ -474,6 +499,7 @@ function openPlace(id) {
      <div class="actions">
        <button class="btn" id="visitBtn">${isVisited ? "✓ Visited" : "Mark as visited"}</button>
        ${walkBtn(p.id)}
+       <button class="btn" data-meet="${p.id}">♥ Meet someone here</button>
        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${p.lat},${p.lng}">Directions</a>
      </div>`;
   $("sheetBody").scrollTop = 0;
@@ -1381,6 +1407,285 @@ $("locateBtn").onclick = () => {
   if (watchId == null) watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
 };
 map.on("dragstart", () => { follow = false; $("locateBtn").classList.remove("on"); });
+
+// =====================================================================
+// Walk & meet (prototype): meet someone at a Ghent landmark and walk together.
+// Everything is simulated on this phone: the walkers below are made-up demo
+// profiles, and nothing is sent anywhere yet.
+// =====================================================================
+const MEET_KEY = "ghentwalk.meet";
+let meet = { profile: null, mine: [], joined: {}, blocked: [], requests: {} };
+try { meet = Object.assign(meet, JSON.parse(localStorage.getItem(MEET_KEY) || "{}")); } catch (e) {}
+const saveMeet = () => { try { localStorage.setItem(MEET_KEY, JSON.stringify(meet)); } catch (e) {} };
+
+const LIKES = [["history", "History"], ["beluiken", "Beluiken"], ["gems", "Hidden buildings"], ["night", "Night walks"], ["geek", "Comics & games"], ["food", "Food & drinks"], ["photo", "Photography"]];
+const THEMES = { sights: "Big sights", beluiken: "Beluiken & courtyards", gems: "Hidden buildings", night: "Evening stroll" };
+const LOOKING = { date: "A date", friends: "Walk buddies", either: "Open to both" };
+const AVA = ["#c2417a", "#3d6fb6", "#2f7d5b", "#b88a1b", "#7b4fd6", "#0f8a8a", "#b5462b", "#8a5a3c"];
+
+// Made-up demo walkers. [id, name, age, looking, likes, about, place, dayOffset, hour, minutes, theme, note]
+const DEMO = [
+  ["d1", "Lotte", 29, "date", ["history", "photo"], "Teacher, always stops for old doorways.", "gravensteen", 1, 14, 60, "sights", "Coffee after?"],
+  ["d2", "Jonas", 34, "either", ["beluiken", "history"], "Grew up in a beluik in Muide, happy to show you around.", "rabot", 2, 11, 90, "beluiken", "Slow pace, lots of stories."],
+  ["d3", "Amira", 26, "friends", ["geek", "food"], "New in Ghent, looking for people to explore with.", "vrijdagmarkt", 0, 19, 45, "night", "Ending at a comic shop if it's open."],
+  ["d4", "Pieter", 41, "date", ["gems", "photo"], "Architect. I like the buildings nobody looks at.", "baafs", 3, 10, 90, "gems", ""],
+  ["d5", "Nele", 31, "date", ["night", "food"], "Night owl, knows every late-night frituur.", "korenlei", 1, 20, 60, "night", "Graslei lights are best after dark."],
+  ["d6", "Sam", 23, "friends", ["geek", "history"], "Student, board games and medieval stuff.", "belfort", 2, 16, 45, "sights", ""],
+  ["d7", "Ines", 37, "either", ["beluiken", "gems"], "Documenting the Mary statues in my street.", "patershol", 4, 15, 60, "beluiken", "Bring your phone camera."],
+  ["d8", "Wout", 45, "date", ["history", "food"], "Ghent guide on weekends, terrible at small talk.", "begijnhof", 3, 13, 90, "gems", ""],
+].map(([id, name, age, looking, likes, about, place, day, hour, minutes, theme, note], k) => {
+  const when = new Date(); when.setDate(when.getDate() + day); when.setHours(hour, 0, 0, 0);
+  if (when < new Date()) when.setDate(when.getDate() + 1);
+  return { id: "inv-" + id, demo: true, who: { id, name, age, looking, likes, about, color: AVA[k % AVA.length] }, place, when: when.toISOString(), minutes, theme, note };
+});
+
+function invites() { return [...DEMO.filter(v => !meet.blocked.includes(v.who.id)), ...meet.mine].filter(v => PLACES.some(p => p.id === v.place)); }
+const placeOf = v => PLACES.find(p => p.id === v.place);
+function fmtWhen(iso) {
+  const d = new Date(iso), now = new Date(), t = new Date(now); t.setDate(now.getDate() + 1);
+  const day = d.toDateString() === now.toDateString() ? "Today" : d.toDateString() === t.toDateString() ? "Tomorrow" : d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" });
+  return `${day} · ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+}
+// The route: the meeting place plus nearby stops that fit the theme and length.
+function routeFor(v) {
+  const start = placeOf(v), n = v.minutes >= 90 ? 4 : v.minutes >= 60 ? 3 : 2;
+  let pool = PLACES.filter(p => p.id !== start.id).map(p => ({ id: p.id, name: p.name, lat: p.lat, lng: p.lng, kind: "Sight" }));
+  if (v.theme === "beluiken" && CATS.beluik.data.length) pool = allOf("beluik").filter(b => b.preserved && b.lat != null).map(b => ({ id: b.id, name: b.name, lat: b.lat, lng: b.lng, kind: "beluik" }));
+  if (v.theme === "gems" && CATS.gem.data.length) pool = allOf("gem").filter(b => b.lat != null).map(b => ({ id: b.id, name: b.name, lat: b.lat, lng: b.lng, kind: "hidden gem" }));
+  const stops = [{ id: start.id, name: start.name, lat: start.lat, lng: start.lng, kind: "Meeting point" }];
+  let cur = start;
+  for (let i = 0; i < n; i++) {
+    const next = pool.filter(p => !stops.some(s => s.id === p.id)).sort((a, b) => distM(cur, a) - distM(cur, b))[0];
+    if (!next) break; stops.push(next); cur = next;
+  }
+  return stops;
+}
+const ava = w => `<span class="ava" style="background:${w.color}">${esc(w.name[0])}</span>`;
+
+// ---- map: a heart at each meeting place ----
+const meetLayer = L.layerGroup();
+let showMeet = true;
+function refreshMeetPins() {
+  meetLayer.clearLayers();
+  const by = {};
+  invites().forEach(v => (by[v.place] = by[v.place] || []).push(v));
+  for (const id in by) {
+    const p = PLACES.find(x => x.id === id), mine = by[id].some(v => !v.demo);
+    L.marker([p.lat, p.lng], { zIndexOffset: 500, title: `${by[id].length} walk${by[id].length > 1 ? "s" : ""} from ${p.name}`,
+      icon: L.divIcon({ className: "", html: `<div class="lovepin ${mine ? "mine" : ""}">♥</div>`, iconSize: [30, 30], iconAnchor: [15, -6] }) })
+      .on("click", () => openMeet("walks", id)).addTo(meetLayer);
+  }
+  $("meetBtn").classList.toggle("has", Object.values(meet.joined).includes("accepted") || meet.mine.some(v => meet.requests[v.id] === "accepted"));
+}
+function toggleMeet() { showMeet = !showMeet; showMeet ? meetLayer.addTo(map) : map.removeLayer(meetLayer); }
+LAYERS.push({ key: "meet", label: "Walk & meet", sub: () => `${invites().length} open walks to join`, dot: "", on: () => showMeet, flip: toggleMeet });
+(function () { let p = null; try { p = JSON.parse(localStorage.getItem(PREF_KEY) || "null"); } catch (e) {} if (p && p.meet === false) showMeet = false; if (showMeet) meetLayer.addTo(map); })();
+// show the Meet group in the Layers panel
+const _openLayers = openLayers;
+openLayers = function () {
+  _openLayers();
+  const B = $("sheetBody"), i = LAYERS.findIndex(l => l.key === "meet");
+  B.querySelectorAll(`input[data-i="${i}"]`).forEach(cb => cb.closest(".layer-row").remove());
+  B.querySelector(".group-h:last-of-type").insertAdjacentHTML("beforebegin", `<div class="group-h">People</div>
+    <label class="layer-row"><span class="lovepin" style="width:22px;height:22px;font-size:11px;border-width:0">♥</span>
+    <span class="li-text"><strong>Walk & meet</strong><span class="saved" style="display:block">${LAYERS[i].sub()}</span></span>
+    <span class="switch"><input type="checkbox" id="lyMeet" ${showMeet ? "checked" : ""} aria-label="Walk & meet"><span></span></span></label>`);
+  $("lyMeet").onchange = e => { if (showMeet !== e.target.checked) toggleMeet(); savePrefs(); };
+};
+$("layersBtn").onclick = openLayers;
+
+// ---- the Meet sheet ----
+let meetTab = "walks", meetFilter = "all", meetPlace = null;
+function openMeet(tab, place) {
+  activeId = null; refreshPins(); refreshBPins(); refreshNPins();
+  if (tab) meetTab = tab;
+  meetPlace = place || null;
+  if (!meet.profile && meetTab !== "profile") meetTab = meetTab === "plan" ? "profile:plan" : meetTab;
+  $("sheetTitle").textContent = "Walk & meet";
+  $("sheetMeta").innerHTML = meet.profile ? `<span>${esc(meet.profile.name)}, ${meet.profile.age}</span><span>${LOOKING[meet.profile.looking]}</span>` : `<span>Meet someone at a Ghent landmark and walk together</span>`;
+  const t = meetTab.split(":")[0];
+  $("sheetBody").innerHTML = `
+    <div class="proto"><b>Prototype.</b> The walkers here are made-up demo profiles and nothing leaves your phone. It shows how meeting up would work before we put it online.</div>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="walks" aria-selected="${t === "walks"}">Walks</button>
+      <button role="tab" data-tab="plan" aria-selected="${t === "plan"}">Plan one</button>
+      <button role="tab" data-tab="mine" aria-selected="${t === "mine"}">Mine</button>
+      <button role="tab" data-tab="profile" aria-selected="${t === "profile"}">Profile</button>
+    </div><div id="meetBody"></div>`;
+  $("sheetBody").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => openMeet(b.dataset.tab));
+  ({ walks: meetWalks, plan: meetPlan, mine: meetMine, profile: meetProfile })[t]();
+  $("sheetBody").scrollTop = 0;
+  openSheet();
+}
+$("meetBtn").onclick = () => openMeet();
+document.addEventListener("click", e => { const b = e.target.closest("[data-meet]"); if (b) openMeet("plan", b.dataset.meet); });
+
+function walkerRow(v) {
+  const p = placeOf(v), st = meet.joined[v.id];
+  return `<div class="walker">${ava(v.who)}<div class="w-body">
+    <div class="w-name">${esc(v.who.name)}, ${v.who.age} <span class="badge">${LOOKING[v.who.looking]}</span></div>
+    <div class="w-when">${fmtWhen(v.when)}</div>
+    <div class="w-sub">Meet at <b>${esc(p.name)}</b> · ${THEMES[v.theme]} · about ${v.minutes} min${me ? " · " + fmtDist(distM(me, p)) + " away" : ""}</div>
+    <div class="w-sub">${esc(v.who.about)}${v.note ? ` “${esc(v.note)}”` : ""}</div>
+    <div class="tags">${v.who.likes.map(l => `<span>${LIKES.find(x => x[0] === l)[1]}</span>`).join("")}</div>
+    <div class="row-actions">
+      ${st === "accepted" ? `<span class="badge ok">✓ You're walking together</span>` : st === "sent" ? `<span class="badge wait">Asked to join…</span>` : `<button class="btn primary" data-join="${v.id}" style="box-shadow:none">Ask to join</button>`}
+      <button class="btn" data-route="${v.id}">See route</button>
+      <button class="btn" data-block="${v.who.id}" aria-label="Block or report ${esc(v.who.name)}">Block / report</button>
+    </div></div></div>`;
+}
+function bindWalkers(B) {
+  B.querySelectorAll("[data-join]").forEach(b => b.onclick = () => {
+    if (!meet.profile) { status("Make a quick profile first", 2500); return openMeet("profile"); }
+    const id = b.dataset.join; meet.joined[id] = "sent"; saveMeet(); openMeet(meetTab, meetPlace);
+    setTimeout(() => { if (meet.joined[id] !== "sent") return; meet.joined[id] = "accepted"; saveMeet(); refreshMeetPins();
+      const v = invites().find(x => x.id === id); status(`${v ? v.who.name : "They"} said yes! See “Mine” for the plan.`, 4000);
+      if ($("sheet").classList.contains("open") && $("sheetTitle").textContent === "Walk & meet") openMeet(meetTab, meetPlace); }, 2500);
+  });
+  B.querySelectorAll("[data-route]").forEach(b => b.onclick = () => showMeetRoute(invites().find(x => x.id === b.dataset.route)));
+  B.querySelectorAll("[data-block]").forEach(b => b.onclick = () => {
+    meet.blocked.push(b.dataset.block); saveMeet(); refreshMeetPins();
+    status("Blocked. You won't see this person again. In the real version a report goes to a moderator.", 4500); openMeet(meetTab, meetPlace);
+  });
+}
+
+function meetWalks() {
+  const B = $("meetBody");
+  let list = invites().filter(v => v.demo).filter(v => meetFilter === "all" || v.who.looking === meetFilter || v.who.looking === "either");
+  if (meetPlace) list = list.filter(v => v.place === meetPlace);
+  list.sort((a, b) => new Date(a.when) - new Date(b.when));
+  B.innerHTML = `
+    <div class="checks" style="margin-bottom:6px">${[["all", "Everyone"], ["date", "Dates"], ["friends", "Walk buddies"]].map(([k, l]) =>
+      `<label><input type="radio" name="mf" value="${k}" ${meetFilter === k ? "checked" : ""}> ${l}</label>`).join("")}</div>
+    ${meetPlace ? `<p class="saved">Walks starting at ${esc(PLACES.find(p => p.id === meetPlace).name)} · <a href="#" id="mAll">show all</a></p>` : ""}
+    ${list.length ? list.map(walkerRow).join("") : `<p class="saved" style="padding:12px 0">No open walks here yet. Plan one yourself and others can join.</p>`}
+    <div class="row-actions"><button class="btn primary" id="mPlan" style="box-shadow:none;background:var(--meet)">♥ Plan your own walk</button></div>`;
+  B.querySelectorAll("input[name=mf]").forEach(r => r.onchange = () => { meetFilter = r.value; meetWalks(); });
+  if ($("mAll")) $("mAll").onclick = e => { e.preventDefault(); openMeet("walks"); };
+  $("mPlan").onclick = () => openMeet("plan", meetPlace);
+  bindWalkers(B);
+}
+
+function meetPlan() {
+  const B = $("meetBody");
+  if (!meet.profile) return meetProfile(true);
+  const def = new Date(); def.setDate(def.getDate() + 1); def.setHours(14, 0, 0, 0);
+  const local = new Date(def - def.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const sorted = PLACES.slice().sort((a, b) => a.name.localeCompare(b.name));
+  B.innerHTML = `
+    <div class="field"><label for="mp-place">Meeting point</label>
+      <select id="mp-place">${sorted.map(p => `<option value="${p.id}" ${p.id === (meetPlace || "gravensteen") ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select>
+      <span class="saved">Only busy public landmarks, so the first meeting is always somewhere safe.</span></div>
+    <div class="field"><label for="mp-when">When</label><input type="datetime-local" id="mp-when" value="${local}"></div>
+    <div class="field"><label for="mp-len">How long</label><select id="mp-len"><option value="45">Short, about 45 min</option><option value="60" selected>About an hour</option><option value="90">Long, about 1.5 hours</option></select></div>
+    <div class="field"><label for="mp-theme">What to see</label><select id="mp-theme">${Object.entries(THEMES).map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select></div>
+    <div class="field"><label for="mp-note">A line for others (optional)</label><input type="text" id="mp-note" maxlength="120" placeholder="e.g. Ending with a coffee at the Vrijdagmarkt"></div>
+    <div class="row-actions"><button class="btn primary" id="mp-go" style="box-shadow:none;background:var(--meet)">Post this walk</button><button class="btn" id="mp-prev">Preview route</button></div>`;
+  const read = () => ({ id: "inv-me-" + Date.now(), demo: false, who: Object.assign({ id: "me", color: "var(--meet)" }, meet.profile),
+    place: $("mp-place").value, when: new Date($("mp-when").value).toISOString(), minutes: +$("mp-len").value, theme: $("mp-theme").value, note: $("mp-note").value.trim() });
+  $("mp-prev").onclick = () => showMeetRoute(read());
+  $("mp-go").onclick = () => {
+    if (!$("mp-when").value || new Date($("mp-when").value) < new Date()) return status("Pick a time in the future", 2500);
+    const v = read(); meet.mine.push(v); saveMeet(); refreshMeetPins();
+    status("Posted! Others can now ask to join.", 3000); openMeet("mine");
+    // simulate someone asking to join a little later
+    setTimeout(() => {
+      if (!meet.mine.some(x => x.id === v.id) || meet.requests[v.id]) return;
+      const fan = DEMO.find(d => !meet.blocked.includes(d.who.id) && (meet.profile.looking === "either" || d.who.looking === "either" || d.who.looking === meet.profile.looking)) || DEMO[0];
+      meet.requests[v.id] = "asked:" + fan.who.id; saveMeet();
+      status(`${fan.who.name} wants to join your walk`, 4000);
+      if ($("sheetTitle").textContent === "Walk & meet") openMeet(meetTab, meetPlace);
+    }, 5000);
+  };
+}
+
+function meetMine() {
+  const B = $("meetBody");
+  const joined = invites().filter(v => meet.joined[v.id]);
+  const mine = meet.mine;
+  const myRow = v => {
+    const p = placeOf(v), r = meet.requests[v.id] || "";
+    const fan = r.includes(":") ? DEMO.find(d => d.who.id === r.split(":")[1]).who : null;
+    return `<div class="walker"><span class="ava" style="background:var(--meet)">♥</span><div class="w-body">
+      <div class="w-name">Your walk from ${esc(p.name)}</div>
+      <div class="w-when">${fmtWhen(v.when)}</div>
+      <div class="w-sub">${THEMES[v.theme]} · about ${v.minutes} min${v.note ? ` · “${esc(v.note)}”` : ""}</div>
+      ${fan && r.startsWith("asked") ? `<div class="w-sub" style="margin-top:6px"><b>${esc(fan.name)}, ${fan.age}</b> wants to join. ${esc(fan.about)}</div>` : ""}
+      ${fan && r.startsWith("accepted") ? `<div style="margin-top:6px"><span class="badge ok">✓ Walking with ${esc(fan.name)}</span></div>` : ""}
+      ${!fan ? `<div class="w-sub" style="margin-top:6px">Waiting for someone to ask to join…</div>` : ""}
+      <div class="row-actions">
+        ${fan && r.startsWith("asked") ? `<button class="btn primary" data-acc="${v.id}" style="box-shadow:none">Accept</button><button class="btn" data-dec="${v.id}">Decline</button>` : ""}
+        <button class="btn" data-load="${v.id}">Load into my walk</button>
+        <button class="btn" data-share="${v.id}">Tell a friend</button>
+        <button class="btn" data-del="${v.id}">Cancel walk</button>
+      </div></div></div>`;
+  };
+  const joinedRow = v => walkerRow(v).replace(`<button class="btn" data-route="${v.id}">See route</button>`,
+    `<button class="btn" data-load="${v.id}">Load into my walk</button><button class="btn" data-share="${v.id}">Tell a friend</button>${meet.joined[v.id] ? `<button class="btn" data-leave="${v.id}">Cancel</button>` : ""}`);
+  B.innerHTML = (!joined.length && !mine.length) ? `<p class="saved" style="padding:12px 0">You haven't planned or joined a walk yet.</p>
+      <div class="row-actions"><button class="btn primary" id="mm-walks" style="box-shadow:none">Find a walk to join</button></div>`
+    : `${mine.length ? `<div class="group-h">Walks you posted</div>${mine.map(myRow).join("")}` : ""}
+       ${joined.length ? `<div class="group-h">Walks you joined</div>${joined.map(joinedRow).join("")}` : ""}`;
+  if ($("mm-walks")) $("mm-walks").onclick = () => openMeet("walks");
+  B.querySelectorAll("[data-acc]").forEach(b => b.onclick = () => { meet.requests[b.dataset.acc] = meet.requests[b.dataset.acc].replace("asked", "accepted"); saveMeet(); refreshMeetPins(); openMeet("mine"); });
+  B.querySelectorAll("[data-dec]").forEach(b => b.onclick = () => { delete meet.requests[b.dataset.dec]; saveMeet(); openMeet("mine"); });
+  B.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { meet.mine = meet.mine.filter(v => v.id !== b.dataset.del); delete meet.requests[b.dataset.del]; saveMeet(); refreshMeetPins(); openMeet("mine"); });
+  B.querySelectorAll("[data-leave]").forEach(b => b.onclick = () => { delete meet.joined[b.dataset.leave]; saveMeet(); refreshMeetPins(); openMeet("mine"); });
+  B.querySelectorAll("[data-load]").forEach(b => b.onclick = () => {
+    const v = invites().find(x => x.id === b.dataset.load); if (!v) return;
+    walk.stops = routeFor(v); walk.fromMe = false; walk.back = false; saveWalk(); clearRoute(); updateWalkPill(); openWalk();
+  });
+  B.querySelectorAll("[data-share]").forEach(b => b.onclick = async () => {
+    const v = invites().find(x => x.id === b.dataset.share), p = placeOf(v);
+    const other = v.demo ? v.who.name : "someone from Ghent Walk";
+    const text = `Heads-up: I'm meeting ${other} for a walk. ${fmtWhen(v.when)} at ${p.name}, Ghent (about ${v.minutes} min). https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lng}#map=18/${p.lat}/${p.lng}`;
+    try { if (navigator.share) await navigator.share({ text }); else { await navigator.clipboard.writeText(text); status("Copied. Paste it to a friend.", 2500); } } catch (e) {}
+  });
+  bindWalkers(B);
+}
+
+function meetProfile(thenPlan) {
+  const B = $("meetBody"), pr = meet.profile || { name: "", age: "", looking: "either", likes: [], about: "" };
+  B.innerHTML = `
+    ${meet.profile ? "" : `<p style="line-height:1.6;margin-top:0">Make a short profile so others know who they're walking with.</p>`}
+    <div class="field"><label for="pf-name">First name</label><input type="text" id="pf-name" maxlength="30" value="${esc(pr.name)}"></div>
+    <div class="field"><label for="pf-age">Age</label><input type="number" id="pf-age" min="18" max="99" inputmode="numeric" value="${esc(String(pr.age))}"></div>
+    <div class="field"><label for="pf-look">Looking for</label><select id="pf-look">${Object.entries(LOOKING).map(([k, l]) => `<option value="${k}" ${pr.looking === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><span class="lbl">I like</span><div class="checks">${LIKES.map(([k, l]) => `<label><input type="checkbox" value="${k}" ${pr.likes.includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div></div>
+    <div class="field"><label for="pf-about">About me</label><textarea id="pf-about" maxlength="200" placeholder="One or two lines">${esc(pr.about)}</textarea></div>
+    <h3 class="sec">Meeting safely</h3>
+    <ul class="safety"><li>First meetings are always at a busy public landmark, in daylight or on lit streets.</li><li>Tell a friend where and when; the app can send them the plan.</li><li>Your exact location is never shown to other walkers.</li><li>Block or report anyone, at any time.</li></ul>
+    <div class="checks" style="margin-bottom:12px"><label><input type="checkbox" id="pf-ok" ${meet.profile ? "checked" : ""}> I'm 18 or older and agree to meet only in public places</label></div>
+    <div class="row-actions"><button class="btn primary" id="pf-save" style="box-shadow:none;background:var(--meet)">${meet.profile ? "Save profile" : "Create profile"}</button>
+      ${meet.profile ? `<button class="btn" id="pf-reset">Delete my profile & walks</button>` : ""}</div>`;
+  $("pf-save").onclick = () => {
+    const name = $("pf-name").value.trim(), age = +$("pf-age").value;
+    if (!name) return status("Add your first name", 2500);
+    if (!(age >= 18 && age <= 99)) return status("Walk & meet is for people aged 18 and over", 3000);
+    if (!$("pf-ok").checked) return status("Please tick the safety agreement", 2500);
+    const fresh = !meet.profile;
+    meet.profile = { name, age, looking: $("pf-look").value, likes: [...B.querySelectorAll(".checks input[value]:checked")].map(x => x.value), about: $("pf-about").value.trim() };
+    saveMeet(); status("Profile saved", 2000);
+    openMeet(thenPlan === true || meetTab === "profile:plan" ? "plan" : fresh ? "walks" : "profile", meetPlace);
+  };
+  if ($("pf-reset")) $("pf-reset").onclick = () => { meet = { profile: null, mine: [], joined: {}, blocked: [], requests: {} }; saveMeet(); refreshMeetPins(); openMeet("profile"); };
+}
+
+// Preview an invite's route on the map (dashed, rose), without touching your own walk.
+const meetRouteLayer = L.layerGroup().addTo(map);
+function showMeetRoute(v) {
+  if (!v) return;
+  const stops = routeFor(v);
+  meetRouteLayer.clearLayers();
+  L.polyline(stops.map(s => [s.lat, s.lng]), { color: getComputedStyle(document.documentElement).getPropertyValue("--meet").trim() || "#c2417a", weight: 4, dashArray: "6 8", opacity: .9 }).addTo(meetRouteLayer);
+  stops.forEach((s, i) => L.marker([s.lat, s.lng], { icon: L.divIcon({ className: "", html: `<div class="stopnum" style="background:var(--meet)">${i ? i : "♥"}</div>`, iconSize: [26, 26], iconAnchor: [13, 13] }), title: s.name }).addTo(meetRouteLayer));
+  closeSheet();
+  map.fitBounds(L.latLngBounds(stops.map(s => [s.lat, s.lng])).pad(0.3));
+  status(`${stops.length} stops: ${stops.map(s => s.name).join(" → ")}`, 6000);
+  setTimeout(() => meetRouteLayer.clearLayers(), 60000);
+}
+
+ringReady.then(refreshMeetPins);
 </script>
 </body>
 </html>
