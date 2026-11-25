@@ -1,13 +1,16 @@
-# Walking Gent
+# Ghent Explorer (Walking Gent)
 
-A mobile web game for exploring Ghent on foot, in the spirit of an "explorer" achievement: walk every street inside the small ring (R40).
+A mobile web game for exploring Ghent on foot, in the spirit of an "explorer" achievement: walk every street inside the small ring (R40), and collect the city's sights, beluiken, Mary statues and hidden gems along the way.
+
+Three tabs: **Explore** (your progress, neighbourhoods, achievements), **Collection** (what you've discovered, and what the map shows) and **Walk** (suggested walks past unexplored streets, or plan your own with guidance).
 
 - **Streets** get coloured in once you've walked most of them (grey = not yet, amber = started, green = explored).
 - **Neighbourhoods** (the city's statistical sectors) get filled in once every street in them is walked.
-- **Achievements** for 1, 10, 25, 50, 100 and 250 streets, your first and fifth neighbourhood, 25/50/75%, and *Explorer of Ghent* for every street.
-- Your GPS trail is recorded while the page is open with location on, and saved on your phone. Walks from other apps can be imported as GPX. Progress can be backed up and restored as a file.
+- **Discoveries**: walk within 30 m of a sight, beluik, Mary statue or hidden gem to add it to your collection. Undiscovered places show as grey ? pins (from zoom 16).
+- **Achievements** for streets, neighbourhoods, percentages and discoveries, ending with *Explorer of Ghent* for every street.
+- Your GPS trail is recorded while the page is open with location on, and saved on your phone. Past walks can be imported: GPX files, or Google location history (the Timeline export from Google Maps on your phone, or Takeout's Records.json / Semantic Location History). Only walking counts. Progress can be backed up and restored as a file.
 
-The heritage layers (sights, beluiken, Mary statues, hidden gems) and shops are still there under Layers, and Search finds streets and neighbourhoods too.
+Night shops and geek stores are optional map layers in the Collection tab. Search finds streets, neighbourhoods and places.
 
 Open `index.html` over HTTPS (for example via GitHub Pages) so the phone can share its location.
 
