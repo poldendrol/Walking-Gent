@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f3a4d">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Ghent Walk</title>
+<title>Ghent Explorer</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
@@ -77,7 +77,7 @@
     display: grid; place-items: center;
   }
   .pin span { transform: rotate(45deg); color: #fff; font: 700 12px var(--body); }
-  .pin.visited { background: #6b7d88; }
+  .pin.visited { background: var(--accent); box-shadow: 0 0 0 3px var(--done), 0 2px 6px rgba(0,0,0,.35); }
   .pin.active { background: var(--accent-2); }
   .me-dot { width: 18px; height: 18px; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(26,115,232,.25); }
 
@@ -113,7 +113,7 @@
     padding: 12px 4px; display: flex; gap: 12px; align-items: center; cursor: pointer; color: var(--ink); font: inherit;
   }
   .num { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 12px; }
-  .num.visited { background: #6b7d88; }
+  .num.visited { background: var(--done); }
   .li-text { min-width: 0; flex: 1; }
   .li-text strong { display: block; font-weight: 600; }
   .li-text span { font-size: 12px; color: var(--muted); }
@@ -283,7 +283,7 @@
   .big-pct { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 6px; }
   .big-pct span { font-family: var(--display); font-size: 44px; font-weight: 600; color: var(--done); font-variant-numeric: tabular-nums; line-height: 1; }
   .big-pct small { color: var(--muted); font-size: 14px; }
-  dl.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 14px; }
+  dl.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0 14px; }
   dl.stats div { background: var(--wash); border-radius: 10px; padding: 8px 10px; min-width: 0; }
   dl.stats dt { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
   dl.stats dd { margin: 2px 0 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -298,16 +298,47 @@
   .achs .a-icon { font-size: 22px; flex: none; }
   .achs strong { font-size: 13px; }
   .achs .li-text span { font-size: 11px; }
+  /* App shell: tab bar, discoveries */
+  :root { --tabh: 64px; }
+  .tabbar { position: absolute; z-index: 1150; left: 0; right: 0; bottom: 0; height: calc(var(--tabh) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--paper); border-top: 1px solid var(--line); display: flex; box-shadow: 0 -2px 12px rgba(0,0,0,.08); }
+  .tabbar button { flex: 1; border: 0; background: none; color: var(--muted); font: 600 12px var(--body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; }
+  .tabbar button[aria-current="page"] { color: var(--done); }
+  .tabbar button:focus-visible { outline: 3px solid var(--accent); outline-offset: -4px; }
+  .sheet { bottom: calc(var(--tabh) + env(safe-area-inset-bottom, 0px)); max-height: calc(70% - var(--tabh)); padding-bottom: 0; }
+  @media (min-width: 760px) { .tabbar { left: 16px; right: auto; bottom: 16px; width: 360px; height: var(--tabh); border-radius: 18px; border: 0; box-shadow: 0 3px 14px rgba(0,0,0,.2); }
+    .sheet { bottom: 16px; max-height: none; } }
+  .fab { bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tabh) + 18px); }
+  .walkpill { bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tabh) + 24px); }
+  .live { bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tabh) + 86px); }
+  .leaflet-bottom.leaflet-right .leaflet-control-zoom { margin-bottom: calc(var(--tabh) + 90px); }
+  .leaflet-bottom.leaflet-right .leaflet-control-attribution { margin-bottom: var(--tabh); }
+  @media (min-width: 760px) { .leaflet-bottom.leaflet-right .leaflet-control-attribution { margin-bottom: 0; } .fab, .walkpill { bottom: 28px; } .walkpill { left: 392px; } .live { bottom: 96px; } .leaflet-bottom.leaflet-right .leaflet-control-zoom { margin-bottom: 96px; } }
+  .sheet-open .fab, .sheet-open .live, .sheet-open .walkpill { visibility: hidden; }
+  @media (min-width: 760px) { .sheet-open .fab, .sheet-open .live, .sheet-open .walkpill { visibility: visible; } .fab { right: 432px; } }
+  .pin.undisc { background: #8d9aa3; opacity: .85; }
+  .bpin.undisc, .mpin.undisc, .hpin.undisc { background: #8d9aa3 !important; border-style: solid; opacity: .8; }
+  .mpin.undisc::before { content: "?"; }
+  .bpin.undisc::before { content: "?"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font: 700 10px var(--body); }
+  .bnum, .mnum, .hnum { display: grid; place-items: center; color: #fff; font: 700 11px var(--body); }
+  .bnum.undisc, .mnum.undisc, .hnum.undisc { background: transparent; border: 2px dashed #8d9aa3; color: #8d9aa3; }
+  .found { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; font-size: 13px; line-height: 1.45; border-radius: 10px; padding: 9px 12px; margin-bottom: 12px;
+    background: var(--wash); color: var(--muted); border: 1px dashed var(--line); }
+  .found.got { background: color-mix(in srgb, var(--done) 14%, var(--paper)); color: var(--done); border: 1px solid color-mix(in srgb, var(--done) 40%, transparent); font-weight: 600; }
+  .found .g-link { color: var(--accent-2); font-weight: 600; }
+  .toast.find { border-color: var(--accent-2); }
+  .suggest { background: color-mix(in srgb, var(--done) 10%, var(--paper)); border: 1px solid color-mix(in srgb, var(--done) 35%, transparent); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
+  .suggest > span { font-size: 13px; color: var(--muted); }
+  .suggest .row-actions { margin: 6px 0 0; }
 </style>
 </head>
 <body>
 <div id="map" role="application" aria-label="Map of Ghent"></div>
 
 <div class="topbar">
-  <button class="brand" id="exploreBtn" aria-label="Explore progress"><span class="b-row">Ghent Walk <span class="b-pct" id="expPct">0%</span></span><span class="b-bar"><span id="expBar"></span></span></button>
+  <button class="brand" id="exploreBtn" aria-label="Explore progress"><span class="b-row">Ghent Explorer <span class="b-pct" id="expPct">0%</span></span><span class="b-bar"><span id="expBar"></span></span></button>
   <div class="spacer"></div>
   <button class="btn" id="listBtn" aria-label="Search and browse"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="lbl">Search</span></button>
-  <button class="btn" id="layersBtn" aria-label="Choose what the map shows"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8.5 12 14l10-5.5L12 3Z" fill="currentColor"/><path d="m2 13 10 5.5L22 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg><span class="lbl">Layers</span></button>
 </div>
 <button class="fab" id="locateBtn" aria-label="Show where I am"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
 <div class="chips" role="toolbar" aria-label="What to show" hidden>
@@ -318,6 +349,11 @@
   <button class="chip" id="chipGeek" aria-pressed="false">Geek stores</button>
   <button class="chip" id="chipGone" aria-pressed="false">Gone too</button>
 </div>
+<nav class="tabbar" aria-label="Main">
+  <button data-tab="explore" aria-current="false"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" fill="currentColor"/></svg><span>Explore</span></button>
+  <button data-tab="collect" aria-current="false"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7L12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Collection</span></button>
+  <button data-tab="walk" aria-current="false"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="19" r="2.5" fill="currentColor"/><circle cx="19" cy="5" r="2.5" fill="currentColor"/><path d="M7 18c6 0 2-7 7-7s3-5 3-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="3 3" stroke-linecap="round"/></svg><span>Walk</span></button>
+</nav>
 <div class="status" id="status" hidden></div>
 <div class="toast" id="toast" hidden role="status" aria-live="assertive"></div>
 <div class="live" id="expLive" hidden></div>
@@ -330,7 +366,7 @@
   <div class="g-actions"><button class="btn" id="g-skip">Skip stop</button><button class="btn" id="g-stop">End walk</button></div>
 </div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
-<input type="file" id="gpxFile" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple hidden>
+<input type="file" id="gpxFile" accept=".gpx,.json,application/gpx+xml,application/json,application/xml,text/xml" multiple hidden>
 <input type="file" id="expFile" accept="application/json,.json" hidden>
 
 <section class="sheet" id="sheet" aria-live="polite">
@@ -577,7 +613,7 @@ const CATS = {
     count: true, notesLabel: "Notes (architecture, changes, dates on façades…)",
   },
   maria: {
-    file: "data/maria.json", label: "Mary statues", noun: "Mary statue", show: false,
+    file: "data/maria.json", label: "Mary statues", noun: "Mary statue", show: true,
     pin: "mpin", dot: "mnum", data: [], markers: {}, layer: L.layerGroup().addTo(map),
     blurb: "statues and niches in the streets",
     intro: "Statues of Mary watch over many Ghent street corners, façades and beluik courtyards. Neighbours often placed them in a niche or a small wooden wall chapel (kastkapel) and kept them decorated with flowers and candles, especially in May, the month of Mary.",
@@ -586,7 +622,7 @@ const CATS = {
     count: false, notesLabel: "Notes (material, colours, inscription, who looks after it…)",
   },
   gem: {
-    file: "data/gems.json", label: "Hidden gems", noun: "building", show: false,
+    file: "data/gems.json", label: "Hidden gems", noun: "building", show: true,
     pin: "hpin", dot: "hnum", data: [], markers: {}, layer: L.layerGroup().addTo(map),
     blurb: "protected everyday buildings",
     intro: "Ghent's protected buildings beyond the famous sights: old town houses, almshouses, former prisons like the Rasphuis, guild halls, factories, schools and shopfronts you walk past every day.",
@@ -878,8 +914,8 @@ function openBList(cat = "beluik") {
       (x.d != null && y.d != null ? x.d - y.d : x.b.address.localeCompare(y.b.address)));
     $("bList").innerHTML = items.map(({ b, d }) => {
       const doc = docs.get(b.id);
-      const cls = [C.dot, b.preserved ? "" : "gone", b.custom ? "custom" : "", doc?.home ? "home" : ""].join(" ");
-      return `<li><button data-id="${esc(b.id)}"><span class="${cls}"></span>
+      const cls = [C.dot, b.preserved ? "" : "gone", b.custom ? "custom" : "", doc?.home ? "home" : "", isFound(b.id) || b.custom || !b.preserved ? "" : "undisc"].join(" ");
+      return `<li><button data-id="${esc(b.id)}"><span class="${cls}">${isFound(b.id) ? "✓" : b.preserved && !b.custom ? "?" : ""}</span>
         <span class="li-text"><strong>${esc(b.name)}${hasDoc(doc) ? " ●" : ""}</strong><span>${esc(b.address)}</span></span>
         ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`;
     }).join("") || `<li style="padding:12px 4px;color:var(--muted)">Nothing matches “${esc(bQuery)}”.</li>`;
@@ -961,7 +997,7 @@ $("chipSights").onclick = () => toggle("sights");
 $("chipBeluiken").onclick = () => toggle("beluik");
 $("chipMaria").onclick = () => toggle("maria");
 $("chipGone").onclick = () => toggle("gone");
-loadLayers();
+const layersReady = loadLayers();
 
 // =====================================================================
 // Shops from OpenStreetMap: night shops and geek stores
@@ -1127,7 +1163,6 @@ function openLayers() {
   $("sheetBody").scrollTop = 0;
   openSheet();
 }
-$("layersBtn").onclick = openLayers;
 
 // One search across every layer
 let searchQ = "";
@@ -1201,6 +1236,7 @@ let guide = null;          // { i: index of next stop in route.order, step: step
 const routeLayer = L.layerGroup().addTo(map);
 
 function walkItem(id) {
+  if (id.startsWith("street:")) { const s = EX && EX.streets.find(x => "street:" + x.id === id); if (s) { const p = s.pts[s.pts.length >> 1]; return { id, name: s.name, lat: p[0], lng: p[1], kind: "Street" }; } }
   const p = PLACES.find(x => x.id === id);
   if (p) return { id, name: p.name, lat: p.lat, lng: p.lng, kind: "Sight" };
   const b = findItem(id);
@@ -1455,7 +1491,7 @@ const DONE_SHARE = 0.75;     // share of a piece's sample points needed to explo
 const MAX_ACC = 40;          // ignore GPS fixes less precise than this (m)
 const GRID_LAT = 0.0003, GRID_LNG = 0.00045;   // ~33 m cells
 let EX = null;               // { hoods, streets, byName, grid, total }
-let exp = { track: [], manual: [], ach: {}, hoodsDone: {}, streetsDone: {}, wake: true };
+let exp = { track: [], manual: [], ach: {}, hoodsDone: {}, streetsDone: {}, found: {}, wake: true };
 try { exp = Object.assign(exp, JSON.parse(localStorage.getItem(EXP_KEY) || "{}")); } catch (e) {}
 let expSaveTimer;
 function saveExp(now) {
@@ -1568,28 +1604,31 @@ function nextToast() {
   if (!t) { toastBusy = false; el.hidden = true; return; }
   toastBusy = true;
   el.className = "toast " + t.kind;
-  el.innerHTML = `<div class="t-kind">${esc(t.kind === "ach" ? "Achievement earned" : t.kind === "hood" ? "Neighbourhood explored" : "Street explored")}</div>
+  el.innerHTML = `<div class="t-kind">${esc(({ ach: "Achievement earned", hood: "Neighbourhood explored", find: "Discovered", street: "Street explored" })[t.kind])}</div>
     <div class="t-title">${esc(t.title)}</div>${t.sub ? `<div class="t-sub">${esc(t.sub)}</div>` : ""}`;
   el.hidden = false;
-  try { navigator.vibrate && navigator.vibrate(t.kind === "street" ? 80 : [120, 60, 120, 60, 200]); } catch (e) {}
-  setTimeout(nextToast, t.kind === "street" ? 2600 : 4200);
+  try { navigator.vibrate && navigator.vibrate(t.kind === "street" || t.kind === "find" ? 80 : [120, 60, 120, 60, 200]); } catch (e) {}
+  setTimeout(nextToast, t.kind === "street" || t.kind === "find" ? 2800 : 4200);
 }
 // After progress changes: celebrate what's new, quietly record what was already done (e.g. on load).
 function checkProgress(quiet) {
   let news = false;
-  for (const name of EX.byName.keys()) if (nameDone(name) && !exp.streetsDone[name]) {
-    exp.streetsDone[name] = Date.now(); news = true;
-    if (!quiet) { session.streets++; toast("street", name, `${totals().namesDone} of ${EX.byName.size} streets`); }
-  }
-  for (const h of EX.hoods) if (hoodStats(h).complete && !exp.hoodsDone[h.id]) {
-    exp.hoodsDone[h.id] = Date.now(); news = true;
-    if (!quiet) toast("hood", h.name, "Every street in this neighbourhood walked");
+  const newStreets = [], newHoods = [];
+  for (const name of EX.byName.keys()) if (nameDone(name) && !exp.streetsDone[name]) { exp.streetsDone[name] = Date.now(); news = true; newStreets.push(name); }
+  for (const h of EX.hoods) if (hoodStats(h).complete && !exp.hoodsDone[h.id]) { exp.hoodsDone[h.id] = Date.now(); news = true; newHoods.push(h.name); }
+  if (!quiet) {
+    // live walking gives one toast per street; an import can explore dozens at once, so sum those up
+    session.streets += newStreets.length;
+    if (newStreets.length > 2) toast("street", `${newStreets.length} new streets`, `${totals().namesDone} of ${EX.byName.size} streets explored`);
+    else newStreets.forEach(n => toast("street", n, `${totals().namesDone} of ${EX.byName.size} streets`));
+    if (newHoods.length > 2) toast("hood", `${newHoods.length} neighbourhoods`, newHoods.slice(0, 4).join(", ") + (newHoods.length > 4 ? "…" : ""));
+    else newHoods.forEach(n => toast("hood", n, "Every street in this neighbourhood walked"));
   }
   // a manual "un-walk" can undo a street or neighbourhood
   for (const name in exp.streetsDone) if (!EX.byName.has(name) || !nameDone(name)) { delete exp.streetsDone[name]; news = true; }
   for (const id in exp.hoodsDone) { const h = EX.hoods.find(x => x.id === id); if (!h || !hoodStats(h).complete) { delete exp.hoodsDone[id]; news = true; } }
   const t = totals();
-  for (const a of ACH) if (!exp.ach[a.id] && a.test(t)) {
+  for (const a of ACH) if (!exp.ach[a.id] && a.test(t, colStats())) {
     exp.ach[a.id] = Date.now(); news = true;
     if (!quiet) toast("ach", `${a.icon} ${a.name}`, a.desc);
   }
@@ -1697,8 +1736,9 @@ function openExplore() {
       <div><dt>Streets</dt><dd>${t.namesDone} <small>/ ${t.names}</small></dd></div>
       <div><dt>Neighbourhoods</dt><dd>${t.hoodsDone} <small>/ ${t.hoods}</small></dd></div>
       <div><dt>Distance</dt><dd>${(t.lenDone / 1000).toFixed(1)} <small>/ ${(t.len / 1000).toFixed(0)} km</small></dd></div>
+      <div><dt>Discoveries</dt><dd>${colStats().total[0]} <small>/ ${colStats().total[1]}</small></dd></div>
     </dl>
-    ${!t.started ? `<div class="fact">Tap <b>⌖</b> to share your location and start walking. Every street you walk gets coloured in; walk all the streets of a neighbourhood to colour the neighbourhood in. Explore every street inside the ring to become <b>Explorer of Ghent</b>.</div>` : ""}
+    ${!t.started ? `<div class="fact">Tap <b>⌖</b> to share your location and start walking. Every street you walk gets coloured in; walk all the streets of a neighbourhood to colour the neighbourhood in. On the way you discover sights, beluiken, Mary statues and hidden gems for your collection. Explore every street inside the ring to become <b>Explorer of Ghent</b>.<br><br>Already walked a lot? Import your <b>Google Maps Timeline</b> or GPX tracks below.</div>` : ""}
     ${next ? `<div class="group-h">Next goal</div><ul class="list"><li><button data-hood="${next.h.id}"><span class="hdot"></span><span class="li-text"><strong>${esc(next.h.name)}</strong><span>${next.st.total - next.st.done} street${next.st.total - next.st.done === 1 ? "" : "s"} left to explore</span></span><span class="dist">${Math.floor(100 * next.st.done / next.st.total)}%</span></button></li></ul>` : ""}
     ${me ? `<div class="row-actions"><button class="btn primary" id="nearestBtn">Show the nearest unexplored street</button></div>` : ""}
     <div class="group-h">Achievements · ${Object.keys(exp.ach).filter(k => ACH.some(a => a.id === k)).length} of ${ACH.length}</div>
@@ -1709,13 +1749,13 @@ function openExplore() {
       <span class="dist">${Math.floor(100 * st.done / Math.max(1, st.total))}%</span></button></li>`).join("")}</ul>
     <div class="group-h">Your walks</div>
     <div class="row-actions">
-      <button class="btn" id="gpxBtn">Import GPX track</button>
+      <button class="btn primary" id="gpxBtn" style="box-shadow:none">Import walks</button>
       <button class="btn" id="expExport">Back up progress</button>
       <button class="btn" id="expImport">Restore</button>
     </div>
     <label class="layer-row"><span class="li-text"><strong>Keep the screen on</strong><span class="saved" style="display:block">While your location is on, so your walk keeps being recorded</span></span>
       <span class="switch"><input type="checkbox" id="wakeCb" ${exp.wake ? "checked" : ""} aria-label="Keep the screen on"><span></span></span></label>
-    <p class="saved">Your walk is recorded only while this page is open with your location on. Walks from other apps (Strava, Komoot, Google…) can be imported as GPX. Everything stays on this phone.</p>
+    <p class="saved">Your walk is recorded only while this page is open with your location on. <b>Import walks</b> takes GPX files (Strava, Komoot…) and Google location history: the Timeline export from Google Maps on your phone (Settings › Location › Timeline › Export) or Takeout's Records.json and Semantic Location History files. Only walking counts. Everything stays on this phone.</p>
     <div class="row-actions"><button class="btn" id="expReset">Start over</button></div>
     <p class="saved">${esc(EX.source)} · ${EX.generated || ""}</p>`;
   const B = $("sheetBody");
@@ -1727,7 +1767,8 @@ function openExplore() {
   $("wakeCb").onchange = e => { exp.wake = e.target.checked; saveExp(); exp.wake ? keepAwake() : (wakeLock && wakeLock.release(), wakeLock = null); };
   $("expReset").onclick = e => {
     if (e.target.dataset.c !== "1") { e.target.dataset.c = "1"; e.target.textContent = "Tap again to erase all progress"; return; }
-    exp = { track: [], manual: [], ach: {}, hoodsDone: {}, streetsDone: {}, wake: exp.wake }; saveExp(true);
+    exp = { track: [], manual: [], ach: {}, hoodsDone: {}, streetsDone: {}, found: {}, wake: exp.wake, seenIntro: true }; saveExp(true);
+    visited.clear(); saveVisited(); refreshDiscoveries();
     for (const s of EX.streets) { s.seen.fill(0); s.hits = 0; s.manual = false; }
     restyle(EX.streets); updateBrand(); openExplore(); status("Progress erased. Ghent is new again.");
   };
@@ -1784,6 +1825,7 @@ function openStreet(name) {
       : `<div class="group-h">Neighbourhood</div><ul class="list">${hoods.map(h => `<li><button data-hood="${h.id}"><span class="hdot ${hoodStats(h).complete ? "done" : ""}"></span><span class="li-text"><strong>${esc(h.name)}</strong><span>${hoodStats(h).done} of ${hoodStats(h).total} streets explored</span></span></button></li>`).join("")}</ul>`}
     <div class="row-actions">
       <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${ps[0].pts[0][0]},${ps[0].pts[0][1]}">Directions</a>
+      ${walkBtn("street:" + (ps.find(s => !pieceDone(s)) || ps[0]).id)}
       <button class="btn" id="manualBtn">${manual ? "Unmark" : done ? "" : "I walked this before"}</button>
     </div>`;
   if (!manual && done) $("manualBtn").remove();
@@ -1820,31 +1862,136 @@ function exploreSearchItems() {
 }
 
 // ---- GPX import and progress backup ----
+// ---- importing walks: GPX files and Google location history ----
+// Every parser returns segments: arrays of [lat, lng, timeMs|null]. Only walking-like movement counts.
+const WALK_TYPES = /^(WALKING|ON_FOOT|RUNNING|HIKING|WALK|ON_FOOT_WALKING)$/i;
+const MAX_WALK_MS = 3.2;            // m/s (~11.5 km/h): faster stretches are cycling, a tram or a car
+function llFrom(s) {                // "51.0543°, 3.7212°", "geo:51.05,3.72" or {latitudeE7, longitudeE7}
+  if (!s) return null;
+  if (typeof s === "object") {
+    const la = s.latitudeE7 ?? s.latE7, lo = s.longitudeE7 ?? s.lngE7;
+    return la != null && lo != null ? [la / 1e7, lo / 1e7] : null;
+  }
+  const m = String(s).match(/(-?\d+(?:\.\d+)?)\s*°?\s*,\s*(-?\d+(?:\.\d+)?)/);
+  return m ? [parseFloat(m[1]), parseFloat(m[2])] : null;
+}
+const tms = v => (v == null ? null : typeof v === "number" ? v : /^\d+$/.test(v) ? +v : Date.parse(v) || null);
+function inIntervals(t, iv) {        // iv sorted by start
+  let lo = 0, hi = iv.length - 1;
+  while (lo <= hi) { const mid = (lo + hi) >> 1; if (iv[mid][1] < t) lo = mid + 1; else if (iv[mid][0] > t) hi = mid - 1; else return true; }
+  return false;
+}
+function parseGPX(text) {
+  const doc = new DOMParser().parseFromString(text, "application/xml");
+  if (doc.querySelector("parsererror")) return null;
+  const segs = [...doc.querySelectorAll("trkseg, rte")];
+  return (segs.length ? segs : [doc]).map(seg => [...seg.querySelectorAll("trkpt, rtept")].map(n => {
+    const tm = n.querySelector("time");
+    return [parseFloat(n.getAttribute("lat")), parseFloat(n.getAttribute("lon")), tm ? Date.parse(tm.textContent) || null : null];
+  }));
+}
+function parseGoogle(j) {
+  const out = [];
+  // 1. Timeline export from the Google Maps app on Android ("Timeline.json": semanticSegments + rawSignals)
+  // 2. Timeline export from Google Maps on iPhone (an array of segments with "geo:" points)
+  const segsNew = Array.isArray(j) ? j : j.semanticSegments;
+  if (Array.isArray(segsNew)) {
+    const walks = [];
+    for (const s of segsNew) {
+      const a = s.activity; if (!a) continue;
+      const type = a.topCandidate?.type || a.topCandidate?.Type || "";
+      if (WALK_TYPES.test(type)) walks.push([tms(s.startTime), tms(s.endTime)]);
+    }
+    walks.sort((a, b) => a[0] - b[0]);
+    for (const s of segsNew) {
+      if (!Array.isArray(s.timelinePath)) continue;
+      const t0 = tms(s.startTime);
+      const seg = s.timelinePath.map(p => {
+        const ll = llFrom(p.point);
+        const t = p.time ? tms(p.time) : p.durationMinutesOffsetFromStartTime != null && t0 ? t0 + 60000 * +p.durationMinutesOffsetFromStartTime : null;
+        return ll && t && inIntervals(t, walks) ? [ll[0], ll[1], t] : null;
+      });
+      splitNulls(seg, out);
+    }
+    if (Array.isArray(j.rawSignals)) {
+      const seg = j.rawSignals.map(r => r.position).filter(Boolean).map(p => {
+        const ll = llFrom(p.LatLng || p.latLng), t = tms(p.timestamp);
+        return ll && t && (p.accuracyMeters ?? 0) <= MAX_ACC && inIntervals(t, walks) ? [ll[0], ll[1], t] : null;
+      }).sort((a, b) => (a && b ? a[2] - b[2] : 0));
+      splitNulls(seg, out);
+    }
+    return out;
+  }
+  // 3. Takeout "Records.json": every raw location, walking judged by speed (and activity guesses when present)
+  if (Array.isArray(j.locations)) {
+    const seg = j.locations.map(l => {
+      const ll = llFrom(l), t = tms(l.timestamp || l.timestampMs);
+      if (!ll || !t || (l.accuracy ?? 0) > MAX_ACC) return null;
+      const guess = l.activity?.[0]?.activity?.[0]?.type;
+      if (guess && /VEHICLE|BICYCLE|CAR|TRAIN|BUS|TRAM/.test(guess)) return null;
+      return [ll[0], ll[1], t];
+    });
+    splitNulls(seg, out);
+    return out;
+  }
+  // 4. Takeout "Semantic Location History" monthly files: walking activity segments with their paths
+  if (Array.isArray(j.timelineObjects)) {
+    for (const o of j.timelineObjects) {
+      const a = o.activitySegment; if (!a || !WALK_TYPES.test(a.activityType || "")) continue;
+      const raw = a.simplifiedRawPath?.points || [];
+      const pts = raw.length ? raw.map(p => { const ll = llFrom(p); return ll && [ll[0], ll[1], tms(p.timestamp || p.timestampMs)]; })
+        : [a.startLocation, ...(a.waypointPath?.waypoints || []), a.endLocation].map(p => { const ll = llFrom(p); return ll && [ll[0], ll[1], null]; });
+      splitNulls(pts, out);
+    }
+    return out;
+  }
+  return null;
+}
+function splitNulls(seg, out) { let cur = []; for (const p of seg) { if (p) cur.push(p); else if (cur.length) { out.push(cur); cur = []; } } if (cur.length) out.push(cur); }
+// Feed segments into the game: cut at gaps and at speeds too fast for walking.
+function importSegments(segs, changed) {
+  let pts = 0;
+  for (const seg of segs) {
+    seg.sort((a, b) => (a[2] && b[2] ? a[2] - b[2] : 0));
+    let prev = null;
+    for (const p of seg) {
+      if (!isFinite(p[0]) || !isFinite(p[1])) continue;
+      if (RING && !inRing({ lat: p[0], lng: p[1] })) { prev = null; continue; }
+      let join = false;
+      if (prev) {
+        const d = quickDist(prev[0], prev[1], p[0], p[1]);
+        const dt = prev[2] && p[2] ? (p[2] - prev[2]) / 1000 : null;
+        join = d < 150 && (dt == null || (dt > 0 && dt < 600 && d / dt <= MAX_WALK_MS));
+        if (dt != null && dt > 0 && d / dt > MAX_WALK_MS && d > 30) { prev = p; continue; }   // moving too fast: skip
+      }
+      if (join) visitLine(prev, p, changed); else visitPoint(p[0], p[1], changed);
+      remember(p[0], p[1], !join);
+      foundNear(p[0], p[1], true);
+      prev = p; pts++;
+    }
+  }
+  return pts;
+}
 $("gpxFile").onchange = async e => {
   const files = [...e.target.files]; e.target.value = ""; if (!files.length || !EX) return;
-  let pts = 0; const changed = new Set();
+  status("Reading your walks…", 0);
+  let pts = 0, known = 0; const changed = new Set(), foundBefore = Object.keys(exp.found).length;
   for (const f of files) {
     try {
-      const doc = new DOMParser().parseFromString(await f.text(), "application/xml");
-      const segs = [...doc.querySelectorAll("trkseg, rte")];
-      for (const seg of segs.length ? segs : [doc]) {
-        let prev = null; exp.track.push([]);
-        for (const n of seg.querySelectorAll("trkpt, rtept")) {
-          const p = [parseFloat(n.getAttribute("lat")), parseFloat(n.getAttribute("lon"))];
-          if (!isFinite(p[0]) || !isFinite(p[1])) continue;
-          if (RING && !inRing({ lat: p[0], lng: p[1] })) { prev = null; continue; }
-          if (prev && quickDist(prev[0], prev[1], p[0], p[1]) < 150) visitLine(prev, p, changed); else visitPoint(p[0], p[1], changed);
-          remember(p[0], p[1], !prev && exp.track[exp.track.length - 1].length > 0);
-          prev = p; pts++;
-        }
-      }
-    } catch (err) {}
+      const text = await f.text();
+      let segs = null;
+      if (/^\s*[\[{]/.test(text)) segs = parseGoogle(JSON.parse(text)); else segs = parseGPX(text);
+      if (!segs) continue;
+      known++;
+      pts += importSegments(segs, changed);
+    } catch (err) { console.warn("import failed", f.name, err); }
   }
-  exp.track = exp.track.filter(s => s.length);
   saveExp(true);
-  if (!pts) { status("No track points inside the ring found in that file.", 5000); return; }
-  restyle(changed); checkProgress(false);
-  status(`Imported ${pts} track points · ${[...changed].filter(pieceDone).length} street parts explored`, 5000);
+  if (!known) { status("That file isn't a GPX track or a Google Timeline export.", 6000); return; }
+  if (!pts) { status("No walks inside the ring found in that file.", 6000); return; }
+  restyle(changed); checkProgress(false); refreshDiscoveries();
+  const nf = Object.keys(exp.found).length - foundBefore;
+  status(`Imported ${pts.toLocaleString()} points · ${[...changed].filter(pieceDone).length} street parts explored${nf ? ` · ${nf} new discoveries` : ""}`, 7000);
   if ($("sheet").classList.contains("open")) openExplore();
 };
 function exportExp() {
@@ -1859,7 +2006,7 @@ $("expFile").onchange = async e => {
     if (j.kind !== "explore" || !Array.isArray(j.track)) throw 0;
     exp.track = exp.track.concat(j.track);
     exp.manual = [...new Set([...exp.manual, ...(j.manual || [])])];
-    for (const k of ["ach", "hoodsDone", "streetsDone"]) for (const id in j[k] || {}) exp[k][id] = Math.min(exp[k][id] || Infinity, j[k][id]);
+    for (const k of ["ach", "hoodsDone", "streetsDone", "found"]) for (const id in j[k] || {}) exp[k][id] = Math.min(exp[k][id] || Infinity, j[k][id]);
     replayTrack(); EX.streets.forEach(s => (s.manual = exp.manual.includes(s.id)));
     saveExp(true); restyle(EX.streets); checkProgress(true); openExplore(); status("Progress restored");
   } catch (err) { status("That file isn't a Ghent Walk progress backup."); }
@@ -1895,6 +2042,209 @@ const exploreReady = ringReady.then(() => fetch("data/streets.json", { cache: "n
   checkProgress(true);
   if (!exp.seenIntro) { exp.seenIntro = true; saveExp(); setTimeout(openExplore, 600); }
 }).catch(err => { console.error(err); status("Couldn't load the list of streets.", 6000); });
+
+// =====================================================================
+// Discoveries: sights, beluiken, Mary statues and hidden gems are collected
+// by walking past them (within FIND_M). Undiscovered ones show as "?" pins,
+// and only from zoom 16 so the street map stays readable.
+// =====================================================================
+const FIND_M = 30;
+const FIND_ZOOM = 16;
+exp.found = exp.found || {};
+const COLL = [
+  { key: "sight", label: "Sights", noun: "sight", dot: "num", items: () => PLACES.map(p => ({ ...p, cat: "sight" })), open: id => openPlace(id), list: () => openList() },
+  { key: "beluik", label: "Beluiken", noun: "beluik", dot: "bnum", items: () => findables("beluik"), open: id => openBeluik(id), list: () => openBList("beluik") },
+  { key: "maria", label: "Mary statues", noun: "Mary statue", dot: "mnum", items: () => findables("maria"), open: id => openBeluik(id), list: () => openBList("maria") },
+  { key: "gem", label: "Hidden gems", noun: "hidden gem", dot: "hnum", items: () => findables("gem"), open: id => openBeluik(id), list: () => openBList("gem") },
+];
+function findables(cat) { return allOf(cat).filter(b => b.lat != null && (b.preserved || b.custom)); }
+const isFound = id => !!exp.found[id] || visited.has(id);
+let FGRID = new Map(), FINDS = [];
+function indexFinds() {
+  FINDS = COLL.flatMap(c => c.items().map(it => ({ id: it.id, name: it.name, lat: it.lat, lng: it.lng, coll: c })));
+  FGRID = new Map();
+  FINDS.forEach((f, i) => { const k = gkey(f.lat, f.lng); if (!FGRID.has(k)) FGRID.set(k, []); FGRID.get(k).push(i); });
+}
+function colStats() {
+  const c = {}; let f = 0, n = 0;
+  for (const C of COLL) { const items = C.items(); const got = items.filter(x => isFound(x.id)).length; c[C.key] = [got, items.length]; f += got; n += items.length; }
+  c.total = [f, n];
+  return c;
+}
+// Mark everything within FIND_M of a point as found.
+function foundNear(lat, lng, quiet) {
+  if (!FINDS.length) return 0;
+  const cy = Math.floor(lat / GRID_LAT), cx = Math.floor(lng / GRID_LNG); let n = 0;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+    for (const i of FGRID.get(`${cy + dy},${cx + dx}`) || []) {
+      const f = FINDS[i];
+      if (isFound(f.id) || quickDist(lat, lng, f.lat, f.lng) > FIND_M) continue;
+      markFound(f.id, quiet ? null : f); n++;
+    }
+  }
+  return n;
+}
+function markFound(id, announce) {
+  exp.found[id] = exp.found[id] || Date.now();
+  if (PLACES.some(p => p.id === id)) { visited.add(id); saveVisited(); }
+  saveExp();
+  if (announce) {
+    const c = colStats()[announce.coll.key];
+    toast("find", announce.name, `${announce.coll.label}: ${c[0]} of ${c[1]} found`);
+    refreshDiscoveries();
+  }
+}
+function refreshDiscoveries() { indexFinds(); refreshPins(); refreshBPins(); updateBrand(); }
+
+// "?" pins for what you haven't found yet
+const _pinIcon = pinIcon;
+pinIcon = function (p, i) {
+  if (isFound(p.id)) return _pinIcon(p, i);
+  return L.divIcon({ className: "", html: `<div class="pin undisc ${activeId === p.id ? "active" : ""}"><span>?</span></div>`, iconSize: [30, 30], iconAnchor: [15, 36] });
+};
+const _pinClass = pinClass;
+pinClass = b => _pinClass(b) + (isFound(b.id) || b.custom ? "" : " undisc");
+const _refreshBPins = refreshBPins;
+refreshBPins = function () {
+  _refreshBPins();
+  if (map.getZoom() >= FIND_ZOOM) return;
+  for (const cat in CATS) for (const id in CATS[cat].markers) {
+    const m = CATS[cat].markers[id], d = docs.get(id);
+    if (!isFound(id) && !(d && (d.home || hasDoc(d))) && id !== activeId && CATS[cat].layer.hasLayer(m)) CATS[cat].layer.removeLayer(m);
+  }
+};
+map.on("zoomend", () => refreshBPins());
+
+// A line at the top of every place card: in your collection, or how to find it
+function findBanner(id) {
+  const B = $("sheetBody"); if (!B) return;
+  B.querySelector("#visitBtn")?.remove();
+  const it = FINDS.find(f => f.id === id);
+  const got = isFound(id);
+  const d = me && it ? quickDist(me.lat, me.lng, it.lat, it.lng) : null;
+  B.insertAdjacentHTML("afterbegin", got
+    ? `<div class="found got">✓ In your collection${exp.found[id] ? " · found " + new Date(exp.found[id]).toLocaleDateString() : ""}</div>`
+    : `<div class="found"><span>? Not discovered yet. Walk within ${FIND_M} m to add it to your collection${d != null ? ` · ${fmtDist(d)} away` : ""}.</span><button class="g-link" id="foundManual">I've been here</button></div>`);
+  if ($("foundManual")) $("foundManual").onclick = () => { markFound(id, null); refreshDiscoveries(); checkProgress(false); B.querySelector(".found").outerHTML = `<div class="found got">✓ In your collection</div>`; };
+}
+const _openPlace = openPlace;
+openPlace = function (id) { _openPlace(id); findBanner(id); };
+const _openBeluik = openBeluik;
+openBeluik = function (id) { _openBeluik(id); if (FINDS.some(f => f.id === id)) findBanner(id); };
+
+// ---- Collection tab ----
+function openCollection() {
+  activeId = null; refreshPins(); refreshBPins(); refreshNPins(); highlightLayer.clearLayers();
+  const c = colStats();
+  $("sheetTitle").textContent = "Collection";
+  $("sheetMeta").innerHTML = `<span>${c.total[0]} of ${c.total[1]} places discovered</span>`;
+  const row = (l, i) => `<label class="layer-row">
+      <span class="li-text"><strong>${l.label}</strong><span class="saved" style="display:block">${l.sub()}</span></span>
+      <span class="switch"><input type="checkbox" data-i="${i}" ${l.on() ? "checked" : ""} aria-label="Show ${l.label} on the map"><span></span></span></label>`;
+  $("sheetBody").innerHTML = `
+    <p class="saved" style="margin:0 0 8px">Walk past a place to discover it. Grey <b>?</b> pins are still to find; zoom in to see them.</p>
+    <ul class="list">${COLL.map(C => `<li><button data-coll="${C.key}"><span class="${C.dot}">${C.key === "sight" ? "★" : ""}</span>
+      <span class="li-text"><strong>${C.label}</strong>${bar(c[C.key][0], c[C.key][1])}<span>${c[C.key][0]} of ${c[C.key][1]} discovered</span></span>
+      <span class="dist">${c[C.key][1] ? Math.floor(100 * c[C.key][0] / c[C.key][1]) : 0}%</span></button></li>`).join("")}</ul>
+    <div class="group-h">On the map</div>
+    ${LAYERS.map((l, i) => row(l, i)).join("")}${row(GONE, 99)}
+    <div class="group-h">My documentation</div>
+    <p class="saved">Photos, notes and residents' stories you add to beluiken, statues and buildings stay on this phone. Long-press the map to add one that's missing.</p>
+    <div class="row-actions"><button class="btn" id="exportBtn">Export</button><button class="btn" id="importBtn">Import</button></div>`;
+  const B = $("sheetBody");
+  B.querySelectorAll("[data-coll]").forEach(b => b.onclick = () => COLL.find(C => C.key === b.dataset.coll).list());
+  B.querySelectorAll("input[data-i]").forEach(cb => cb.onchange = () => {
+    const l = cb.dataset.i === "99" ? GONE : LAYERS[+cb.dataset.i];
+    if (l.on() !== cb.checked) l.flip();
+    savePrefs();
+  });
+  $("exportBtn").onclick = exportDocs; $("importBtn").onclick = () => $("importFile").click();
+  B.scrollTop = 0;
+  setTab("collect"); openSheet();
+}
+openLayers = openCollection;
+
+// ---- tabs ----
+function setTab(t) { document.querySelectorAll(".tabbar button").forEach(b => b.setAttribute("aria-current", b.dataset.tab === t ? "page" : "false")); }
+const _openSheet = openSheet;
+openSheet = function () { _openSheet(); document.body.classList.add("sheet-open"); };
+const _closeSheet2 = closeSheet;
+closeSheet = function () { _closeSheet2(); setTab(""); document.body.classList.remove("sheet-open"); };
+$("closeBtn").onclick = closeSheet;
+const _openExplore = openExplore;
+openExplore = function () { _openExplore(); setTab("explore"); };
+$("exploreBtn").onclick = () => openExplore();
+const _openWalk = openWalk;
+openWalk = function () {
+  _openWalk(); setTab("walk");
+  const B = $("sheetBody");
+  B.insertAdjacentHTML("afterbegin", `<div class="suggest">
+      <strong>Explore something new</strong>
+      <span>Get a walk past the unexplored streets nearest to ${me ? "you" : "the middle of the map"}.</span>
+      <div class="row-actions">${[4, 8, 12].map(n => `<button class="btn ${n === 8 ? "primary" : ""}" data-sug="${n}">${n} streets</button>`).join("")}</div>
+    </div>`);
+  B.querySelectorAll("[data-sug]").forEach(b => b.onclick = () => suggestWalk(+b.dataset.sug));
+  B.querySelectorAll('[data-open^="street:"]').forEach(x => x.onclick = e => {
+    if (e.target.dataset.rm) { walk.stops = walk.stops.filter(s => s.id !== e.target.dataset.rm); saveWalk(); clearRoute(); updateWalkPill(); return openWalk(); }
+    const s = EX && EX.streets.find(p => "street:" + p.id === x.dataset.open); if (s) openStreet(s.name);
+  });
+  // the empty-walk text talks about adding places; keep it short now there's a suggestion above
+  const empty = B.querySelector("p[style]"); if (empty && !walk.stops.length) empty.innerHTML = "Or open any street, sight, beluik or statue and tap <b>＋ Add to walk</b>.";
+};
+$("walkPill").onclick = () => openWalk();
+document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => {
+  const open = $("sheet").classList.contains("open") && b.getAttribute("aria-current") === "page";
+  if (open) return closeSheet();
+  ({ explore: openExplore, collect: openCollection, walk: openWalk })[b.dataset.tab]();
+});
+const _openSearch = openSearch;
+openSearch = function () { _openSearch(); setTab(""); };
+$("listBtn").onclick = () => openSearch();
+
+// Pick the nearest unexplored streets one after another, then plan the shortest walk past them.
+async function suggestWalk(n) {
+  if (!EX) return;
+  const start = me || (c => ({ lat: c.lat, lng: c.lng }))(map.getCenter());
+  const left = EX.streets.filter(s => !pieceDone(s) && s.len >= 40);
+  const picks = []; let cur = start;
+  while (picks.length < n && left.length) {
+    let bi = 0, bd = Infinity;
+    left.forEach((s, i) => { const p = s.pts[s.pts.length >> 1]; const d = quickDist(cur.lat, cur.lng, p[0], p[1]); if (d < bd) { bd = d; bi = i; } });
+    const s = left.splice(bi, 1)[0]; const p = s.pts[s.pts.length >> 1];
+    picks.push({ id: "street:" + s.id, name: s.name, lat: p[0], lng: p[1], kind: "Unexplored street · " + (EX.hoods.find(h => h.id === s.hood)?.name || "") });
+    cur = { lat: p[0], lng: p[1] };
+  }
+  if (!picks.length) { status("Every street is explored already!"); return; }
+  walk.stops = picks; walk.fromMe = !!me; saveWalk(); clearRoute(); updateWalkPill();
+  status("Planning your walk…", 0);
+  await planRoute();
+  $("status").hidden = true;
+  openWalk();
+}
+
+// ---- achievements for discoveries ----
+ACH.splice(ACH.findIndex(a => a.id === "all"), 0,
+  { id: "d1", icon: "🔍", name: "Curious", desc: "Discover your first place", test: (t, c) => c.total[0] >= 1 },
+  { id: "dsights", icon: "⛪", name: "Seen the sights", desc: "Discover all the big sights", test: (t, c) => c.sight[1] > 0 && c.sight[0] >= c.sight[1] },
+  { id: "dbeluik", icon: "🏚️", name: "Courtyard crawler", desc: "Discover 10 beluiken", test: (t, c) => c.beluik[0] >= 10 },
+  { id: "dmaria", icon: "🕯️", name: "Pilgrim", desc: "Find 10 Mary statues", test: (t, c) => c.maria[0] >= 10 },
+  { id: "dgem", icon: "💎", name: "Gem hunter", desc: "Discover 25 hidden gems", test: (t, c) => c.gem[0] >= 25 },
+  { id: "d100", icon: "🎒", name: "Collector", desc: "Discover 100 places", test: (t, c) => c.total[0] >= 100 },
+);
+
+// ---- live discoveries and catching up on the stored trail once everything is loaded ----
+const _exploreFix = exploreFix;
+exploreFix = function (pos) {
+  _exploreFix(pos);
+  const c = pos.coords;
+  if (c.accuracy <= MAX_ACC && foundNear(c.latitude, c.longitude, false)) checkProgress(false);
+};
+Promise.all([exploreReady, layersReady]).then(() => {
+  indexFinds();
+  for (const seg of exp.track) for (let i = 0; i < seg.length; i += 2) foundNear(seg[i] / 1e5, seg[i + 1] / 1e5, true);
+  for (const id of visited) exp.found[id] = exp.found[id] || Date.now();
+  saveExp(); refreshDiscoveries(); checkProgress(true);
+});
 </script>
 </body>
 </html>
