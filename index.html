@@ -27,12 +27,13 @@
     --geek: #0f8a8a;        /* geek stores */
     --route: #e08a00;       /* walk route: amber */
     --gem: #8a5a3c;         /* hidden gems: brick brown */
-    --meet: #c2417a;        /* walk & meet: rose */
+    --done: #17924a;        /* explored streets and neighbourhoods */
+    --todo: #6b7d88;        /* streets still to walk */
     --display: "Fraunces", Georgia, serif;
     --body: "Inter", system-ui, -apple-system, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; --route:#ffb238; --gem:#c8926b; --meet:#ee7aa8; color-scheme: dark; }
+    :root { --ink:#e8edf0; --muted:#a3b0b8; --paper:#1a2329; --wash:#232e35; --line:#33414a; --accent:#e0704f; --accent-2:#8fc1df; --green:#5cb88d; --gold:#d9ad45; --mary:#7aa5e6; --night:#8e83b8; --night-open:#a98bf0; --geek:#3cc2c2; --route:#ffb238; --gem:#c8926b; --done:#3fcf7a; --todo:#8796a0; color-scheme: dark; }
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -245,42 +246,70 @@
 
   .leaflet-control-attribution { font-size: 10px; }
   .leaflet-bottom.leaflet-right { margin-bottom: env(safe-area-inset-bottom, 0px); }
-  /* Walk & meet (prototype) */
-  .fab.meet { bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); color: var(--meet); }
-  .fab.meet.has { background: var(--meet); color: #fff; }
-  .leaflet-bottom.leaflet-right .leaflet-control-zoom { margin-bottom: 164px; }
-  .lovepin { width: 30px; height: 30px; border-radius: 50%; background: var(--meet); border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); display: grid; place-items: center; color: #fff; font-size: 15px; }
-  .lovepin.mine { background: var(--paper); color: var(--meet); border-color: var(--meet); }
-  .proto { background: color-mix(in srgb, var(--meet) 12%, var(--paper)); border: 1px solid color-mix(in srgb, var(--meet) 35%, transparent); color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
-  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-  .tabs button { flex: 1; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--wash); color: var(--ink); font: 600 14px var(--body); cursor: pointer; }
-  .tabs button[aria-selected=true] { background: var(--meet); border-color: var(--meet); color: #fff; }
-  .walker { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-  .ava { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 700 17px var(--body); }
-  .walker .w-body { min-width: 0; flex: 1; }
-  .walker .w-name { font-weight: 600; }
-  .walker .w-sub { font-size: 13px; color: var(--muted); line-height: 1.45; }
-  .walker .w-when { font-size: 13px; color: var(--meet); font-weight: 600; margin-top: 2px; }
-  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-  .tags span { font-size: 12px; background: var(--wash); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
-  .badge { display: inline-block; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: var(--wash); color: var(--muted); }
-  .badge.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
-  .badge.wait { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold); }
-  .safety { font-size: 13px; color: var(--muted); line-height: 1.55; padding-left: 18px; margin: 6px 0 12px; }
-  .field input[type=datetime-local] { font: 16px var(--body); color: var(--ink); background: var(--wash); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; }
+  /* Explore game */
+  .brand { border: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 168px; color: var(--accent-2); white-space: nowrap; }
+  .brand:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 420px) { .topbar .btn .lbl { display: none; } .topbar .btn { padding: 0 13px; } }
+  .brand .b-row { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; }
+  .brand .b-pct { font-family: var(--body); font-size: 13px; font-weight: 600; color: var(--done); font-variant-numeric: tabular-nums; }
+  .brand .b-bar { height: 5px; border-radius: 3px; background: var(--wash); overflow: hidden; }
+  .brand .b-bar span { display: block; height: 100%; width: 0; background: var(--done); border-radius: 3px; transition: width .6s ease; }
+  .live { position: absolute; z-index: 1000; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
+    background: var(--paper); color: var(--ink); border-radius: 999px; padding: 7px 14px; font: 600 13px var(--body); box-shadow: 0 2px 10px rgba(0,0,0,.2);
+    white-space: nowrap; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  .live::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e5484d; margin-right: 8px; vertical-align: 1px; animation: blink 1.6s infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { .live::before { animation: none; } .brand .b-bar span { transition: none; } }
+  .toast { position: absolute; z-index: 1200; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 78px);
+    min-width: 240px; max-width: calc(100% - 32px); text-align: center; border-radius: 14px; padding: 10px 18px 12px;
+    background: #1d2a33; color: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.35); border: 2px solid var(--done); animation: pop .35s ease; pointer-events: none; }
+  .toast.ach { background: linear-gradient(180deg, #3a2a08, #1f1604); border-color: #e5b53a; }
+  .toast.hood { border-color: #e5b53a; }
+  .toast .t-kind { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #9fe3b9; font-weight: 600; }
+  .toast.ach .t-kind, .toast.hood .t-kind { color: #f3cf6b; }
+  .toast .t-title { font-family: var(--display); font-weight: 600; font-size: 21px; margin-top: 2px; text-wrap: balance; }
+  .toast .t-sub { font-size: 13px; opacity: .85; margin-top: 2px; }
+  @keyframes pop { from { transform: translateX(-50%) scale(.85); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+  .hood-label { background: color-mix(in srgb, var(--paper) 82%, transparent); border: 0; box-shadow: none; border-radius: 8px; padding: 2px 7px; text-align: center;
+    color: var(--accent-2); font: 600 11px var(--body); line-height: 1.25; }
+  .hood-label::before { display: none; }
+  .hood-label b { display: block; font-weight: 600; white-space: nowrap; }
+  .hood-label span { color: var(--muted); font-weight: 500; }
+  .hood-labels-off .hood-label { display: none; }
+  .pbar { height: 6px; border-radius: 3px; background: var(--wash); overflow: hidden; margin: 4px 0 3px; }
+  .pbar span { display: block; height: 100%; background: var(--done); border-radius: 3px; }
+  .pbar.big { height: 10px; border-radius: 5px; }
+  .big-pct { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 6px; }
+  .big-pct span { font-family: var(--display); font-size: 44px; font-weight: 600; color: var(--done); font-variant-numeric: tabular-nums; line-height: 1; }
+  .big-pct small { color: var(--muted); font-size: 14px; }
+  dl.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 14px; }
+  dl.stats div { background: var(--wash); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+  dl.stats dt { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  dl.stats dd { margin: 2px 0 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  dl.stats small { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .sdot, .hdot { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px dashed var(--todo); display: grid; place-items: center; color: #fff; font: 700 12px var(--body); }
+  .sdot.part { border: 3px solid var(--route); }
+  .sdot.done, .hdot.done { border: 0; background: var(--done); }
+  .hdot { border-radius: 7px; }
+  .achs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .achs li { display: flex; gap: 8px; align-items: center; background: var(--wash); border-radius: 12px; padding: 8px 10px; opacity: .6; min-width: 0; }
+  .achs li.got { opacity: 1; background: color-mix(in srgb, #e5b53a 18%, var(--paper)); border: 1px solid color-mix(in srgb, #e5b53a 50%, transparent); }
+  .achs .a-icon { font-size: 22px; flex: none; }
+  .achs strong { font-size: 13px; }
+  .achs .li-text span { font-size: 11px; }
 </style>
 </head>
 <body>
 <div id="map" role="application" aria-label="Map of Ghent"></div>
 
 <div class="topbar">
-  <div class="brand">Ghent Walk</div>
+  <button class="brand" id="exploreBtn" aria-label="Explore progress"><span class="b-row">Ghent Walk <span class="b-pct" id="expPct">0%</span></span><span class="b-bar"><span id="expBar"></span></span></button>
   <div class="spacer"></div>
-  <button class="btn" id="listBtn" aria-label="Search and browse"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Search</button>
-  <button class="btn" id="layersBtn" aria-label="Choose what the map shows"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8.5 12 14l10-5.5L12 3Z" fill="currentColor"/><path d="m2 13 10 5.5L22 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Layers</button>
+  <button class="btn" id="listBtn" aria-label="Search and browse"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="lbl">Search</span></button>
+  <button class="btn" id="layersBtn" aria-label="Choose what the map shows"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8.5 12 14l10-5.5L12 3Z" fill="currentColor"/><path d="m2 13 10 5.5L22 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg><span class="lbl">Layers</span></button>
 </div>
 <button class="fab" id="locateBtn" aria-label="Show where I am"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-<button class="fab meet" id="meetBtn" aria-label="Walk and meet"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" fill="currentColor"/></svg></button>
 <div class="chips" role="toolbar" aria-label="What to show" hidden>
   <button class="chip" id="chipSights" aria-pressed="true">Sights</button>
   <button class="chip" id="chipBeluiken" aria-pressed="true">Beluiken</button>
@@ -290,6 +319,8 @@
   <button class="chip" id="chipGone" aria-pressed="false">Gone too</button>
 </div>
 <div class="status" id="status" hidden></div>
+<div class="toast" id="toast" hidden role="status" aria-live="assertive"></div>
+<div class="live" id="expLive" hidden></div>
 <button class="walkpill" id="walkPill" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="19" r="2.5" fill="currentColor"/><circle cx="19" cy="5" r="2.5" fill="currentColor"/><path d="M7 18c6 0 2-7 7-7s3-5 3-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="3 3" stroke-linecap="round"/></svg><span>Your walk</span></button>
 <div class="guide" id="guide" hidden role="status" aria-live="polite">
   <div class="g-top"><span id="g-count"></span><button id="g-list" class="g-link">All stops</button></div>
@@ -299,6 +330,8 @@
   <div class="g-actions"><button class="btn" id="g-skip">Skip stop</button><button class="btn" id="g-stop">End walk</button></div>
 </div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
+<input type="file" id="gpxFile" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple hidden>
+<input type="file" id="expFile" accept="application/json,.json" hidden>
 
 <section class="sheet" id="sheet" aria-live="polite">
   <div class="grab"></div>
@@ -499,7 +532,6 @@ function openPlace(id) {
      <div class="actions">
        <button class="btn" id="visitBtn">${isVisited ? "✓ Visited" : "Mark as visited"}</button>
        ${walkBtn(p.id)}
-       <button class="btn" data-meet="${p.id}">♥ Meet someone here</button>
        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${p.lat},${p.lng}">Directions</a>
      </div>`;
   $("sheetBody").scrollTop = 0;
@@ -545,7 +577,7 @@ const CATS = {
     count: true, notesLabel: "Notes (architecture, changes, dates on façades…)",
   },
   maria: {
-    file: "data/maria.json", label: "Mary statues", noun: "Mary statue", show: true,
+    file: "data/maria.json", label: "Mary statues", noun: "Mary statue", show: false,
     pin: "mpin", dot: "mnum", data: [], markers: {}, layer: L.layerGroup().addTo(map),
     blurb: "statues and niches in the streets",
     intro: "Statues of Mary watch over many Ghent street corners, façades and beluik courtyards. Neighbours often placed them in a niche or a small wooden wall chapel (kastkapel) and kept them decorated with flowers and candles, especially in May, the month of Mary.",
@@ -554,7 +586,7 @@ const CATS = {
     count: false, notesLabel: "Notes (material, colours, inscription, who looks after it…)",
   },
   gem: {
-    file: "data/gems.json", label: "Hidden gems", noun: "building", show: true,
+    file: "data/gems.json", label: "Hidden gems", noun: "building", show: false,
     pin: "hpin", dot: "hnum", data: [], markers: {}, layer: L.layerGroup().addTo(map),
     blurb: "protected everyday buildings",
     intro: "Ghent's protected buildings beyond the famous sights: old town houses, almshouses, former prisons like the Rasphuis, guild halls, factories, schools and shopfronts you walk past every day.",
@@ -1057,12 +1089,12 @@ setInterval(refreshNPins, 5 * 60 * 1000);   // open/closed colours follow the cl
 // Streamlined UI: one Layers panel, one Search for everything
 // =====================================================================
 const LAYERS = [
-  { key: "sights", label: "Sights", sub: () => `${PLACES.length} historic buildings`, dot: "num", on: () => showSights, flip: () => toggle("sights") },
-  { key: "beluik", label: "Beluiken", sub: () => `${allOf("beluik").length} workers' courtyards`, dot: "bnum", on: () => CATS.beluik.show, flip: () => toggle("beluik") },
-  { key: "maria", label: "Mary statues", sub: () => `${allOf("maria").length} statues and wall chapels`, dot: "mnum", on: () => CATS.maria.show, flip: () => toggle("maria") },
-  { key: "gem", label: "Hidden gems", sub: () => `${allOf("gem").length} protected everyday buildings`, dot: "hnum", on: () => CATS.gem.show, flip: () => toggle("gem") },
-  { key: "night", label: "Night shops", sub: () => `${POI.night.data.length} shops · purple = open now`, dot: "nnum open", on: () => POI.night.show, flip: () => togglePoi("night") },
-  { key: "geek", label: "Geek stores", sub: () => `${POI.geek.data.length} comic, manga & game shops`, dot: "gnum", on: () => POI.geek.show, flip: () => togglePoi("geek") },
+  { key: "sights", group: "Heritage", label: "Sights", sub: () => `${PLACES.length} historic buildings`, dot: "num", on: () => showSights, flip: () => toggle("sights") },
+  { key: "beluik", group: "Heritage", label: "Beluiken", sub: () => `${allOf("beluik").length} workers' courtyards`, dot: "bnum", on: () => CATS.beluik.show, flip: () => toggle("beluik") },
+  { key: "maria", group: "Heritage", label: "Mary statues", sub: () => `${allOf("maria").length} statues and wall chapels`, dot: "mnum", on: () => CATS.maria.show, flip: () => toggle("maria") },
+  { key: "gem", group: "Heritage", label: "Hidden gems", sub: () => `${allOf("gem").length} protected everyday buildings`, dot: "hnum", on: () => CATS.gem.show, flip: () => toggle("gem") },
+  { key: "night", group: "Shops", label: "Night shops", sub: () => `${POI.night.data.length} shops · purple = open now`, dot: "nnum open", on: () => POI.night.show, flip: () => togglePoi("night") },
+  { key: "geek", group: "Shops", label: "Geek stores", sub: () => `${POI.geek.data.length} comic, manga & game shops`, dot: "gnum", on: () => POI.geek.show, flip: () => togglePoi("geek") },
 ];
 const GONE = { key: "gone", label: "Show what's gone", sub: () => "Demolished beluiken and lost statues", on: () => showGone, flip: () => toggle("gone") };
 const PREF_KEY = "ghentwalk.layers";
@@ -1080,14 +1112,13 @@ function openLayers() {
   $("sheetTitle").textContent = "Layers";
   $("sheetMeta").innerHTML = "<span>Choose what the map shows</span>";
   const row = (l, i) => `<label class="layer-row">
-      ${l.dot ? `<span class="${l.dot}">${l.key === "sights" ? "★" : ""}</span>` : ""}
+      ${l.dot ? `<span class="${l.dot}">${l.key === "sights" ? "★" : l.key === "streets" || l.key === "hoods" ? "✓" : ""}</span>` : ""}
       <span class="li-text"><strong>${l.label}</strong><span class="saved" style="display:block">${l.sub()}</span></span>
       <span class="switch"><input type="checkbox" data-i="${i}" ${l.on() ? "checked" : ""} aria-label="${l.label}"><span></span></span>
     </label>`;
-  $("sheetBody").innerHTML = `
-    <div class="group-h">Heritage</div>${LAYERS.slice(0, 4).map(row).join("")}
-    <div class="group-h">Shops</div>${LAYERS.slice(4).map((l, i) => row(l, i + 4)).join("")}
-    <div class="group-h">Options</div>${row(GONE, 99)}`;
+  const groups = [...new Set(LAYERS.map(l => l.group))];
+  $("sheetBody").innerHTML = groups.map(g => `<div class="group-h">${g}</div>` + LAYERS.map((l, i) => (l.group === g ? row(l, i) : "")).join("")).join("") +
+    `<div class="group-h">Options</div>${row(GONE, 99)}`;
   $("sheetBody").querySelectorAll("input[data-i]").forEach(cb => cb.onchange = () => {
     const l = cb.dataset.i === "99" ? GONE : LAYERS[+cb.dataset.i];
     if (l.on() !== cb.checked) l.flip();
@@ -1107,20 +1138,21 @@ function everything() {
   for (const cat in POI) POI[cat].data.forEach(s => out.push({ id: s.id, name: s.name, sub: [s.kind || POI[cat].noun, s.address].filter(Boolean).join(" · "),
     lat: s.lat, lng: s.lng, dot: POI[cat].dot + (POI[cat].hours && openNow(s.opening_hours) === true ? " open" : ""), label: "",
     open: () => { if (!POI[cat].show) { togglePoi(cat); savePrefs(); } openPoi(cat, s.id); } }));
-  return out;
+  return out.concat(exploreSearchItems());
 }
 function openSearch() {
   activeId = null; refreshPins(); refreshBPins(); refreshNPins();
   $("sheetTitle").textContent = "Search";
   $("sheetMeta").innerHTML = "";
   $("sheetBody").innerHTML = `
-    <div class="sheet-search"><input class="search" id="qInput" type="search" placeholder="Name or street, e.g. Konijnenpijp" value="${esc(searchQ)}" autocomplete="off"></div>
+    <div class="sheet-search"><input class="search" id="qInput" type="search" placeholder="Street, neighbourhood or place" value="${esc(searchQ)}" autocomplete="off"></div>
     <div id="qResults"></div>`;
   const render = () => {
     const q = searchQ.trim().toLowerCase();
     const R = $("qResults");
     if (!q) {
-      R.innerHTML = `<div class="group-h">Browse</div><ul class="list">
+      R.innerHTML = `<div class="group-h">Explore</div><ul class="list"><li><button id="goExplore"><span class="sdot done">✓</span><span class="li-text"><strong>Explore Ghent</strong><span>${EX ? `${totals().namesDone} of ${EX.byName.size} streets · ${totals().hoodsDone} of ${EX.hoods.length} neighbourhoods` : "Every street inside the ring"}</span></span></button></li></ul>
+      <div class="group-h">Browse</div><ul class="list">
         <li><button data-go="sights"><span class="num">★</span><span class="li-text"><strong>Sights</strong><span>${PLACES.length} historic buildings</span></span></button></li>
         ${Object.entries(CATS).map(([cat, C]) => `<li><button data-go="${cat}"><span class="${C.dot}"></span><span class="li-text"><strong>${C.label}</strong><span>${allOf(cat).length} ${C.blurb}</span></span></button></li>`).join("")}
         ${Object.entries(POI).map(([cat, C]) => `<li><button data-poi="${cat}"><span class="${C.dot} open"></span><span class="li-text"><strong>${C.label}</strong><span>${C.data.length} ${C.blurb}</span></span></button></li>`).join("")}
@@ -1135,12 +1167,14 @@ function openSearch() {
       R.querySelectorAll("button[data-poi]").forEach(x => x.onclick = () => openPoiList(x.dataset.poi));
       $("exportBtn").onclick = exportDocs; $("importBtn").onclick = () => $("importFile").click();
       $("goWalk").onclick = openWalk;
+      $("goExplore").onclick = openExplore;
       return;
     }
     const words = q.split(/\s+/);
     let hits = everything().filter(x => words.every(w => (x.name + " " + (x.sub || "")).toLowerCase().includes(w)));
     hits = hits.map(x => ({ x, d: me && x.lat != null ? distM(me, x) : null }))
-      .sort((a, b) => (a.d != null && b.d != null ? a.d - b.d : a.x.name.localeCompare(b.x.name))).slice(0, 60);
+      .sort((a, b) => (b.x.name.toLowerCase().startsWith(words[0]) - a.x.name.toLowerCase().startsWith(words[0])) ||
+        (a.d != null && b.d != null ? a.d - b.d : a.x.name.localeCompare(b.x.name))).slice(0, 60);
     R.innerHTML = hits.length ? `<ul class="list">${hits.map(({ x, d }, i) => `<li><button data-k="${i}"><span class="${x.dot}">${x.label}</span>
         <span class="li-text"><strong>${esc(x.name)}</strong><span>${esc(x.sub || "")}</span></span>
         ${d != null ? `<span class="dist">${fmtDist(d)}</span>` : ""}</button></li>`).join("")}</ul>`
@@ -1309,7 +1343,7 @@ async function startGuide() {
 function stopGuide(done) {
   guide = null; $("guide").hidden = true;
   try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null;
-  drawRoute(); updateWalkPill();
+  drawRoute(); updateWalkPill(); keepAwake();
   if (done) status("Walk finished. Well walked!", 5000);
 }
 const ARRIVE_M = 30;
@@ -1379,6 +1413,7 @@ function onPos(pos) {
   const first = !me;
   me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
   if (typeof renderGuide === "function" && guide) setTimeout(renderGuide, 0);
+  exploreFix(pos);
   const ll = [me.lat, me.lng];
   if (!meMarker) {
     meMarker = L.marker(ll, { icon: meIcon, zIndexOffset: 1000, title: "You are here" }).addTo(map);
@@ -1404,288 +1439,462 @@ $("locateBtn").onclick = () => {
   follow = true; $("locateBtn").classList.add("on");
   if (me) map.setView([me.lat, me.lng], Math.max(map.getZoom(), 17));
   else status("Finding you…", 0);
-  if (watchId == null) watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+  if (watchId == null) { watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }); keepAwake(); updateBrand(); }
 };
 map.on("dragstart", () => { follow = false; $("locateBtn").classList.remove("on"); });
 
 // =====================================================================
-// Walk & meet (prototype): meet someone at a Ghent landmark and walk together.
-// Everything is simulated on this phone: the walkers below are made-up demo
-// profiles, and nothing is sent anywhere yet.
+// Explore Ghent: walk every street inside the ring.
+// A street piece is explored once you've passed most of its sample points;
+// a neighbourhood is explored once all its street pieces are. Your GPS trail
+// is kept on this phone and replayed on load, so progress survives data updates.
 // =====================================================================
-const MEET_KEY = "ghentwalk.meet";
-let meet = { profile: null, mine: [], joined: {}, blocked: [], requests: {} };
-try { meet = Object.assign(meet, JSON.parse(localStorage.getItem(MEET_KEY) || "{}")); } catch (e) {}
-const saveMeet = () => { try { localStorage.setItem(MEET_KEY, JSON.stringify(meet)); } catch (e) {} };
+const EXP_KEY = "ghentwalk.explore";
+const MATCH_M = 20;          // a sample point counts when you pass within this distance
+const DONE_SHARE = 0.75;     // share of a piece's sample points needed to explore it
+const MAX_ACC = 40;          // ignore GPS fixes less precise than this (m)
+const GRID_LAT = 0.0003, GRID_LNG = 0.00045;   // ~33 m cells
+let EX = null;               // { hoods, streets, byName, grid, total }
+let exp = { track: [], manual: [], ach: {}, hoodsDone: {}, streetsDone: {}, wake: true };
+try { exp = Object.assign(exp, JSON.parse(localStorage.getItem(EXP_KEY) || "{}")); } catch (e) {}
+let expSaveTimer;
+function saveExp(now) {
+  clearTimeout(expSaveTimer);
+  const doSave = () => { try { localStorage.setItem(EXP_KEY, JSON.stringify(exp)); } catch (e) { status("Your phone's storage is full: progress can't be saved.", 6000); } };
+  now ? doSave() : (expSaveTimer = setTimeout(doSave, 1500));
+}
+let showStreets = true, showHoods = true;
+let session = { m: 0, streets: 0, last: null, lastSaved: null };
 
-const LIKES = [["history", "History"], ["beluiken", "Beluiken"], ["gems", "Hidden buildings"], ["night", "Night walks"], ["geek", "Comics & games"], ["food", "Food & drinks"], ["photo", "Photography"]];
-const THEMES = { sights: "Big sights", beluiken: "Beluiken & courtyards", gems: "Hidden buildings", night: "Evening stroll" };
-const LOOKING = { date: "A date", friends: "Walk buddies", either: "Open to both" };
-const AVA = ["#c2417a", "#3d6fb6", "#2f7d5b", "#b88a1b", "#7b4fd6", "#0f8a8a", "#b5462b", "#8a5a3c"];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const hoodPane = map.createPane("hoods"); hoodPane.style.zIndex = 350;
+const streetPane = map.createPane("streets"); streetPane.style.zIndex = 390;
+const streetRenderer = L.canvas({ pane: "streets", padding: 0.4, tolerance: 6 });
+const hoodLayer = L.layerGroup().addTo(map);
+const streetLayer = L.layerGroup().addTo(map);
+const highlightLayer = L.layerGroup().addTo(map);
 
-// Made-up demo walkers. [id, name, age, looking, likes, about, place, dayOffset, hour, minutes, theme, note]
-const DEMO = [
-  ["d1", "Lotte", 29, "date", ["history", "photo"], "Teacher, always stops for old doorways.", "gravensteen", 1, 14, 60, "sights", "Coffee after?"],
-  ["d2", "Jonas", 34, "either", ["beluiken", "history"], "Grew up in a beluik in Muide, happy to show you around.", "rabot", 2, 11, 90, "beluiken", "Slow pace, lots of stories."],
-  ["d3", "Amira", 26, "friends", ["geek", "food"], "New in Ghent, looking for people to explore with.", "vrijdagmarkt", 0, 19, 45, "night", "Ending at a comic shop if it's open."],
-  ["d4", "Pieter", 41, "date", ["gems", "photo"], "Architect. I like the buildings nobody looks at.", "baafs", 3, 10, 90, "gems", ""],
-  ["d5", "Nele", 31, "date", ["night", "food"], "Night owl, knows every late-night frituur.", "korenlei", 1, 20, 60, "night", "Graslei lights are best after dark."],
-  ["d6", "Sam", 23, "friends", ["geek", "history"], "Student, board games and medieval stuff.", "belfort", 2, 16, 45, "sights", ""],
-  ["d7", "Ines", 37, "either", ["beluiken", "gems"], "Documenting the Mary statues in my street.", "patershol", 4, 15, 60, "beluiken", "Bring your phone camera."],
-  ["d8", "Wout", 45, "date", ["history", "food"], "Ghent guide on weekends, terrible at small talk.", "begijnhof", 3, 13, 90, "gems", ""],
-].map(([id, name, age, looking, likes, about, place, day, hour, minutes, theme, note], k) => {
-  const when = new Date(); when.setDate(when.getDate() + day); when.setHours(hour, 0, 0, 0);
-  if (when < new Date()) when.setDate(when.getDate() + 1);
-  return { id: "inv-" + id, demo: true, who: { id, name, age, looking, likes, about, color: AVA[k % AVA.length] }, place, when: when.toISOString(), minutes, theme, note };
+const gkey = (lat, lng) => `${Math.floor(lat / GRID_LAT)},${Math.floor(lng / GRID_LNG)}`;
+function quickDist(aLat, aLng, bLat, bLng) {   // metres, fine at city scale
+  const x = (bLng - aLng) * 69960 * 1, y = (bLat - aLat) * 111320;   // cos(51.05°) * 111320 ≈ 69960
+  return Math.sqrt(x * x + y * y);
+}
+
+// ---- progress model ----
+// crossing a street at a corner touches a point or two: only call it "started" once you've really walked some of it
+function started(s) { return s.hits >= 3 && s.hits >= s.pts.length * 0.25; }
+function pieceDone(s) { return s.manual || s.hits >= Math.max(1, Math.ceil(s.pts.length * DONE_SHARE)); }
+function nameDone(name) { return EX.byName.get(name).every(pieceDone); }
+function hoodStats(h) {
+  const ps = EX.streets.filter(s => s.hood === h.id);
+  const done = ps.filter(pieceDone);
+  return { total: ps.length, done: done.length, len: ps.reduce((a, s) => a + s.len, 0), lenDone: done.reduce((a, s) => a + s.len, 0), complete: ps.length > 0 && done.length === ps.length };
+}
+function totals() {
+  const names = [...EX.byName.keys()];
+  const namesDone = names.filter(nameDone).length;
+  const hs = EX.hoods.map(hoodStats);
+  const len = EX.streets.reduce((a, s) => a + s.len, 0), lenDone = EX.streets.filter(pieceDone).reduce((a, s) => a + s.len, 0);
+  return { names: names.length, namesDone, hoods: hs.length, hoodsDone: hs.filter(h => h.complete).length, len, lenDone,
+    pieces: EX.streets.length, piecesDone: EX.streets.filter(pieceDone).length,
+    pct: names.length ? (100 * namesDone) / names.length : 0, started: EX.streets.some(s => s.hits > 0 || s.manual) };
+}
+const fmtPct = p => (p > 0 && p < 1 ? p.toFixed(1) : p >= 99 && p < 100 ? Math.floor(p * 10) / 10 : Math.floor(p)) + "%";
+
+// Mark every sample point within MATCH_M of (lat,lng). Returns the pieces that changed.
+function visitPoint(lat, lng, changed) {
+  const cy = Math.floor(lat / GRID_LAT), cx = Math.floor(lng / GRID_LNG);
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+    const cell = EX.grid.get(`${cy + dy},${cx + dx}`); if (!cell) continue;
+    for (let k = 0; k < cell.length; k += 2) {
+      const s = EX.streets[cell[k]], i = cell[k + 1];
+      if (s.seen[i]) continue;
+      const p = s.pts[i];
+      if (quickDist(lat, lng, p[0], p[1]) <= MATCH_M) { s.seen[i] = 1; s.hits++; changed && changed.add(s); }
+    }
+  }
+}
+// Walk along a straight line between two fixes, marking points every few metres.
+function visitLine(a, b, changed) {
+  const d = quickDist(a[0], a[1], b[0], b[1]);
+  const n = Math.max(1, Math.ceil(d / 6));
+  for (let i = 1; i <= n; i++) visitPoint(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n, changed);
+}
+function replayTrack() {
+  for (const seg of exp.track) {
+    let prev = null;
+    for (let i = 0; i < seg.length; i += 2) {
+      const p = [seg[i] / 1e5, seg[i + 1] / 1e5];
+      if (prev && quickDist(prev[0], prev[1], p[0], p[1]) < 150) visitLine(prev, p); else visitPoint(p[0], p[1]);
+      prev = p;
+    }
+  }
+}
+// Remember a point of the trail (deduplicated to ~8 m).
+function remember(lat, lng, newSeg) {
+  if (newSeg || !exp.track.length) exp.track.push([]);
+  const seg = exp.track[exp.track.length - 1];
+  const L5 = Math.round(lat * 1e5), G5 = Math.round(lng * 1e5);
+  if (seg.length) {
+    const pl = seg[seg.length - 2] / 1e5, pg = seg[seg.length - 1] / 1e5;
+    if (quickDist(pl, pg, lat, lng) < 8) return;
+  }
+  seg.push(L5, G5);
+}
+
+// ---- achievements ----
+const ACH = [
+  { id: "first", icon: "👣", name: "First steps", desc: "Explore your first street", test: t => t.namesDone >= 1 },
+  { id: "s10", icon: "🧭", name: "Wanderer", desc: "Explore 10 streets", test: t => t.namesDone >= 10 },
+  { id: "s25", icon: "🗺️", name: "Pathfinder", desc: "Explore 25 streets", test: t => t.namesDone >= 25 },
+  { id: "s50", icon: "🥾", name: "Cobble walker", desc: "Explore 50 streets", test: t => t.namesDone >= 50 },
+  { id: "s100", icon: "🏰", name: "Street scholar", desc: "Explore 100 streets", test: t => t.namesDone >= 100 },
+  { id: "s250", icon: "⚜️", name: "Ghent native", desc: "Explore 250 streets", test: t => t.namesDone >= 250 },
+  { id: "h1", icon: "🏘️", name: "Local", desc: "Explore a whole neighbourhood", test: t => t.hoodsDone >= 1 },
+  { id: "h5", icon: "🏙️", name: "Quarter master", desc: "Explore 5 neighbourhoods", test: t => t.hoodsDone >= 5 },
+  { id: "p25", icon: "🌱", name: "A quarter of Ghent", desc: "Explore 25% of the streets", test: t => t.pct >= 25 },
+  { id: "p50", icon: "🌗", name: "Half way there", desc: "Explore 50% of the streets", test: t => t.pct >= 50 },
+  { id: "p75", icon: "🌕", name: "Almost a Gentenaar", desc: "Explore 75% of the streets", test: t => t.pct >= 75 },
+  { id: "all", icon: "🐉", name: "Explorer of Ghent", desc: "Explore every street inside the ring", test: t => t.names > 0 && t.namesDone === t.names },
+];
+const toastQ = [];
+let toastBusy = false;
+function toast(kind, title, sub) {
+  toastQ.push({ kind, title, sub });
+  if (!toastBusy) nextToast();
+}
+function nextToast() {
+  const t = toastQ.shift(); const el = $("toast");
+  if (!t) { toastBusy = false; el.hidden = true; return; }
+  toastBusy = true;
+  el.className = "toast " + t.kind;
+  el.innerHTML = `<div class="t-kind">${esc(t.kind === "ach" ? "Achievement earned" : t.kind === "hood" ? "Neighbourhood explored" : "Street explored")}</div>
+    <div class="t-title">${esc(t.title)}</div>${t.sub ? `<div class="t-sub">${esc(t.sub)}</div>` : ""}`;
+  el.hidden = false;
+  try { navigator.vibrate && navigator.vibrate(t.kind === "street" ? 80 : [120, 60, 120, 60, 200]); } catch (e) {}
+  setTimeout(nextToast, t.kind === "street" ? 2600 : 4200);
+}
+// After progress changes: celebrate what's new, quietly record what was already done (e.g. on load).
+function checkProgress(quiet) {
+  let news = false;
+  for (const name of EX.byName.keys()) if (nameDone(name) && !exp.streetsDone[name]) {
+    exp.streetsDone[name] = Date.now(); news = true;
+    if (!quiet) { session.streets++; toast("street", name, `${totals().namesDone} of ${EX.byName.size} streets`); }
+  }
+  for (const h of EX.hoods) if (hoodStats(h).complete && !exp.hoodsDone[h.id]) {
+    exp.hoodsDone[h.id] = Date.now(); news = true;
+    if (!quiet) toast("hood", h.name, "Every street in this neighbourhood walked");
+  }
+  // a manual "un-walk" can undo a street or neighbourhood
+  for (const name in exp.streetsDone) if (!EX.byName.has(name) || !nameDone(name)) { delete exp.streetsDone[name]; news = true; }
+  for (const id in exp.hoodsDone) { const h = EX.hoods.find(x => x.id === id); if (!h || !hoodStats(h).complete) { delete exp.hoodsDone[id]; news = true; } }
+  const t = totals();
+  for (const a of ACH) if (!exp.ach[a.id] && a.test(t)) {
+    exp.ach[a.id] = Date.now(); news = true;
+    if (!quiet) toast("ach", `${a.icon} ${a.name}`, a.desc);
+  }
+  if (news) saveExp();
+  updateBrand();
+}
+
+// ---- drawing ----
+function streetStyle(s) {
+  if (pieceDone(s)) return { color: css("--done"), weight: 5, opacity: 0.95, dashArray: null };
+  if (started(s)) return { color: css("--route"), weight: 4, opacity: 0.9, dashArray: null };
+  return { color: css("--todo"), weight: 2.5, opacity: 0.55, dashArray: null };
+}
+function hoodStyle(h) {
+  const st = hoodStats(h);
+  return st.complete
+    ? { color: css("--done"), weight: 2, opacity: 0.8, fillColor: css("--done"), fillOpacity: 0.22, dashArray: null }
+    : { color: css("--accent-2"), weight: 2.5, opacity: 0.6, fillColor: css("--accent-2"), fillOpacity: 0.035 + 0.1 * (st.done / Math.max(1, st.total)), dashArray: "4 6" };
+}
+function hoodLabel(h) {
+  const st = hoodStats(h);
+  return `<b>${esc(h.name)}</b><span>${st.complete ? "✓ explored" : Math.floor(100 * st.done / Math.max(1, st.total)) + "%"}</span>`;
+}
+function drawExplore() {
+  streetLayer.clearLayers(); hoodLayer.clearLayers();
+  for (const h of EX.hoods) {
+    h.layer = L.polygon(h.poly, { pane: "hoods", ...hoodStyle(h) }).on("click", e => { L.DomEvent.stop(e); openHood(h.id); });
+    h.layer.bindTooltip(hoodLabel(h), { permanent: true, direction: "center", className: "hood-label" });
+    h.layer.addTo(hoodLayer);
+  }
+  for (const s of EX.streets) {
+    s.layer = L.polyline(s.lines, { renderer: streetRenderer, ...streetStyle(s), lineCap: "round" })
+      .on("click", e => { L.DomEvent.stop(e); openStreet(s.name); });
+    s.layer.addTo(streetLayer);
+  }
+  syncLabels();
+}
+function restyle(pieces) {
+  const hoods = new Set();
+  for (const s of pieces) { s.layer && s.layer.setStyle(streetStyle(s)); hoods.add(s.hood); }
+  for (const h of EX.hoods) if (hoods.has(h.id) && h.layer) { h.layer.setStyle(hoodStyle(h)); h.layer.setTooltipContent(hoodLabel(h)); }
+}
+function syncLabels() { document.body.classList.toggle("hood-labels-off", map.getZoom() >= 17 || !showHoods); }
+map.on("zoomend", syncLabels);
+
+function updateBrand() {
+  if (!EX) return;
+  const t = totals();
+  $("expPct").textContent = fmtPct(t.pct);
+  $("expBar").style.width = Math.min(100, t.pct) + "%";
+  $("exploreBtn").setAttribute("aria-label", `Explored ${fmtPct(t.pct)} of Ghent: ${t.namesDone} of ${t.names} streets. Open progress`);
+  const live = $("expLive");
+  live.hidden = watchId == null;
+  live.textContent = `Exploring · ${fmtDist(session.m)} walked${session.streets ? ` · ${session.streets} new street${session.streets === 1 ? "" : "s"}` : ""}`;
+}
+
+// ---- live GPS ----
+function exploreFix(pos) {
+  if (!EX) return;
+  const c = pos.coords;
+  updateBrand();
+  if (c.accuracy > MAX_ACC) return;
+  const p = [c.latitude, c.longitude], t = pos.timestamp || Date.now();
+  if (RING && !inRing({ lat: p[0], lng: p[1] })) { session.last = null; return; }
+  const changed = new Set();
+  let newSeg = true;
+  if (session.last) {
+    const d = quickDist(session.last.p[0], session.last.p[1], p[0], p[1]);
+    const dt = Math.max(1, (t - session.last.t) / 1000);
+    if (d / dt > 8 && d > 40) { session.last = { p, t }; return; }   // faster than ~29 km/h: tram, car or a GPS jump
+    if (d < 150 && dt < 120) { visitLine(session.last.p, p, changed); session.m += d; newSeg = false; }
+    else visitPoint(p[0], p[1], changed);
+  } else visitPoint(p[0], p[1], changed);
+  session.last = { p, t };
+  remember(p[0], p[1], newSeg);
+  if (changed.size) { restyle(changed); checkProgress(false); }
+  saveExp();
+  updateBrand();
+}
+async function keepAwake() {
+  if (!exp.wake || watchId == null || document.visibilityState !== "visible") return;
+  try { wakeLock = await navigator.wakeLock?.request("screen"); } catch (e) {}
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") { keepAwake(); session.last = null; }
+  else saveExp(true);
 });
+window.addEventListener("pagehide", () => saveExp(true));
 
-function invites() { return [...DEMO.filter(v => !meet.blocked.includes(v.who.id)), ...meet.mine].filter(v => PLACES.some(p => p.id === v.place)); }
-const placeOf = v => PLACES.find(p => p.id === v.place);
-function fmtWhen(iso) {
-  const d = new Date(iso), now = new Date(), t = new Date(now); t.setDate(now.getDate() + 1);
-  const day = d.toDateString() === now.toDateString() ? "Today" : d.toDateString() === t.toDateString() ? "Tomorrow" : d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" });
-  return `${day} · ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
-}
-// The route: the meeting place plus nearby stops that fit the theme and length.
-function routeFor(v) {
-  const start = placeOf(v), n = v.minutes >= 90 ? 4 : v.minutes >= 60 ? 3 : 2;
-  let pool = PLACES.filter(p => p.id !== start.id).map(p => ({ id: p.id, name: p.name, lat: p.lat, lng: p.lng, kind: "Sight" }));
-  if (v.theme === "beluiken" && CATS.beluik.data.length) pool = allOf("beluik").filter(b => b.preserved && b.lat != null).map(b => ({ id: b.id, name: b.name, lat: b.lat, lng: b.lng, kind: "beluik" }));
-  if (v.theme === "gems" && CATS.gem.data.length) pool = allOf("gem").filter(b => b.lat != null).map(b => ({ id: b.id, name: b.name, lat: b.lat, lng: b.lng, kind: "hidden gem" }));
-  const stops = [{ id: start.id, name: start.name, lat: start.lat, lng: start.lng, kind: "Meeting point" }];
-  let cur = start;
-  for (let i = 0; i < n; i++) {
-    const next = pool.filter(p => !stops.some(s => s.id === p.id)).sort((a, b) => distM(cur, a) - distM(cur, b))[0];
-    if (!next) break; stops.push(next); cur = next;
-  }
-  return stops;
-}
-const ava = w => `<span class="ava" style="background:${w.color}">${esc(w.name[0])}</span>`;
-
-// ---- map: a heart at each meeting place ----
-const meetLayer = L.layerGroup();
-let showMeet = true;
-function refreshMeetPins() {
-  meetLayer.clearLayers();
-  const by = {};
-  invites().forEach(v => (by[v.place] = by[v.place] || []).push(v));
-  for (const id in by) {
-    const p = PLACES.find(x => x.id === id), mine = by[id].some(v => !v.demo);
-    L.marker([p.lat, p.lng], { zIndexOffset: 500, title: `${by[id].length} walk${by[id].length > 1 ? "s" : ""} from ${p.name}`,
-      icon: L.divIcon({ className: "", html: `<div class="lovepin ${mine ? "mine" : ""}">♥</div>`, iconSize: [30, 30], iconAnchor: [15, -6] }) })
-      .on("click", () => openMeet("walks", id)).addTo(meetLayer);
-  }
-  $("meetBtn").classList.toggle("has", Object.values(meet.joined).includes("accepted") || meet.mine.some(v => meet.requests[v.id] === "accepted"));
-}
-function toggleMeet() { showMeet = !showMeet; showMeet ? meetLayer.addTo(map) : map.removeLayer(meetLayer); }
-LAYERS.push({ key: "meet", label: "Walk & meet", sub: () => `${invites().length} open walks to join`, dot: "", on: () => showMeet, flip: toggleMeet });
-(function () { let p = null; try { p = JSON.parse(localStorage.getItem(PREF_KEY) || "null"); } catch (e) {} if (p && p.meet === false) showMeet = false; if (showMeet) meetLayer.addTo(map); })();
-// show the Meet group in the Layers panel
-const _openLayers = openLayers;
-openLayers = function () {
-  _openLayers();
-  const B = $("sheetBody"), i = LAYERS.findIndex(l => l.key === "meet");
-  B.querySelectorAll(`input[data-i="${i}"]`).forEach(cb => cb.closest(".layer-row").remove());
-  B.querySelector(".group-h:last-of-type").insertAdjacentHTML("beforebegin", `<div class="group-h">People</div>
-    <label class="layer-row"><span class="lovepin" style="width:22px;height:22px;font-size:11px;border-width:0">♥</span>
-    <span class="li-text"><strong>Walk & meet</strong><span class="saved" style="display:block">${LAYERS[i].sub()}</span></span>
-    <span class="switch"><input type="checkbox" id="lyMeet" ${showMeet ? "checked" : ""} aria-label="Walk & meet"><span></span></span></label>`);
-  $("lyMeet").onchange = e => { if (showMeet !== e.target.checked) toggleMeet(); savePrefs(); };
-};
-$("layersBtn").onclick = openLayers;
-
-// ---- the Meet sheet ----
-let meetTab = "walks", meetFilter = "all", meetPlace = null;
-function openMeet(tab, place) {
-  activeId = null; refreshPins(); refreshBPins(); refreshNPins();
-  if (tab) meetTab = tab;
-  meetPlace = place || null;
-  if (!meet.profile && meetTab !== "profile") meetTab = meetTab === "plan" ? "profile:plan" : meetTab;
-  $("sheetTitle").textContent = "Walk & meet";
-  $("sheetMeta").innerHTML = meet.profile ? `<span>${esc(meet.profile.name)}, ${meet.profile.age}</span><span>${LOOKING[meet.profile.looking]}</span>` : `<span>Meet someone at a Ghent landmark and walk together</span>`;
-  const t = meetTab.split(":")[0];
+// ---- sheets ----
+const bar = (done, total, cls = "") => `<div class="pbar ${cls}"><span style="width:${total ? Math.min(100, (100 * done) / total) : 0}%"></span></div>`;
+function openExplore() {
+  if (!EX) { status("The street list is still loading…"); return; }
+  activeId = null; refreshPins(); refreshBPins(); refreshNPins(); highlightLayer.clearLayers();
+  const t = totals();
+  $("sheetTitle").textContent = "Explore Ghent";
+  $("sheetMeta").innerHTML = `<span>Every street inside the ring</span>`;
+  const hs = EX.hoods.map(h => ({ h, st: hoodStats(h) }))
+    .sort((a, b) => (a.st.complete - b.st.complete) || (b.st.done / b.st.total - a.st.done / a.st.total) || a.h.name.localeCompare(b.h.name));
+  const next = hs.find(x => !x.st.complete && x.st.done > 0) || hs.find(x => !x.st.complete);
   $("sheetBody").innerHTML = `
-    <div class="proto"><b>Prototype.</b> The walkers here are made-up demo profiles and nothing leaves your phone. It shows how meeting up would work before we put it online.</div>
-    <div class="tabs" role="tablist">
-      <button role="tab" data-tab="walks" aria-selected="${t === "walks"}">Walks</button>
-      <button role="tab" data-tab="plan" aria-selected="${t === "plan"}">Plan one</button>
-      <button role="tab" data-tab="mine" aria-selected="${t === "mine"}">Mine</button>
-      <button role="tab" data-tab="profile" aria-selected="${t === "profile"}">Profile</button>
-    </div><div id="meetBody"></div>`;
-  $("sheetBody").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => openMeet(b.dataset.tab));
-  ({ walks: meetWalks, plan: meetPlan, mine: meetMine, profile: meetProfile })[t]();
+    <div class="big-pct"><span>${fmtPct(t.pct)}</span><small>of Ghent explored</small></div>
+    ${bar(t.namesDone, t.names, "big")}
+    <dl class="stats">
+      <div><dt>Streets</dt><dd>${t.namesDone} <small>/ ${t.names}</small></dd></div>
+      <div><dt>Neighbourhoods</dt><dd>${t.hoodsDone} <small>/ ${t.hoods}</small></dd></div>
+      <div><dt>Distance</dt><dd>${(t.lenDone / 1000).toFixed(1)} <small>/ ${(t.len / 1000).toFixed(0)} km</small></dd></div>
+    </dl>
+    ${!t.started ? `<div class="fact">Tap <b>⌖</b> to share your location and start walking. Every street you walk gets coloured in; walk all the streets of a neighbourhood to colour the neighbourhood in. Explore every street inside the ring to become <b>Explorer of Ghent</b>.</div>` : ""}
+    ${next ? `<div class="group-h">Next goal</div><ul class="list"><li><button data-hood="${next.h.id}"><span class="hdot"></span><span class="li-text"><strong>${esc(next.h.name)}</strong><span>${next.st.total - next.st.done} street${next.st.total - next.st.done === 1 ? "" : "s"} left to explore</span></span><span class="dist">${Math.floor(100 * next.st.done / next.st.total)}%</span></button></li></ul>` : ""}
+    ${me ? `<div class="row-actions"><button class="btn primary" id="nearestBtn">Show the nearest unexplored street</button></div>` : ""}
+    <div class="group-h">Achievements · ${Object.keys(exp.ach).filter(k => ACH.some(a => a.id === k)).length} of ${ACH.length}</div>
+    <ul class="achs">${ACH.map(a => `<li class="${exp.ach[a.id] ? "got" : ""}" title="${esc(a.desc)}"><span class="a-icon">${exp.ach[a.id] ? a.icon : "🔒"}</span><span class="li-text"><strong>${esc(a.name)}</strong><span>${esc(a.desc)}${exp.ach[a.id] ? " · " + new Date(exp.ach[a.id]).toLocaleDateString() : ""}</span></span></li>`).join("")}</ul>
+    <div class="group-h">Neighbourhoods</div>
+    <ul class="list">${hs.map(({ h, st }) => `<li><button data-hood="${h.id}"><span class="hdot ${st.complete ? "done" : ""}">${st.complete ? "✓" : ""}</span>
+      <span class="li-text"><strong>${esc(h.name)}</strong>${bar(st.done, st.total)}<span>${st.done} of ${st.total} streets · ${(st.len / 1000).toFixed(1)} km</span></span>
+      <span class="dist">${Math.floor(100 * st.done / Math.max(1, st.total))}%</span></button></li>`).join("")}</ul>
+    <div class="group-h">Your walks</div>
+    <div class="row-actions">
+      <button class="btn" id="gpxBtn">Import GPX track</button>
+      <button class="btn" id="expExport">Back up progress</button>
+      <button class="btn" id="expImport">Restore</button>
+    </div>
+    <label class="layer-row"><span class="li-text"><strong>Keep the screen on</strong><span class="saved" style="display:block">While your location is on, so your walk keeps being recorded</span></span>
+      <span class="switch"><input type="checkbox" id="wakeCb" ${exp.wake ? "checked" : ""} aria-label="Keep the screen on"><span></span></span></label>
+    <p class="saved">Your walk is recorded only while this page is open with your location on. Walks from other apps (Strava, Komoot, Google…) can be imported as GPX. Everything stays on this phone.</p>
+    <div class="row-actions"><button class="btn" id="expReset">Start over</button></div>
+    <p class="saved">${esc(EX.source)} · ${EX.generated || ""}</p>`;
+  const B = $("sheetBody");
+  B.querySelectorAll("[data-hood]").forEach(b => b.onclick = () => openHood(b.dataset.hood));
+  if ($("nearestBtn")) $("nearestBtn").onclick = showNearest;
+  $("gpxBtn").onclick = () => $("gpxFile").click();
+  $("expExport").onclick = exportExp;
+  $("expImport").onclick = () => $("expFile").click();
+  $("wakeCb").onchange = e => { exp.wake = e.target.checked; saveExp(); exp.wake ? keepAwake() : (wakeLock && wakeLock.release(), wakeLock = null); };
+  $("expReset").onclick = e => {
+    if (e.target.dataset.c !== "1") { e.target.dataset.c = "1"; e.target.textContent = "Tap again to erase all progress"; return; }
+    exp = { track: [], manual: [], ach: {}, hoodsDone: {}, streetsDone: {}, wake: exp.wake }; saveExp(true);
+    for (const s of EX.streets) { s.seen.fill(0); s.hits = 0; s.manual = false; }
+    restyle(EX.streets); updateBrand(); openExplore(); status("Progress erased. Ghent is new again.");
+  };
+  B.scrollTop = 0;
+  openSheet();
+}
+function streetsSorted(list) {
+  return list.slice().sort((a, b) => (pieceDone(a) - pieceDone(b)) || (b.hits / b.pts.length - a.hits / a.pts.length) || a.name.localeCompare(b.name, "nl"));
+}
+function openHood(id) {
+  const h = EX.hoods.find(x => x.id === id); if (!h) return;
+  activeId = null; refreshPins(); refreshBPins();
+  const st = hoodStats(h);
+  const ps = streetsSorted(EX.streets.filter(s => s.hood === id));
+  highlightLayer.clearLayers();
+  L.polygon(h.poly, { pane: "hoods", color: css("--accent"), weight: 3, fill: false, interactive: false }).addTo(highlightLayer);
+  $("sheetTitle").textContent = h.name;
+  $("sheetMeta").innerHTML = `<span>Neighbourhood</span><span>${st.complete ? "✓ Explored" + (exp.hoodsDone[id] ? " " + new Date(exp.hoodsDone[id]).toLocaleDateString() : "") : Math.floor(100 * st.done / Math.max(1, st.total)) + "% explored"}</span>`;
+  $("sheetBody").innerHTML = `${bar(st.done, st.total, "big")}
+    <p class="saved" style="margin:6px 0 4px">${st.done} of ${st.total} streets walked · ${(st.lenDone / 1000).toFixed(1)} of ${(st.len / 1000).toFixed(1)} km</p>
+    <ul class="list">${ps.map(s => streetRow(s)).join("")}</ul>
+    <div class="row-actions"><button class="btn" id="backExp">All neighbourhoods</button></div>`;
+  bindStreetRows();
+  $("backExp").onclick = openExplore;
+  map.fitBounds(h.layer.getBounds(), { paddingBottomRight: sheetPad(), paddingTopLeft: [20, 90] });
   $("sheetBody").scrollTop = 0;
   openSheet();
 }
-$("meetBtn").onclick = () => openMeet();
-document.addEventListener("click", e => { const b = e.target.closest("[data-meet]"); if (b) openMeet("plan", b.dataset.meet); });
+function streetRow(s, showHood) {
+  const done = pieceDone(s), pc = Math.floor((100 * s.hits) / s.pts.length);
+  const h = EX.hoods.find(x => x.id === s.hood);
+  return `<li><button data-street="${esc(s.name)}"><span class="sdot ${done ? "done" : started(s) ? "part" : ""}">${done ? "✓" : ""}</span>
+    <span class="li-text"><strong>${esc(s.name)}</strong><span>${done ? "Explored" : started(s) ? pc + "% walked" : "Not walked yet"} · ${fmtDist(s.len)}${showHood && h ? " · " + esc(h.name) : ""}</span></span>
+    ${me ? `<span class="dist">${fmtDist(distToPiece(s))}</span>` : ""}</button></li>`;
+}
+function bindStreetRows() { $("sheetBody").querySelectorAll("[data-street]").forEach(b => b.onclick = () => openStreet(b.dataset.street)); }
+function distToPiece(s) { let m = Infinity; for (const p of s.pts) m = Math.min(m, quickDist(me.lat, me.lng, p[0], p[1])); return m; }
+function sheetPad() { return window.innerWidth >= 760 ? [430, 20] : [20, Math.round(window.innerHeight * 0.55)]; }
 
-function walkerRow(v) {
-  const p = placeOf(v), st = meet.joined[v.id];
-  return `<div class="walker">${ava(v.who)}<div class="w-body">
-    <div class="w-name">${esc(v.who.name)}, ${v.who.age} <span class="badge">${LOOKING[v.who.looking]}</span></div>
-    <div class="w-when">${fmtWhen(v.when)}</div>
-    <div class="w-sub">Meet at <b>${esc(p.name)}</b> · ${THEMES[v.theme]} · about ${v.minutes} min${me ? " · " + fmtDist(distM(me, p)) + " away" : ""}</div>
-    <div class="w-sub">${esc(v.who.about)}${v.note ? ` “${esc(v.note)}”` : ""}</div>
-    <div class="tags">${v.who.likes.map(l => `<span>${LIKES.find(x => x[0] === l)[1]}</span>`).join("")}</div>
+function openStreet(name) {
+  const ps = EX.byName.get(name); if (!ps) return;
+  activeId = null; refreshPins(); refreshBPins();
+  const done = ps.every(pieceDone), hits = ps.reduce((a, s) => a + s.hits, 0), n = ps.reduce((a, s) => a + s.pts.length, 0);
+  const len = ps.reduce((a, s) => a + s.len, 0), manual = ps.some(s => s.manual);
+  highlightLayer.clearLayers();
+  const lines = ps.flatMap(s => s.lines);
+  L.polyline(lines, { color: css("--accent"), weight: 9, opacity: 0.35, interactive: false }).addTo(highlightLayer);
+  const hoods = [...new Set(ps.map(s => s.hood))].map(id => EX.hoods.find(h => h.id === id)).filter(Boolean);
+  $("sheetTitle").textContent = name;
+  $("sheetMeta").innerHTML = `<span>${done ? "✓ Explored" : hits ? Math.floor(100 * hits / n) + "% walked" : "Not walked yet"}</span><span>${fmtDist(len)}</span>${me ? `<span>${fmtDist(Math.min(...ps.map(distToPiece)))} away</span>` : ""}`;
+  $("sheetBody").innerHTML = `${bar(done ? n : hits, n, "big")}
+    <p class="saved" style="margin:6px 0 10px">${done ? (exp.streetsDone[name] ? "Explored on " + new Date(exp.streetsDone[name]).toLocaleDateString() + "." : "Explored.") : `Walk about ${Math.round(DONE_SHARE * 100)}% of it to colour it in.`}${manual ? " Marked by hand." : ""}</p>
+    ${ps.length > 1 ? `<div class="group-h">Parts</div><ul class="list">${ps.map(s => `<li><button data-hood="${s.hood}"><span class="sdot ${pieceDone(s) ? "done" : started(s) ? "part" : ""}">${pieceDone(s) ? "✓" : ""}</span><span class="li-text"><strong>${esc(EX.hoods.find(h => h.id === s.hood)?.name || "")}</strong><span>${fmtDist(s.len)} · ${Math.floor(100 * s.hits / s.pts.length)}% walked</span></span></button></li>`).join("")}</ul>`
+      : `<div class="group-h">Neighbourhood</div><ul class="list">${hoods.map(h => `<li><button data-hood="${h.id}"><span class="hdot ${hoodStats(h).complete ? "done" : ""}"></span><span class="li-text"><strong>${esc(h.name)}</strong><span>${hoodStats(h).done} of ${hoodStats(h).total} streets explored</span></span></button></li>`).join("")}</ul>`}
     <div class="row-actions">
-      ${st === "accepted" ? `<span class="badge ok">✓ You're walking together</span>` : st === "sent" ? `<span class="badge wait">Asked to join…</span>` : `<button class="btn primary" data-join="${v.id}" style="box-shadow:none">Ask to join</button>`}
-      <button class="btn" data-route="${v.id}">See route</button>
-      <button class="btn" data-block="${v.who.id}" aria-label="Block or report ${esc(v.who.name)}">Block / report</button>
-    </div></div></div>`;
-}
-function bindWalkers(B) {
-  B.querySelectorAll("[data-join]").forEach(b => b.onclick = () => {
-    if (!meet.profile) { status("Make a quick profile first", 2500); return openMeet("profile"); }
-    const id = b.dataset.join; meet.joined[id] = "sent"; saveMeet(); openMeet(meetTab, meetPlace);
-    setTimeout(() => { if (meet.joined[id] !== "sent") return; meet.joined[id] = "accepted"; saveMeet(); refreshMeetPins();
-      const v = invites().find(x => x.id === id); status(`${v ? v.who.name : "They"} said yes! See “Mine” for the plan.`, 4000);
-      if ($("sheet").classList.contains("open") && $("sheetTitle").textContent === "Walk & meet") openMeet(meetTab, meetPlace); }, 2500);
-  });
-  B.querySelectorAll("[data-route]").forEach(b => b.onclick = () => showMeetRoute(invites().find(x => x.id === b.dataset.route)));
-  B.querySelectorAll("[data-block]").forEach(b => b.onclick = () => {
-    meet.blocked.push(b.dataset.block); saveMeet(); refreshMeetPins();
-    status("Blocked. You won't see this person again. In the real version a report goes to a moderator.", 4500); openMeet(meetTab, meetPlace);
-  });
-}
-
-function meetWalks() {
-  const B = $("meetBody");
-  let list = invites().filter(v => v.demo).filter(v => meetFilter === "all" || v.who.looking === meetFilter || v.who.looking === "either");
-  if (meetPlace) list = list.filter(v => v.place === meetPlace);
-  list.sort((a, b) => new Date(a.when) - new Date(b.when));
-  B.innerHTML = `
-    <div class="checks" style="margin-bottom:6px">${[["all", "Everyone"], ["date", "Dates"], ["friends", "Walk buddies"]].map(([k, l]) =>
-      `<label><input type="radio" name="mf" value="${k}" ${meetFilter === k ? "checked" : ""}> ${l}</label>`).join("")}</div>
-    ${meetPlace ? `<p class="saved">Walks starting at ${esc(PLACES.find(p => p.id === meetPlace).name)} · <a href="#" id="mAll">show all</a></p>` : ""}
-    ${list.length ? list.map(walkerRow).join("") : `<p class="saved" style="padding:12px 0">No open walks here yet. Plan one yourself and others can join.</p>`}
-    <div class="row-actions"><button class="btn primary" id="mPlan" style="box-shadow:none;background:var(--meet)">♥ Plan your own walk</button></div>`;
-  B.querySelectorAll("input[name=mf]").forEach(r => r.onchange = () => { meetFilter = r.value; meetWalks(); });
-  if ($("mAll")) $("mAll").onclick = e => { e.preventDefault(); openMeet("walks"); };
-  $("mPlan").onclick = () => openMeet("plan", meetPlace);
-  bindWalkers(B);
-}
-
-function meetPlan() {
-  const B = $("meetBody");
-  if (!meet.profile) return meetProfile(true);
-  const def = new Date(); def.setDate(def.getDate() + 1); def.setHours(14, 0, 0, 0);
-  const local = new Date(def - def.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  const sorted = PLACES.slice().sort((a, b) => a.name.localeCompare(b.name));
-  B.innerHTML = `
-    <div class="field"><label for="mp-place">Meeting point</label>
-      <select id="mp-place">${sorted.map(p => `<option value="${p.id}" ${p.id === (meetPlace || "gravensteen") ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select>
-      <span class="saved">Only busy public landmarks, so the first meeting is always somewhere safe.</span></div>
-    <div class="field"><label for="mp-when">When</label><input type="datetime-local" id="mp-when" value="${local}"></div>
-    <div class="field"><label for="mp-len">How long</label><select id="mp-len"><option value="45">Short, about 45 min</option><option value="60" selected>About an hour</option><option value="90">Long, about 1.5 hours</option></select></div>
-    <div class="field"><label for="mp-theme">What to see</label><select id="mp-theme">${Object.entries(THEMES).map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select></div>
-    <div class="field"><label for="mp-note">A line for others (optional)</label><input type="text" id="mp-note" maxlength="120" placeholder="e.g. Ending with a coffee at the Vrijdagmarkt"></div>
-    <div class="row-actions"><button class="btn primary" id="mp-go" style="box-shadow:none;background:var(--meet)">Post this walk</button><button class="btn" id="mp-prev">Preview route</button></div>`;
-  const read = () => ({ id: "inv-me-" + Date.now(), demo: false, who: Object.assign({ id: "me", color: "var(--meet)" }, meet.profile),
-    place: $("mp-place").value, when: new Date($("mp-when").value).toISOString(), minutes: +$("mp-len").value, theme: $("mp-theme").value, note: $("mp-note").value.trim() });
-  $("mp-prev").onclick = () => showMeetRoute(read());
-  $("mp-go").onclick = () => {
-    if (!$("mp-when").value || new Date($("mp-when").value) < new Date()) return status("Pick a time in the future", 2500);
-    const v = read(); meet.mine.push(v); saveMeet(); refreshMeetPins();
-    status("Posted! Others can now ask to join.", 3000); openMeet("mine");
-    // simulate someone asking to join a little later
-    setTimeout(() => {
-      if (!meet.mine.some(x => x.id === v.id) || meet.requests[v.id]) return;
-      const fan = DEMO.find(d => !meet.blocked.includes(d.who.id) && (meet.profile.looking === "either" || d.who.looking === "either" || d.who.looking === meet.profile.looking)) || DEMO[0];
-      meet.requests[v.id] = "asked:" + fan.who.id; saveMeet();
-      status(`${fan.who.name} wants to join your walk`, 4000);
-      if ($("sheetTitle").textContent === "Walk & meet") openMeet(meetTab, meetPlace);
-    }, 5000);
+      <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${ps[0].pts[0][0]},${ps[0].pts[0][1]}">Directions</a>
+      <button class="btn" id="manualBtn">${manual ? "Unmark" : done ? "" : "I walked this before"}</button>
+    </div>`;
+  if (!manual && done) $("manualBtn").remove();
+  else $("manualBtn").onclick = () => {
+    const on = !manual;
+    ps.forEach(s => { s.manual = on; exp.manual = exp.manual.filter(id => id !== s.id); if (on) exp.manual.push(s.id); });
+    saveExp(); restyle(ps); checkProgress(false); openStreet(name);
   };
+  $("sheetBody").querySelectorAll("[data-hood]").forEach(b => b.onclick = () => openHood(b.dataset.hood));
+  map.fitBounds(L.latLngBounds(lines.flat()), { paddingBottomRight: sheetPad(), paddingTopLeft: [20, 90], maxZoom: 18 });
+  $("sheetBody").scrollTop = 0;
+  openSheet();
+}
+function showNearest() {
+  if (!me) return;
+  let best = null, bd = Infinity;
+  for (const s of EX.streets) if (!pieceDone(s)) { const d = distToPiece(s); if (d < bd) { bd = d; best = s; } }
+  if (best) openStreet(best.name); else status("You've explored every street. Ghent is yours!");
+}
+const _closeSheet = closeSheet;
+closeSheet = function () { highlightLayer.clearLayers(); _closeSheet(); };
+$("closeBtn").onclick = closeSheet;
+$("exploreBtn").onclick = openExplore;
+
+// ---- search integration ----
+function exploreSearchItems() {
+  if (!EX) return [];
+  return [...EX.byName.entries()].map(([name, ps]) => {
+    const done = ps.every(pieceDone), hood = EX.hoods.find(h => h.id === ps[0].hood);
+    return { id: "street:" + name, name, sub: `Street · ${done ? "explored" : ps.some(started) ? "partly walked" : "not walked yet"}${hood ? " · " + hood.name : ""}`,
+      lat: ps[0].pts[0][0], lng: ps[0].pts[0][1], dot: "sdot " + (done ? "done" : ps.some(started) ? "part" : ""), label: done ? "✓" : "", open: () => openStreet(name) };
+  }).concat(EX.hoods.map(h => ({ id: "hood:" + h.id, name: h.name, sub: `Neighbourhood · ${hoodStats(h).done} of ${hoodStats(h).total} streets`, lat: h.center[0], lng: h.center[1],
+    dot: "hdot " + (hoodStats(h).complete ? "done" : ""), label: "", open: () => openHood(h.id) })));
 }
 
-function meetMine() {
-  const B = $("meetBody");
-  const joined = invites().filter(v => meet.joined[v.id]);
-  const mine = meet.mine;
-  const myRow = v => {
-    const p = placeOf(v), r = meet.requests[v.id] || "";
-    const fan = r.includes(":") ? DEMO.find(d => d.who.id === r.split(":")[1]).who : null;
-    return `<div class="walker"><span class="ava" style="background:var(--meet)">♥</span><div class="w-body">
-      <div class="w-name">Your walk from ${esc(p.name)}</div>
-      <div class="w-when">${fmtWhen(v.when)}</div>
-      <div class="w-sub">${THEMES[v.theme]} · about ${v.minutes} min${v.note ? ` · “${esc(v.note)}”` : ""}</div>
-      ${fan && r.startsWith("asked") ? `<div class="w-sub" style="margin-top:6px"><b>${esc(fan.name)}, ${fan.age}</b> wants to join. ${esc(fan.about)}</div>` : ""}
-      ${fan && r.startsWith("accepted") ? `<div style="margin-top:6px"><span class="badge ok">✓ Walking with ${esc(fan.name)}</span></div>` : ""}
-      ${!fan ? `<div class="w-sub" style="margin-top:6px">Waiting for someone to ask to join…</div>` : ""}
-      <div class="row-actions">
-        ${fan && r.startsWith("asked") ? `<button class="btn primary" data-acc="${v.id}" style="box-shadow:none">Accept</button><button class="btn" data-dec="${v.id}">Decline</button>` : ""}
-        <button class="btn" data-load="${v.id}">Load into my walk</button>
-        <button class="btn" data-share="${v.id}">Tell a friend</button>
-        <button class="btn" data-del="${v.id}">Cancel walk</button>
-      </div></div></div>`;
-  };
-  const joinedRow = v => walkerRow(v).replace(`<button class="btn" data-route="${v.id}">See route</button>`,
-    `<button class="btn" data-load="${v.id}">Load into my walk</button><button class="btn" data-share="${v.id}">Tell a friend</button>${meet.joined[v.id] ? `<button class="btn" data-leave="${v.id}">Cancel</button>` : ""}`);
-  B.innerHTML = (!joined.length && !mine.length) ? `<p class="saved" style="padding:12px 0">You haven't planned or joined a walk yet.</p>
-      <div class="row-actions"><button class="btn primary" id="mm-walks" style="box-shadow:none">Find a walk to join</button></div>`
-    : `${mine.length ? `<div class="group-h">Walks you posted</div>${mine.map(myRow).join("")}` : ""}
-       ${joined.length ? `<div class="group-h">Walks you joined</div>${joined.map(joinedRow).join("")}` : ""}`;
-  if ($("mm-walks")) $("mm-walks").onclick = () => openMeet("walks");
-  B.querySelectorAll("[data-acc]").forEach(b => b.onclick = () => { meet.requests[b.dataset.acc] = meet.requests[b.dataset.acc].replace("asked", "accepted"); saveMeet(); refreshMeetPins(); openMeet("mine"); });
-  B.querySelectorAll("[data-dec]").forEach(b => b.onclick = () => { delete meet.requests[b.dataset.dec]; saveMeet(); openMeet("mine"); });
-  B.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { meet.mine = meet.mine.filter(v => v.id !== b.dataset.del); delete meet.requests[b.dataset.del]; saveMeet(); refreshMeetPins(); openMeet("mine"); });
-  B.querySelectorAll("[data-leave]").forEach(b => b.onclick = () => { delete meet.joined[b.dataset.leave]; saveMeet(); refreshMeetPins(); openMeet("mine"); });
-  B.querySelectorAll("[data-load]").forEach(b => b.onclick = () => {
-    const v = invites().find(x => x.id === b.dataset.load); if (!v) return;
-    walk.stops = routeFor(v); walk.fromMe = false; walk.back = false; saveWalk(); clearRoute(); updateWalkPill(); openWalk();
-  });
-  B.querySelectorAll("[data-share]").forEach(b => b.onclick = async () => {
-    const v = invites().find(x => x.id === b.dataset.share), p = placeOf(v);
-    const other = v.demo ? v.who.name : "someone from Ghent Walk";
-    const text = `Heads-up: I'm meeting ${other} for a walk. ${fmtWhen(v.when)} at ${p.name}, Ghent (about ${v.minutes} min). https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lng}#map=18/${p.lat}/${p.lng}`;
-    try { if (navigator.share) await navigator.share({ text }); else { await navigator.clipboard.writeText(text); status("Copied. Paste it to a friend.", 2500); } } catch (e) {}
-  });
-  bindWalkers(B);
+// ---- GPX import and progress backup ----
+$("gpxFile").onchange = async e => {
+  const files = [...e.target.files]; e.target.value = ""; if (!files.length || !EX) return;
+  let pts = 0; const changed = new Set();
+  for (const f of files) {
+    try {
+      const doc = new DOMParser().parseFromString(await f.text(), "application/xml");
+      const segs = [...doc.querySelectorAll("trkseg, rte")];
+      for (const seg of segs.length ? segs : [doc]) {
+        let prev = null; exp.track.push([]);
+        for (const n of seg.querySelectorAll("trkpt, rtept")) {
+          const p = [parseFloat(n.getAttribute("lat")), parseFloat(n.getAttribute("lon"))];
+          if (!isFinite(p[0]) || !isFinite(p[1])) continue;
+          if (RING && !inRing({ lat: p[0], lng: p[1] })) { prev = null; continue; }
+          if (prev && quickDist(prev[0], prev[1], p[0], p[1]) < 150) visitLine(prev, p, changed); else visitPoint(p[0], p[1], changed);
+          remember(p[0], p[1], !prev && exp.track[exp.track.length - 1].length > 0);
+          prev = p; pts++;
+        }
+      }
+    } catch (err) {}
+  }
+  exp.track = exp.track.filter(s => s.length);
+  saveExp(true);
+  if (!pts) { status("No track points inside the ring found in that file.", 5000); return; }
+  restyle(changed); checkProgress(false);
+  status(`Imported ${pts} track points · ${[...changed].filter(pieceDone).length} street parts explored`, 5000);
+  if ($("sheet").classList.contains("open")) openExplore();
+};
+function exportExp() {
+  const blob = new Blob([JSON.stringify({ app: "walking-gent", kind: "explore", version: 1, exported: new Date().toISOString(), ...exp })], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `ghent-explore-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
+$("expFile").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const j = JSON.parse(await f.text());
+    if (j.kind !== "explore" || !Array.isArray(j.track)) throw 0;
+    exp.track = exp.track.concat(j.track);
+    exp.manual = [...new Set([...exp.manual, ...(j.manual || [])])];
+    for (const k of ["ach", "hoodsDone", "streetsDone"]) for (const id in j[k] || {}) exp[k][id] = Math.min(exp[k][id] || Infinity, j[k][id]);
+    replayTrack(); EX.streets.forEach(s => (s.manual = exp.manual.includes(s.id)));
+    saveExp(true); restyle(EX.streets); checkProgress(true); openExplore(); status("Progress restored");
+  } catch (err) { status("That file isn't a Ghent Walk progress backup."); }
+};
 
-function meetProfile(thenPlan) {
-  const B = $("meetBody"), pr = meet.profile || { name: "", age: "", looking: "either", likes: [], about: "" };
-  B.innerHTML = `
-    ${meet.profile ? "" : `<p style="line-height:1.6;margin-top:0">Make a short profile so others know who they're walking with.</p>`}
-    <div class="field"><label for="pf-name">First name</label><input type="text" id="pf-name" maxlength="30" value="${esc(pr.name)}"></div>
-    <div class="field"><label for="pf-age">Age</label><input type="number" id="pf-age" min="18" max="99" inputmode="numeric" value="${esc(String(pr.age))}"></div>
-    <div class="field"><label for="pf-look">Looking for</label><select id="pf-look">${Object.entries(LOOKING).map(([k, l]) => `<option value="${k}" ${pr.looking === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
-    <div class="field"><span class="lbl">I like</span><div class="checks">${LIKES.map(([k, l]) => `<label><input type="checkbox" value="${k}" ${pr.likes.includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div></div>
-    <div class="field"><label for="pf-about">About me</label><textarea id="pf-about" maxlength="200" placeholder="One or two lines">${esc(pr.about)}</textarea></div>
-    <h3 class="sec">Meeting safely</h3>
-    <ul class="safety"><li>First meetings are always at a busy public landmark, in daylight or on lit streets.</li><li>Tell a friend where and when; the app can send them the plan.</li><li>Your exact location is never shown to other walkers.</li><li>Block or report anyone, at any time.</li></ul>
-    <div class="checks" style="margin-bottom:12px"><label><input type="checkbox" id="pf-ok" ${meet.profile ? "checked" : ""}> I'm 18 or older and agree to meet only in public places</label></div>
-    <div class="row-actions"><button class="btn primary" id="pf-save" style="box-shadow:none;background:var(--meet)">${meet.profile ? "Save profile" : "Create profile"}</button>
-      ${meet.profile ? `<button class="btn" id="pf-reset">Delete my profile & walks</button>` : ""}</div>`;
-  $("pf-save").onclick = () => {
-    const name = $("pf-name").value.trim(), age = +$("pf-age").value;
-    if (!name) return status("Add your first name", 2500);
-    if (!(age >= 18 && age <= 99)) return status("Walk & meet is for people aged 18 and over", 3000);
-    if (!$("pf-ok").checked) return status("Please tick the safety agreement", 2500);
-    const fresh = !meet.profile;
-    meet.profile = { name, age, looking: $("pf-look").value, likes: [...B.querySelectorAll(".checks input[value]:checked")].map(x => x.value), about: $("pf-about").value.trim() };
-    saveMeet(); status("Profile saved", 2000);
-    openMeet(thenPlan === true || meetTab === "profile:plan" ? "plan" : fresh ? "walks" : "profile", meetPlace);
-  };
-  if ($("pf-reset")) $("pf-reset").onclick = () => { meet = { profile: null, mine: [], joined: {}, blocked: [], requests: {} }; saveMeet(); refreshMeetPins(); openMeet("profile"); };
-}
+// ---- layers ----
+function toggleStreets() { showStreets = !showStreets; showStreets ? streetLayer.addTo(map) : map.removeLayer(streetLayer); }
+function toggleHoods() { showHoods = !showHoods; showHoods ? hoodLayer.addTo(map) : map.removeLayer(hoodLayer); syncLabels(); }
+LAYERS.unshift(
+  { key: "streets", group: "Explore", label: "Streets", sub: () => EX ? `${totals().namesDone} of ${EX.byName.size} explored · grey = not walked yet` : "Loading…", dot: "sdot done", on: () => showStreets, flip: toggleStreets },
+  { key: "hoods", group: "Explore", label: "Neighbourhoods", sub: () => EX ? `${totals().hoodsDone} of ${EX.hoods.length} explored · filled in when complete` : "Loading…", dot: "hdot done", on: () => showHoods, flip: toggleHoods },
+);
+(function () {
+  let p = null; try { p = JSON.parse(localStorage.getItem(PREF_KEY) || "null"); } catch (e) {}
+  if (p && p.streets === false) toggleStreets();
+  if (p && p.hoods === false) toggleHoods();
+})();
 
-// Preview an invite's route on the map (dashed, rose), without touching your own walk.
-const meetRouteLayer = L.layerGroup().addTo(map);
-function showMeetRoute(v) {
-  if (!v) return;
-  const stops = routeFor(v);
-  meetRouteLayer.clearLayers();
-  L.polyline(stops.map(s => [s.lat, s.lng]), { color: getComputedStyle(document.documentElement).getPropertyValue("--meet").trim() || "#c2417a", weight: 4, dashArray: "6 8", opacity: .9 }).addTo(meetRouteLayer);
-  stops.forEach((s, i) => L.marker([s.lat, s.lng], { icon: L.divIcon({ className: "", html: `<div class="stopnum" style="background:var(--meet)">${i ? i : "♥"}</div>`, iconSize: [26, 26], iconAnchor: [13, 13] }), title: s.name }).addTo(meetRouteLayer));
-  closeSheet();
-  map.fitBounds(L.latLngBounds(stops.map(s => [s.lat, s.lng])).pad(0.3));
-  status(`${stops.length} stops: ${stops.map(s => s.name).join(" → ")}`, 6000);
-  setTimeout(() => meetRouteLayer.clearLayers(), 60000);
-}
-
-ringReady.then(refreshMeetPins);
+// ---- load ----
+const exploreReady = ringReady.then(() => fetch("data/streets.json", { cache: "no-cache" })).then(r => (r.ok ? r.json() : null)).then(j => {
+  if (!j || !j.streets || !j.streets.length) { status("Couldn't load the list of streets.", 6000); return; }
+  const hoods = j.hoods.filter(h => h.poly && h.poly.length);
+  const streets = j.streets.map((s, i) => ({ ...s, idx: i, seen: new Uint8Array(s.pts.length), hits: 0, manual: exp.manual.includes(s.id) }));
+  const byName = new Map();
+  for (const s of streets) { if (!byName.has(s.name)) byName.set(s.name, []); byName.get(s.name).push(s); }
+  const grid = new Map();
+  streets.forEach((s, si) => s.pts.forEach((p, pi) => {
+    const k = gkey(p[0], p[1]); let c = grid.get(k); if (!c) grid.set(k, (c = [])); c.push(si, pi);
+  }));
+  EX = { hoods, streets, byName, grid, source: j.source, generated: j.generated };
+  replayTrack();
+  drawExplore();
+  checkProgress(true);
+  if (!exp.seenIntro) { exp.seenIntro = true; saveExp(); setTimeout(openExplore, 600); }
+}).catch(err => { console.error(err); status("Couldn't load the list of streets.", 6000); });
 </script>
 </body>
 </html>
