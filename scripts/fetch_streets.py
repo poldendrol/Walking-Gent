@@ -16,7 +16,10 @@ from collections import defaultdict
 
 from pyproj import Transformer
 from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon, shape, mapping
-from shapely.ops import linemerge, transform, unary_union, voronoi_diagram
+from shapely.ops import linemerge, unary_union, voronoi_diagram
+from shapely.ops import transform  # noqa: E402  (deprecated in shapely 2.1 but still fine)
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 UA = "walking-gent-builder/1.0 (+https://github.com/poldendrol/Walking-Gent)"
 OUT = "data/streets.json"
@@ -245,6 +248,50 @@ def r5(x):
     return round(x, 5)
 
 
+def build_pieces(by_name, hoods, clip_m):
+    pieces = []
+    for name, lines in by_name.items():
+        u = unary_union(lines)
+        geom = (linemerge(u) if u.geom_type == "MultiLineString" else u).intersection(clip_m)
+        if geom.is_empty or geom.length < MIN_PIECE:
+            continue
+        per_hood = []
+        for hn, hg in hoods:
+            part = geom.intersection(hg)
+            parts = [p for p in getattr(part, "geoms", [part]) if isinstance(p, LineString) and p.length > 0.5]
+            if parts:
+                per_hood.append([hn, parts, sum(p.length for p in parts)])
+        if not per_hood:
+            continue
+        per_hood.sort(key=lambda x: -x[2])
+        main_h = per_hood[0]
+        for ph in per_hood[1:]:
+            if ph[2] < SMALL_PIECE:                    # tiny spill-over: belongs to the main neighbourhood
+                main_h[1] += ph[1]
+                main_h[2] += ph[2]
+                ph[2] = 0
+        for hn, parts, length in per_hood:
+            if length < MIN_PIECE:
+                continue
+            merged = linemerge(MultiLineString(parts)) if len(parts) > 1 else parts[0]
+            lines = [l for l in getattr(merged, "geoms", [merged]) if l.length > 0.5]
+            pts = []
+            for l in lines:
+                for p in sample(l):
+                    q = to_ll(p.x, p.y)
+                    pts.append([r5(q[1]), r5(q[0])])
+            # drop duplicate sample points where lines meet
+            seen, uniq = set(), []
+            for p in pts:
+                if (p[0], p[1]) not in seen:
+                    seen.add((p[0], p[1]))
+                    uniq.append(p)
+            lls = [[[r5(c[1]), r5(c[0])] for c in m2ll(l.simplify(1.5)).coords] for l in lines]
+            pieces.append({"name": name, "hood": hn, "len": round(length), "lines": lls, "pts": uniq})
+
+    return pieces
+
+
 def main():
     ring, ring_ll = load_ring()
     ring_m = ll2m(ring_ll)
@@ -294,45 +341,19 @@ def main():
         if name not in by_name:
             by_name[name] = [LineString(p.exterior.coords) for p in polys]
 
-    pieces = []
-    for name, lines in by_name.items():
-        u = unary_union(lines)
-        geom = (linemerge(u) if u.geom_type == "MultiLineString" else u).intersection(clip_m)
-        if geom.is_empty or geom.length < MIN_PIECE:
-            continue
-        per_hood = []
-        for hn, hg in hoods:
-            part = geom.intersection(hg)
-            parts = [p for p in getattr(part, "geoms", [part]) if isinstance(p, LineString) and p.length > 0.5]
-            if parts:
-                per_hood.append([hn, parts, sum(p.length for p in parts)])
-        if not per_hood:
-            continue
-        per_hood.sort(key=lambda x: -x[2])
-        main_h = per_hood[0]
-        for ph in per_hood[1:]:
-            if ph[2] < SMALL_PIECE:                    # tiny spill-over: belongs to the main neighbourhood
-                main_h[1] += ph[1]
-                main_h[2] += ph[2]
-                ph[2] = 0
-        for hn, parts, length in per_hood:
-            if length < MIN_PIECE:
-                continue
-            merged = linemerge(MultiLineString(parts)) if len(parts) > 1 else parts[0]
-            lines = [l for l in getattr(merged, "geoms", [merged]) if l.length > 0.5]
-            pts = []
-            for l in lines:
-                for p in sample(l):
-                    q = to_ll(p.x, p.y)
-                    pts.append([r5(q[1]), r5(q[0])])
-            # drop duplicate sample points where lines meet
-            seen, uniq = set(), []
-            for p in pts:
-                if (p[0], p[1]) not in seen:
-                    seen.add((p[0], p[1]))
-                    uniq.append(p)
-            lls = [[[r5(c[1]), r5(c[0])] for c in m2ll(l.simplify(1.5)).coords] for l in lines]
-            pieces.append({"name": name, "hood": hn, "len": round(length), "lines": lls, "pts": uniq})
+    MIN_HOOD = 1500      # metres of street: smaller neighbourhood slivers join a neighbour
+    while True:
+        pieces = build_pieces(by_name, hoods, clip_m)
+        lens = defaultdict(float)
+        for pc in pieces:
+            lens[pc["hood"]] += pc["len"]
+        small = min(hoods, key=lambda h: lens.get(h[0], 0))
+        if lens.get(small[0], 0) >= MIN_HOOD or len(hoods) < 3:
+            break
+        others = [h for h in hoods if h is not small]
+        best = max(others, key=lambda h: h[1].buffer(3).intersection(small[1].buffer(3)).area)
+        print(f"merging {small[0]} ({lens.get(small[0], 0):.0f} m of street) into {best[0]}", file=sys.stderr)
+        hoods = [(n, unary_union([g, small[1]]).buffer(0.5).buffer(-0.5) if n == best[0] else g) for n, g in others]
 
     # stable, readable ids
     hood_names = sorted({p["hood"] for p in pieces})
