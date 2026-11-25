@@ -1,0 +1,27 @@
+name: Update streets data
+
+on:
+  workflow_dispatch:
+  push:
+    paths: [scripts/fetch_streets.py, .github/workflows/update-streets.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install shapely pyproj
+      - run: python scripts/fetch_streets.py
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/streets.json
+          git diff --cached --quiet || git commit -m "Update streets inside the ring from OpenStreetMap"
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"
